@@ -1,4 +1,4 @@
-import keycloak from '../keycloak';
+import keycloak from '../js/keycloak';
 
 function Login() {
   const handleLogin = () => {
