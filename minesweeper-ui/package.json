@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node ./scripts/vite.js",
+    "build": "node ./scripts/vite.js build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "node ./scripts/vite.js preview"
   },
   "dependencies": {
     "keycloak-js": "^26.2.0",
