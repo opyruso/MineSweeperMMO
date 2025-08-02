@@ -1,13 +1,15 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import { webcrypto } from 'node:crypto'
 
-// Ensure Web Crypto API is available during the Vite build.
+// Polyfill Web Crypto API before importing Vite.
 if (!globalThis.crypto?.getRandomValues) {
   globalThis.crypto = webcrypto
 }
+
+const { defineConfig } = await import('vite')
+const { default: react } = await import('@vitejs/plugin-react')
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
 })
+
