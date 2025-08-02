@@ -1,1 +1,2 @@
 # MineSweeperMMO
+Workflow configured
