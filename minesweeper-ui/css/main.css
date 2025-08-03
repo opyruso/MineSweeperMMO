@@ -36,6 +36,13 @@ h1 {
   z-index: 10;
 }
 
+.settings-page,
+.login-page {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .settings-page {
   display: flex;
   flex-direction: column;
@@ -43,6 +50,7 @@ h1 {
   align-items: center;
   height: 100vh;
   position: relative;
+  background-image: url("../images/images_background_parameters.png");
 }
 
 .language-selection {
@@ -82,6 +90,7 @@ button:active {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-image: url("../images/images_background_login.png");
 }
 
 .logout-container {
@@ -113,4 +122,15 @@ button:active {
   background: #000;
   color: #fff;
   font-size: 2rem;
+}
+
+.sound-toggle-container {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.sound-toggle {
+  font-size: 3rem;
+  color: inherit;
 }

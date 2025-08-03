@@ -6,6 +6,8 @@ mkdirSync('dist', { recursive: true });
 cpSync('public', 'dist', { recursive: true });
 cpSync('js', 'dist/js', { recursive: true });
 cpSync('css', 'dist/css', { recursive: true });
+cpSync('images', 'dist/images', { recursive: true });
+cpSync('sounds', 'dist/sounds', { recursive: true });
 
 const env = (process.env.CONFIG_ENV || 'dev').toLowerCase();
 const cfg = `config/${env}.js`;

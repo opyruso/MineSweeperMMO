@@ -5,6 +5,8 @@ import { LangProvider, LangContext } from '/js/i18n.js';
 function App() {
   const [keycloak, setKeycloak] = React.useState(null);
   const [authenticated, setAuthenticated] = React.useState(false);
+  const [soundsOn, setSoundsOn] = React.useState(true);
+  const soundsOnRef = React.useRef(soundsOn);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -22,9 +24,28 @@ function App() {
       });
   }, []);
 
+  React.useEffect(() => {
+    const clickSounds = ['sound_click_1.mp3', 'sound_click_2.mp3'];
+    const handleClick = () => {
+      if (!soundsOnRef.current) return;
+      const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+      new Audio(`sounds/${sound}`).play();
+    };
+    window.addEventListener('click', handleClick, true);
+    return () => {
+      window.removeEventListener('click', handleClick, true);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    soundsOnRef.current = soundsOn;
+  }, [soundsOn]);
+
   if (!keycloak) {
     return null;
   }
+
+  const toggleSounds = () => setSoundsOn((s) => !s);
 
   const login = () => keycloak.login({ idpHint: 'google' });
 
@@ -53,6 +74,8 @@ function App() {
               <SettingsPage
                 authenticated={authenticated}
                 onLogout={() => keycloak.logout()}
+                soundsOn={soundsOn}
+                toggleSounds={toggleSounds}
               />
             }
           />
@@ -111,7 +134,7 @@ function LoginPage({ onLogin }) {
   );
 }
 
-function SettingsPage({ authenticated, onLogout }) {
+function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   return (
     <div className="settings-page">
@@ -127,6 +150,11 @@ function SettingsPage({ authenticated, onLogout }) {
           onClick={() => changeLang('fr')}
         >
           <span className="fi fi-fr"></span>
+        </button>
+      </div>
+      <div className="sound-toggle-container">
+        <button className="sound-toggle" onClick={toggleSounds} aria-label="Toggle sound">
+          <i className={`fa-solid ${soundsOn ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
         </button>
       </div>
       {authenticated && (
