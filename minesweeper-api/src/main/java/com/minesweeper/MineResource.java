@@ -90,6 +90,6 @@ public class MineResource {
         if (exploded != null && Boolean.TRUE.equals(exploded.getExploded())) {
             return new MineInfo(exploded.getId(), exploded.getX(), exploded.getY(), "explosed");
         }
-        return new MineInfo(null, request.x(), request.y(), "cleared");
+        return new MineInfo(null, request.x(), request.y(), "wrong");
     }
 }

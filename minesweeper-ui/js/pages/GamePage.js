@@ -92,7 +92,7 @@ export default function GamePage({ keycloak }) {
       ctx.fillRect(px, py, cellSize, cellSize);
     }
 
-    if (selected && selected.scan) {
+    if (selected && selected.scan && selected.showArea) {
       const s = selected.scan;
       const px = (s.x - left + 0.5) * cellSize;
       const py = (s.y - top + 0.5) * cellSize;
@@ -238,7 +238,12 @@ export default function GamePage({ keycloak }) {
       const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
       const scan = scans.find((s) => s.x === x && s.y === y);
       const mine = mines.find((m) => m.x === x && m.y === y);
-      setSelected({ x, y, scan, mine });
+      setSelected((prev) => {
+        if (prev && prev.x === x && prev.y === y && scan) {
+          return { ...prev, scan, mine, showArea: !prev.showArea };
+        }
+        return { x, y, scan, mine, showArea: scan ? true : false };
+      });
       if (scan) setScanRange(scan.scanRange);
       console.log({ x, y, scan, mine });
     }
@@ -323,7 +328,13 @@ export default function GamePage({ keycloak }) {
           ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
           res,
         ]);
-        setSelected((prev) => ({ x: res.x, y: res.y, scan: res, mine: prev.mine }));
+        setSelected((prev) => ({
+          x: res.x,
+          y: res.y,
+          scan: res,
+          mine: prev.mine,
+          showArea: true,
+        }));
         setScanRange(res.scanRange ?? 1);
         requestAnimationFrame(draw);
       });
@@ -345,8 +356,33 @@ export default function GamePage({ keycloak }) {
     })
       .then((r) => r.json())
       .then((res) => {
-        setMines((prev) => [...prev, res]);
-        setSelected((prev) => ({ x: res.x, y: res.y, scan: prev.scan, mine: res }));
+        if (res.status === 'wrong') {
+          const scan = {
+            id: null,
+            playerId: keycloak.tokenParsed.sub,
+            x: res.x,
+            y: res.y,
+            scanDate: new Date().toISOString(),
+            scanRange: 0,
+            mineCount: 0,
+          };
+          setScans((prev) => [
+            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+            scan,
+          ]);
+          setSelected({ x: res.x, y: res.y, scan, mine: null, showArea: true });
+          setScanRange(0);
+          requestAnimationFrame(draw);
+        } else {
+          setMines((prev) => [...prev, res]);
+          setSelected((prev) => ({
+            x: res.x,
+            y: res.y,
+            scan: prev.scan,
+            mine: res,
+            showArea: prev.showArea,
+          }));
+        }
       });
   };
 
