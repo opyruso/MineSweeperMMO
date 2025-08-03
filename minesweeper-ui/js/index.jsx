@@ -5,9 +5,8 @@ import { LangProvider, LangContext } from '/js/i18n.js';
 function App() {
   const [keycloak, setKeycloak] = React.useState(null);
   const [authenticated, setAuthenticated] = React.useState(false);
-  const [musicOn, setMusicOn] = React.useState(true);
-  const musicRef = React.useRef(null);
-  const musicOnRef = React.useRef(musicOn);
+  const [soundsOn, setSoundsOn] = React.useState(true);
+  const soundsOnRef = React.useRef(soundsOn);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -26,19 +25,11 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    musicRef.current = window.backgroundMusic || new Audio('sounds/sound_background.mp3');
-    musicRef.current.loop = true;
-    musicRef.current.volume = 0.01;
-    if (musicOnRef.current) {
-      musicRef.current.play().catch(() => {});
-    }
     const clickSounds = ['sound_click_1.mp3', 'sound_click_2.mp3'];
     const handleClick = () => {
+      if (!soundsOnRef.current) return;
       const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
       new Audio(`sounds/${sound}`).play();
-      if (musicOnRef.current && musicRef.current.paused) {
-        musicRef.current.play();
-      }
     };
     window.addEventListener('click', handleClick, true);
     return () => {
@@ -47,20 +38,14 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    musicOnRef.current = musicOn;
-    if (!musicRef.current) return;
-    if (musicOn) {
-      musicRef.current.play().catch(() => {});
-    } else {
-      musicRef.current.pause();
-    }
-  }, [musicOn]);
+    soundsOnRef.current = soundsOn;
+  }, [soundsOn]);
 
   if (!keycloak) {
     return null;
   }
 
-  const toggleMusic = () => setMusicOn((m) => !m);
+  const toggleSounds = () => setSoundsOn((s) => !s);
 
   const login = () => keycloak.login({ idpHint: 'google' });
 
@@ -89,8 +74,8 @@ function App() {
               <SettingsPage
                 authenticated={authenticated}
                 onLogout={() => keycloak.logout()}
-                musicOn={musicOn}
-                toggleMusic={toggleMusic}
+                soundsOn={soundsOn}
+                toggleSounds={toggleSounds}
               />
             }
           />
@@ -149,7 +134,7 @@ function LoginPage({ onLogin }) {
   );
 }
 
-function SettingsPage({ authenticated, onLogout, musicOn, toggleMusic }) {
+function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   return (
     <div className="settings-page">
@@ -167,9 +152,9 @@ function SettingsPage({ authenticated, onLogout, musicOn, toggleMusic }) {
           <span className="fi fi-fr"></span>
         </button>
       </div>
-      <div className="music-toggle-container">
-        <button className="music-toggle" onClick={toggleMusic} aria-label="Toggle music">
-          <i className={`fa-solid ${musicOn ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
+      <div className="sound-toggle-container">
+        <button className="sound-toggle" onClick={toggleSounds} aria-label="Toggle sound">
+          <i className={`fa-solid ${soundsOn ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
         </button>
       </div>
       {authenticated && (

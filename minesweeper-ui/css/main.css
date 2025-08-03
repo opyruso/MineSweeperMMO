@@ -124,13 +124,13 @@ button:active {
   font-size: 2rem;
 }
 
-.music-toggle-container {
+.sound-toggle-container {
   position: absolute;
   top: 1rem;
   left: 1rem;
 }
 
-.music-toggle {
+.sound-toggle {
   font-size: 3rem;
   color: inherit;
 }
