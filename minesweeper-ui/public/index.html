@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
   </head>
   <body>
+    <div id="loading-screen">Loading...</div>
     <div id="root"></div>
     <script src="config.js"></script>
     <script src="vendor/babel.min.js"></script>
@@ -25,5 +26,11 @@
       window.Keycloak = Keycloak;
     </script>
     <script type="text/babel" data-presets="react" data-type="module" src="js/index.jsx"></script>
+    <script>
+      window.addEventListener('load', function () {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('root').style.display = 'block';
+      });
+    </script>
   </body>
 </html>
