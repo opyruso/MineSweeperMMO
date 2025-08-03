@@ -156,14 +156,68 @@ function Home({ keycloak }) {
 
 function CreateGameForm() {
   const { t } = React.useContext(LangContext);
+  const [show, setShow] = React.useState(false);
+  const [form, setForm] = React.useState({ title: '', x: '', y: '', endDate: '' });
+
+  const open = () => setShow(true);
+  const close = () => setShow(false);
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, { method: 'POST' });
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.title,
+        x: Number(form.x),
+        y: Number(form.y),
+        endDate: form.endDate,
+      }),
+    }).then(close);
   };
+
   return (
-    <form onSubmit={handleSubmit} className="create-game-form">
-      <button type="submit">{t.createGame}</button>
-    </form>
+    <div className="create-game-form">
+      <button className="main-button" onClick={open}>
+        {t.createGame}
+      </button>
+      {show && (
+        <div className="modal-overlay">
+          <form className="modal" onSubmit={handleSubmit}>
+            <label>
+              {t.gameTitleLabel}
+              <input name="title" value={form.title} onChange={handleChange} />
+            </label>
+            <label>
+              {t.x}
+              <input name="x" value={form.x} onChange={handleChange} />
+            </label>
+            <label>
+              {t.y}
+              <input name="y" value={form.y} onChange={handleChange} />
+            </label>
+            <label>
+              {t.endDate}
+              <input
+                name="endDate"
+                type="datetime-local"
+                value={form.endDate}
+                onChange={handleChange}
+              />
+            </label>
+            <div className="modal-actions">
+              <button type="submit" className="main-button">
+                {t.create}
+              </button>
+              <button type="button" className="main-button" onClick={close}>
+                {t.cancel}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
   );
 }
 

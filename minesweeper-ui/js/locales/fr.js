@@ -7,5 +7,11 @@ export default {
   "english": "Anglais",
   "french": "Fran\u00E7ais",
   "noGame": "Aucune partie en cours pour le moment...",
-  "createGame": "Cr\u00E9er une partie"
+  "createGame": "Cr\u00E9er une partie",
+  "gameTitleLabel": "Titre",
+  "x": "X",
+  "y": "Y",
+  "endDate": "Date de fin",
+  "create": "Cr\u00E9er",
+  "cancel": "Annuler"
 };
