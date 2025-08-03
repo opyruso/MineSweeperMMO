@@ -28,19 +28,21 @@ function App() {
   React.useEffect(() => {
     musicRef.current = new Audio('sounds/sound_background.mp3');
     musicRef.current.loop = true;
-    musicRef.current.volume = 0.1;
+    musicRef.current.volume = 0.03;
     if (musicOnRef.current) {
       musicRef.current.play().catch(() => {});
     }
+    const clickSounds = ['sound_click_1.mp3', 'sound_click_2.mp3'];
     const handleClick = () => {
-      new Audio('sounds/sound_click_2.mp3').play();
+      const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+      new Audio(`sounds/${sound}`).play();
       if (musicOnRef.current && musicRef.current.paused) {
         musicRef.current.play();
       }
     };
-    window.addEventListener('click', handleClick);
+    window.addEventListener('click', handleClick, true);
     return () => {
-      window.removeEventListener('click', handleClick);
+      window.removeEventListener('click', handleClick, true);
     };
   }, []);
 
