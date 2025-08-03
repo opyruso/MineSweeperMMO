@@ -270,14 +270,6 @@ button:active {
   touch-action: none;
 }
 
-.zoom-slider {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
-  width: 80vh;
-}
-
 .info-panel {
   position: absolute;
   right: 1rem;

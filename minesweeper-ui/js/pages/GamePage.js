@@ -6,6 +6,8 @@ export default function GamePage({ keycloak }) {
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
   const dragRef = React.useRef(null);
+  const pointers = React.useRef(new Map());
+  const pinchRef = React.useRef(null);
   const [game, setGame] = React.useState(null);
   const [scans, setScans] = React.useState([]);
   const [mines, setMines] = React.useState([]);
@@ -104,6 +106,18 @@ export default function GamePage({ keycloak }) {
   }, [draw]);
 
   const handlePointerMove = (e) => {
+    if (pinchRef.current) {
+      e.preventDefault();
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const pts = Array.from(pointers.current.values());
+      if (pts.length === 2) {
+        const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        const delta = Math.log2(dist / pinchRef.current.startDist);
+        const next = Math.round(pinchRef.current.startZoom + delta);
+        setZoom(Math.max(-3, Math.min(6, next)));
+      }
+      return;
+    }
     if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return;
     e.preventDefault();
     const cellSize = Math.pow(2, zoom);
@@ -117,17 +131,34 @@ export default function GamePage({ keycloak }) {
 
   const endDrag = () => {
     const canvas = canvasRef.current;
-    if (dragRef.current && canvas && canvas.hasPointerCapture(dragRef.current.pointerId)) {
-      canvas.releasePointerCapture(dragRef.current.pointerId);
+    if (canvas) {
+      for (const id of pointers.current.keys()) {
+        if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+      }
     }
     window.removeEventListener('pointermove', handlePointerMove);
     window.removeEventListener('pointerup', handlePointerUp);
     window.removeEventListener('pointercancel', handlePointerUp);
     dragRef.current = null;
+    pinchRef.current = null;
+    pointers.current.clear();
   };
 
   const handlePointerUp = (e) => {
-    if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return;
+    pointers.current.delete(e.pointerId);
+    if (pinchRef.current) {
+      if (pointers.current.size < 2) {
+        pinchRef.current = null;
+      }
+      if (pointers.current.size === 0) {
+        endDrag();
+      }
+      return;
+    }
+    if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) {
+      if (pointers.current.size === 0) endDrag();
+      return;
+    }
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
     if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
@@ -147,19 +178,35 @@ export default function GamePage({ keycloak }) {
 
   const handlePointerDown = (e) => {
     e.preventDefault();
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startCenter: { ...center },
-      pointerId: e.pointerId,
-    };
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.setPointerCapture(e.pointerId);
     }
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerup', handlePointerUp);
-    window.addEventListener('pointercancel', handlePointerUp);
+    if (pointers.current.size === 2) {
+      const pts = Array.from(pointers.current.values());
+      pinchRef.current = {
+        startDist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        startZoom: zoom,
+      };
+      dragRef.current = null;
+    } else if (pointers.current.size === 1) {
+      dragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startCenter: { ...center },
+        pointerId: e.pointerId,
+      };
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
+    }
+  };
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const dir = -Math.sign(e.deltaY);
+    setZoom((z) => Math.max(-3, Math.min(6, z + dir)));
   };
 
   const handleScan = () => {
@@ -216,16 +263,8 @@ export default function GamePage({ keycloak }) {
         ref={canvasRef}
         className="game-canvas"
         onPointerDown={handlePointerDown}
+        onWheel={handleWheel}
       ></canvas>
-      <input
-        className="zoom-slider"
-        type="range"
-        min="-3"
-        max="6"
-        value={zoom}
-        onChange={(e) => setZoom(Number(e.target.value))}
-        orient="vertical"
-      />
       {selected && (
         <div className="info-panel">
           <p>{t.x}: {selected.x}</p>
