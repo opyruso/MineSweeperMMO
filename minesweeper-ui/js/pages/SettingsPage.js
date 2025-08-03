@@ -1,4 +1,4 @@
-import { LangContext } from '/js/i18n.js';
+import { LangContext } from '../i18n.js';
 
 export default function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
   const { lang, changeLang, t } = React.useContext(LangContext);

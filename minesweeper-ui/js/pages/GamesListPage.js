@@ -1,5 +1,5 @@
 const { Link } = ReactRouterDOM;
-import { LangContext } from '/js/i18n.js';
+import { LangContext } from '../i18n.js';
 
 export default function GamesListPage({ keycloak }) {
   const { t } = React.useContext(LangContext);

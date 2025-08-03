@@ -1,4 +1,4 @@
-import { LangContext } from '/js/i18n.js';
+import { LangContext } from '../i18n.js';
 
 export default function LoginPage({ onLogin }) {
   const { t } = React.useContext(LangContext);
