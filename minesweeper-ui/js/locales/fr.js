@@ -9,8 +9,8 @@ export default {
   "noGame": "Aucune partie en cours pour le moment...",
   "createGame": "Cr\u00E9er une partie",
   "gameTitleLabel": "Titre",
-  "x": "X",
-  "y": "Y",
+  "width": "Largeur",
+  "height": "Hauteur",
   "endDate": "Date de fin",
   "create": "Cr\u00E9er",
   "cancel": "Annuler"

@@ -9,8 +9,8 @@ export default {
   "noGame": "No game in progress at the moment...",
   "createGame": "Create a game",
   "gameTitleLabel": "Title",
-  "x": "X",
-  "y": "Y",
+  "width": "Width",
+  "height": "Height",
   "endDate": "End date",
   "create": "Create",
   "cancel": "Cancel"

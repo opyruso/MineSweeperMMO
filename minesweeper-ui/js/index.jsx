@@ -190,11 +190,11 @@ function CreateGameForm() {
               <input name="title" value={form.title} onChange={handleChange} />
             </label>
             <label>
-              {t.x}
+              {t.width}
               <input name="x" value={form.x} onChange={handleChange} />
             </label>
             <label>
-              {t.y}
+              {t.height}
               <input name="y" value={form.y} onChange={handleChange} />
             </label>
             <label>
