@@ -155,7 +155,7 @@ function Home({ keycloak }) {
 function CreateGameForm() {
   const { t } = React.useContext(LangContext);
   const [show, setShow] = React.useState(false);
-  const [form, setForm] = React.useState({ title: '', x: '', y: '', endDate: '' });
+  const [form, setForm] = React.useState({ title: '', width: '', height: '', endDate: '' });
 
   const open = () => setShow(true);
   const close = () => setShow(false);
@@ -167,10 +167,10 @@ function CreateGameForm() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: form.title,
-        x: Number(form.x),
-        y: Number(form.y),
-        endDate: form.endDate,
+        title: form.title,
+        width: Number(form.width),
+        height: Number(form.height),
+        end_date: form.endDate,
       }),
     }).then(close);
   };
@@ -189,11 +189,11 @@ function CreateGameForm() {
             </label>
             <label>
               {t.width}
-              <input name="x" value={form.x} onChange={handleChange} />
+              <input name="width" value={form.width} onChange={handleChange} />
             </label>
             <label>
               {t.height}
-              <input name="y" value={form.y} onChange={handleChange} />
+              <input name="height" value={form.height} onChange={handleChange} />
             </label>
             <label>
               {t.endDate}
