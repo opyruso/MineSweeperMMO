@@ -119,9 +119,6 @@ function SettingsPage({ authenticated, onLogout }) {
           <button onClick={onLogout}>{t.logout}</button>
         </div>
       )}
-      <Link to="/" className="back-button" aria-label="back">
-        <i className="fa-solid fa-arrow-left"></i>
-      </Link>
     </div>
   );
 }
