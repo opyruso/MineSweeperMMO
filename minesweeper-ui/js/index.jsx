@@ -124,7 +124,9 @@ function Home({ keycloak }) {
       .catch(() => setGames([]));
   }, []);
 
-  const isAdmin = keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin');
+  const isAdmin =
+    (keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin')) ||
+    (keycloak && keycloak.hasResourceRole && keycloak.hasResourceRole('admin', 'minesweeper-app'));
 
   if (games === null) {
     return null;
