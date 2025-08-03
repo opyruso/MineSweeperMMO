@@ -15,6 +15,8 @@ export default function GamePage({ keycloak }) {
   const [center, setCenter] = React.useState({ x: 0, y: 0 });
   const [selected, setSelected] = React.useState(null);
   const [scanRange, setScanRange] = React.useState(1);
+  const zoomRef = React.useRef(zoom);
+  const centerRef = React.useRef(center);
 
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
@@ -47,6 +49,14 @@ export default function GamePage({ keycloak }) {
       .then(setMines)
       .catch(() => setMines([]));
   }, [apiUrl, id, keycloak, game]);
+
+  React.useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  React.useEffect(() => {
+    centerRef.current = center;
+  }, [center]);
 
   const draw = React.useCallback(() => {
     const canvas = canvasRef.current;
@@ -111,10 +121,34 @@ export default function GamePage({ keycloak }) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
       const pts = Array.from(pointers.current.values());
       if (pts.length === 2) {
+        const midX = (pts[0].x + pts[1].x) / 2;
+        const midY = (pts[0].y + pts[1].y) / 2;
         const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         const delta = Math.log2(dist / pinchRef.current.startDist);
-        const next = Math.round(pinchRef.current.startZoom + delta);
-        setZoom(Math.max(-3, Math.min(6, next)));
+        const nextZoom = Math.max(
+          -3,
+          Math.min(6, Math.round(pinchRef.current.startZoom + delta))
+        );
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const rect = canvas.getBoundingClientRect();
+          const cellSize = Math.pow(2, zoomRef.current);
+          const left = centerRef.current.x - rect.width / (2 * cellSize);
+          const top = centerRef.current.y - rect.height / (2 * cellSize);
+          const worldX = left + (midX - rect.left) / cellSize;
+          const worldY = top + (midY - rect.top) / cellSize;
+          const nextCellSize = Math.pow(2, nextZoom);
+          const newLeft = worldX - (midX - rect.left) / nextCellSize;
+          const newTop = worldY - (midY - rect.top) / nextCellSize;
+          const newCenter = {
+            x: newLeft + rect.width / (2 * nextCellSize),
+            y: newTop + rect.height / (2 * nextCellSize),
+          };
+          setCenter(newCenter);
+          centerRef.current = newCenter;
+        }
+        setZoom(nextZoom);
+        zoomRef.current = nextZoom;
       }
       return;
     }
@@ -187,14 +221,14 @@ export default function GamePage({ keycloak }) {
       const pts = Array.from(pointers.current.values());
       pinchRef.current = {
         startDist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
-        startZoom: zoom,
+        startZoom: zoomRef.current,
       };
       dragRef.current = null;
     } else if (pointers.current.size === 1) {
       dragRef.current = {
         startX: e.clientX,
         startY: e.clientY,
-        startCenter: { ...center },
+        startCenter: { ...centerRef.current },
         pointerId: e.pointerId,
       };
       window.addEventListener('pointermove', handlePointerMove);
@@ -205,8 +239,31 @@ export default function GamePage({ keycloak }) {
 
   const handleWheel = (e) => {
     e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
     const dir = -Math.sign(e.deltaY);
-    setZoom((z) => Math.max(-3, Math.min(6, z + dir)));
+    const currentZoom = zoomRef.current;
+    const nextZoom = Math.max(-3, Math.min(6, currentZoom + dir));
+    if (nextZoom === currentZoom) return;
+    const cellSize = Math.pow(2, currentZoom);
+    const left = centerRef.current.x - rect.width / (2 * cellSize);
+    const top = centerRef.current.y - rect.height / (2 * cellSize);
+    const worldX = left + px / cellSize;
+    const worldY = top + py / cellSize;
+    const nextCellSize = Math.pow(2, nextZoom);
+    const newLeft = worldX - px / nextCellSize;
+    const newTop = worldY - py / nextCellSize;
+    const newCenter = {
+      x: newLeft + rect.width / (2 * nextCellSize),
+      y: newTop + rect.height / (2 * nextCellSize),
+    };
+    setCenter(newCenter);
+    centerRef.current = newCenter;
+    setZoom(nextZoom);
+    zoomRef.current = nextZoom;
   };
 
   const handleScan = () => {
