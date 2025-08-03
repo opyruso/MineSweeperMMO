@@ -136,7 +136,9 @@ function Home({ keycloak }) {
     <div>
       {games.length === 0 ? (
         <div className="no-games">
-          <p>{t.noGame}</p>
+          <div className="no-games-message">
+            <p>{t.noGame}</p>
+          </div>
           {isAdmin && <CreateGameForm />}
         </div>
       ) : (
