@@ -60,7 +60,7 @@ export default function GamePage({ keycloak }) {
 
   const draw = React.useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !game) return;
     const ctx = canvas.getContext('2d');
     const cellSize = Math.pow(2, zoom);
     const width = canvas.width;
@@ -69,6 +69,14 @@ export default function GamePage({ keycloak }) {
     ctx.fillRect(0, 0, width, height);
     const left = center.x - width / (2 * cellSize);
     const top = center.y - height / (2 * cellSize);
+
+    // draw map area
+    const mapLeft = (0 - left) * cellSize;
+    const mapTop = (0 - top) * cellSize;
+    const mapWidth = game.width * cellSize;
+    const mapHeight = game.height * cellSize;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(mapLeft, mapTop, mapWidth, mapHeight);
 
     for (const s of scans) {
       const px = (s.x - left) * cellSize;
@@ -96,7 +104,18 @@ export default function GamePage({ keycloak }) {
       ctx.fill();
       ctx.stroke();
     }
-  }, [scans, mines, zoom, center, selected]);
+
+    if (selected) {
+      const px = (selected.x - left) * cellSize;
+      const py = (selected.y - top) * cellSize;
+      ctx.fillStyle = '#d3d3d3';
+      ctx.fillRect(px, py, cellSize, cellSize);
+      ctx.strokeStyle = '#ff0000';
+      ctx.setLineDash([4, 2]);
+      ctx.strokeRect(px, py, cellSize, cellSize);
+      ctx.setLineDash([]);
+    }
+  }, [game, scans, mines, zoom, center, selected]);
 
   React.useEffect(() => {
     const resize = () => {
@@ -204,8 +223,10 @@ export default function GamePage({ keycloak }) {
       const x = Math.floor(left + (e.clientX - rect.left) / cellSize);
       const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
       const scan = scans.find((s) => s.x === x && s.y === y);
+      const mine = mines.find((m) => m.x === x && m.y === y);
       setSelected({ x, y, scan });
       setScanRange(scan ? scan.scanRange : 1);
+      console.log({ x, y, scan, mine });
     }
     endDrag();
   };
