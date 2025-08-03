@@ -206,11 +206,18 @@ button:active {
   margin-bottom: 2rem;
 }
 
+.games-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .games-list-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  flex: 1;
+  overflow: auto;
 }
 
 .games-list {
@@ -233,6 +240,7 @@ button:active {
   text-decoration: none;
   white-space: nowrap;
   max-width: 90vw;
+  font-size: 2rem;
 }
 
 .game-prefix,

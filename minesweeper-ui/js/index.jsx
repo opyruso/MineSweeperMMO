@@ -160,7 +160,7 @@ function Home({ keycloak }) {
           {isAdmin && <CreateGameForm keycloak={keycloak} />}
         </div>
       ) : (
-        <>
+        <div className="games-page">
           <div className="games-list-container">
             <ul className="games-list">
               {games.map((g) => (
@@ -180,7 +180,7 @@ function Home({ keycloak }) {
             </ul>
           </div>
           {isAdmin && <CreateGameForm keycloak={keycloak} />}
-        </>
+        </div>
       )}
     </div>
   );
