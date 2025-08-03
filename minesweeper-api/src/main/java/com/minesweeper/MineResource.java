@@ -1,8 +1,7 @@
 package com.minesweeper;
 
-import com.minesweeper.dto.NewScanRequest;
-import com.minesweeper.dto.ScanInfo;
-import com.minesweeper.dto.ScanResult;
+import com.minesweeper.dto.ClearMineRequest;
+import com.minesweeper.dto.MineInfo;
 import com.minesweeper.entity.Game;
 import com.minesweeper.entity.Mine;
 import com.minesweeper.entity.Player;
@@ -16,45 +15,47 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Path("/scans")
+@Path("/mines")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ScanResource {
+public class MineResource {
 
     @Inject
     GameRepository gameRepository;
 
     @Inject
-    PlayerRepository playerRepository;
+    MineRepository mineRepository;
 
     @Inject
-    MineRepository mineRepository;
+    PlayerRepository playerRepository;
 
     @Inject
     PlayerScanRepository playerScanRepository;
 
     @GET
-    @Path("/{idGame}")
+    @Path("/cleared")
     @Authenticated
-    public List<ScanInfo> listScans(@PathParam("idGame") String idGame) {
-        Game game = gameRepository.findById(idGame);
+    public List<MineInfo> listCleared(@QueryParam("gameId") String gameId) {
+        Game game = gameRepository.findById(gameId);
         if (game == null) {
             throw new NotFoundException();
         }
-        return playerScanRepository.list("game", game).stream()
-                .map(scan -> new ScanInfo(scan.getId(), scan.getPlayer().getId(), scan.getX(), scan.getY(),
-                        scan.getScanDate(), scan.getScanRange(), countMines(game, scan.getX(), scan.getY(), scan.getScanRange())))
+        return mineRepository.list("game = ?1 and (foundBy is not null or exploded = true)", game)
+                .stream()
+                .map(m -> new MineInfo(m.getId(), m.getX(), m.getY(), Boolean.TRUE.equals(m.getExploded()) ? "explosed" : "cleared"))
                 .toList();
     }
 
     @POST
+    @Path("/clear")
     @Authenticated
     @Transactional
-    public ScanResult createScan(NewScanRequest request) {
+    public MineInfo clear(ClearMineRequest request) {
         Game game = gameRepository.findById(request.gameId());
         if (game == null) {
             throw new NotFoundException();
@@ -67,35 +68,28 @@ public class ScanResource {
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
+
+        Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
+        if (mine != null) {
+            mine.setFoundBy(player);
+            mine.setExploded(false);
+            return new MineInfo(mine.getId(), mine.getX(), mine.getY(), "cleared");
+        }
+
         PlayerScan scan = new PlayerScan();
         scan.setId(UUID.randomUUID().toString());
         scan.setGame(game);
         scan.setPlayer(player);
         scan.setX(request.x());
         scan.setY(request.y());
-        scan.setScanRange(request.scanRange());
+        scan.setScanRange(0);
         scan.setScanDate(LocalDateTime.now());
         playerScanRepository.persist(scan);
 
-        Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
-        if (mine != null) {
-            mine.setExploded(true);
+        Mine exploded = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
+        if (exploded != null && Boolean.TRUE.equals(exploded.getExploded())) {
+            return new MineInfo(exploded.getId(), exploded.getX(), exploded.getY(), "explosed");
         }
-
-        int mines = countMines(game, request.x(), request.y(), request.scanRange());
-        return new ScanResult(mines);
-    }
-
-    private int countMines(Game game, int x, int y, int range) {
-        List<Mine> mines = mineRepository.list("game", game);
-        int count = 0;
-        for (Mine m : mines) {
-            double dist = Math.hypot(m.getX() - x, m.getY() - y);
-            if (dist < range) {
-                count++;
-            }
-        }
-        return count;
+        return new MineInfo(null, request.x(), request.y(), "wrong");
     }
 }
-

@@ -1,10 +1,29 @@
-import { rmSync, mkdirSync, cpSync, existsSync } from 'fs';
+import { rmSync, mkdirSync, cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import path from 'path';
+import Babel from '@babel/standalone';
 
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist', { recursive: true });
 
 cpSync('public', 'dist', { recursive: true });
-cpSync('js', 'dist/js', { recursive: true });
+// transpile JS sources to strip JSX for browser compatibility
+function transpileDir(srcDir, destDir) {
+  mkdirSync(destDir, { recursive: true });
+  for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+    if (entry.isDirectory()) {
+      transpileDir(srcPath, destPath);
+    } else if (entry.name.endsWith('.js')) {
+      const code = readFileSync(srcPath, 'utf8');
+      const out = Babel.transform(code, { presets: ['react'] }).code;
+      writeFileSync(destPath, out);
+    } else {
+      cpSync(srcPath, destPath);
+    }
+  }
+}
+transpileDir('js', 'dist/js');
 cpSync('css', 'dist/css', { recursive: true });
 cpSync('images', 'dist/images', { recursive: true });
 cpSync('sounds', 'dist/sounds', { recursive: true });
