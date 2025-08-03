@@ -117,16 +117,14 @@ function SettingsPage({ authenticated, onLogout }) {
     <div className="settings-page">
       <div className="language-selection">
         <button
-          className="flag-button"
+          className={`flag-button ${lang === 'en' ? 'active' : ''}`}
           onClick={() => changeLang('en')}
-          disabled={lang === 'en'}
         >
           <span className="fi fi-gb"></span>
         </button>
         <button
-          className="flag-button"
+          className={`flag-button ${lang === 'fr' ? 'active' : ''}`}
           onClick={() => changeLang('fr')}
-          disabled={lang === 'fr'}
         >
           <span className="fi fi-fr"></span>
         </button>
