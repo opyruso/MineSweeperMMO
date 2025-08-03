@@ -233,6 +233,7 @@ button:active {
   text-decoration: none;
   white-space: nowrap;
   max-width: 90vw;
+  font-size: 2rem;
 }
 
 .game-prefix,
