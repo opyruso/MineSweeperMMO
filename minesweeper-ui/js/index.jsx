@@ -37,6 +37,7 @@ function App() {
   return (
     <LangProvider>
       <HashRouter>
+        <SettingsButton />
         <Routes>
           <Route
             path="/login"
@@ -59,6 +60,14 @@ function App() {
         </Routes>
       </HashRouter>
     </LangProvider>
+  );
+}
+
+function SettingsButton() {
+  return (
+    <Link to="/settings" className="settings-button" aria-label="Settings">
+      <i className="fa-solid fa-gear"></i>
+    </Link>
   );
 }
 
