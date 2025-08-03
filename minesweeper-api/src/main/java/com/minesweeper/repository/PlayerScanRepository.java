@@ -1,10 +1,10 @@
 package com.minesweeper.repository;
 
 import com.minesweeper.entity.PlayerScan;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class PlayerScanRepository implements PanacheRepository<PlayerScan> {
+public class PlayerScanRepository implements PanacheRepositoryBase<PlayerScan, String> {
 }
 
