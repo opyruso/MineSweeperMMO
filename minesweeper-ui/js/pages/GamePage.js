@@ -105,6 +105,18 @@ export default function GamePage({ keycloak }) {
       ctx.stroke();
     }
 
+    if (selected && !selected.mine) {
+      const px = (selected.x - left + 0.5) * cellSize;
+      const py = (selected.y - top + 0.5) * cellSize;
+      const radius = Math.floor(scanRange) * cellSize;
+      ctx.strokeStyle = '#ff0000';
+      ctx.setLineDash([4, 2]);
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     if (selected) {
       const px = (selected.x - left) * cellSize;
       const py = (selected.y - top) * cellSize;
@@ -115,7 +127,7 @@ export default function GamePage({ keycloak }) {
       ctx.strokeRect(px, py, cellSize, cellSize);
       ctx.setLineDash([]);
     }
-  }, [game, scans, mines, zoom, center, selected]);
+  }, [game, scans, mines, zoom, center, selected, scanRange]);
 
   React.useEffect(() => {
     const resize = () => {
@@ -224,7 +236,7 @@ export default function GamePage({ keycloak }) {
       const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
       const scan = scans.find((s) => s.x === x && s.y === y);
       const mine = mines.find((m) => m.x === x && m.y === y);
-      setSelected({ x, y, scan });
+      setSelected({ x, y, scan, mine });
       setScanRange(scan ? scan.scanRange : 1);
       console.log({ x, y, scan, mine });
     }
@@ -288,7 +300,7 @@ export default function GamePage({ keycloak }) {
   };
 
   const handleScan = () => {
-    const range = selected.scan ? selected.scan.scanRange : scanRange;
+    const range = scanRange;
     fetch(`${apiUrl}/scans`, {
       method: 'POST',
       headers: {
@@ -309,7 +321,8 @@ export default function GamePage({ keycloak }) {
           ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
           res,
         ]);
-        setSelected({ x: res.x, y: res.y, scan: res });
+        setSelected((prev) => ({ x: res.x, y: res.y, scan: res, mine: prev.mine }));
+        setScanRange(res.scanRange);
       });
   };
 
@@ -330,6 +343,7 @@ export default function GamePage({ keycloak }) {
       .then((r) => r.json())
       .then((res) => {
         setMines((prev) => [...prev, res]);
+        setSelected((prev) => ({ x: res.x, y: res.y, scan: prev.scan, mine: res }));
       });
   };
 
@@ -349,30 +363,32 @@ export default function GamePage({ keycloak }) {
         <div className="info-panel">
           <p>{t.x}: {selected.x}</p>
           <p>{t.y}: {selected.y}</p>
-          {selected.scan ? (
-            <p>{t.scanRange}: {selected.scan.scanRange}</p>
+          {selected.mine ? (
+            <p>{t.status}: {selected.mine.status}</p>
           ) : (
-            <label>
-              {t.scanRange}: {' '}
-              <input
-                type="range"
-                min="1"
-                max="99"
-                value={scanRange}
-                onChange={(e) => setScanRange(Number(e.target.value))}
-              />
-            </label>
-          )}
-          {selected.scan && (
-            <p>{t.scanResult}: {selected.scan.mineCount}</p>
-          )}
-          <button className="main-button" onClick={handleScan}>
-            {selected.scan ? t.rescan : t.scan}
-          </button>
-          {!selected.scan && (
-            <button className="main-button" onClick={handleDemine}>
-              {t.demine}
-            </button>
+            <>
+              <label>
+                {t.scanRange}: {scanRange}{' '}
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={scanRange}
+                  onChange={(e) => setScanRange(Number(e.target.value))}
+                />
+              </label>
+              {selected.scan && (
+                <p>{t.scanResult}: {selected.scan.mineCount}</p>
+              )}
+              <button className="main-button" onClick={handleScan}>
+                {selected.scan ? t.rescan : t.scan}
+              </button>
+              {!selected.scan && (
+                <button className="main-button" onClick={handleDemine}>
+                  {t.demine}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

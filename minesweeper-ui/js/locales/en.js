@@ -19,5 +19,6 @@ export default {
   "scanResult": "Scan result",
   "scan": "Scan",
   "rescan": "Rescan",
-  "demine": "Clear"
+  "demine": "Clear",
+  "status": "Status"
 };

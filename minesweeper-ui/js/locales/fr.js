@@ -19,5 +19,6 @@ export default {
   "scanResult": "R\u00E9sultat du scan",
   "scan": "Scanner",
   "rescan": "Re-scanner",
-  "demine": "D\u00E9miner"
+  "demine": "D\u00E9miner",
+  "status": "Statut"
 };
