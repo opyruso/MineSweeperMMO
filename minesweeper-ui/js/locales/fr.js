@@ -12,5 +12,12 @@ export default {
   "mineCount": "Nombre de mines",
   "endDate": "Date de fin",
   "create": "Cr\u00E9er",
-  "cancel": "Annuler"
+  "cancel": "Annuler",
+  "x": "X",
+  "y": "Y",
+  "scanRange": "Port\u00E9e du scan",
+  "scanResult": "R\u00E9sultat du scan",
+  "scan": "Scanner",
+  "rescan": "Re-scanner",
+  "demine": "D\u00E9miner"
 };
