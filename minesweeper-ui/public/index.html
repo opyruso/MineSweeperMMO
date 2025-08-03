@@ -13,7 +13,10 @@
     <script src="vendor/react.development.js"></script>
     <script src="vendor/react-dom.development.js"></script>
     <script src="vendor/react-router-dom.development.js"></script>
-    <script src="vendor/keycloak.js"></script>
+    <script type="module">
+      import Keycloak from './vendor/keycloak.js';
+      window.Keycloak = Keycloak;
+    </script>
     <script type="text/babel" data-presets="react" data-type="module" src="js/index.jsx"></script>
   </body>
 </html>
