@@ -1,6 +1,6 @@
 const { HashRouter, Routes, Route, Navigate, Link } = ReactRouterDOM;
 
-import { LangProvider, LangContext } from './i18n.js';
+import { LangProvider, LangContext } from '/js/i18n.js';
 
 function App() {
   const [keycloak, setKeycloak] = React.useState(null);
