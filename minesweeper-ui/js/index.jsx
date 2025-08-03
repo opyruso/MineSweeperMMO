@@ -134,7 +134,6 @@ function Home({ keycloak }) {
 
   return (
     <div>
-      <h1>{t.title}</h1>
       {games.length === 0 ? (
         <div className="no-games">
           <p>{t.noGame}</p>
@@ -147,9 +146,6 @@ function Home({ keycloak }) {
           ))}
         </ul>
       )}
-      <nav>
-        <Link to="/settings">{t.settings}</Link>
-      </nav>
     </div>
   );
 }
