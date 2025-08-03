@@ -1,6 +1,6 @@
 const { HashRouter, Link, useLocation } = ReactRouterDOM;
 import { LangProvider } from '/js/i18n.js';
-import AppRouter from '/js/router.jsx';
+import AppRouter from '/js/router.js';
 
 export default function App() {
   const [keycloak, setKeycloak] = React.useState(null);

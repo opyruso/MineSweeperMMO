@@ -1,8 +1,8 @@
 const { Routes, Route, Navigate } = ReactRouterDOM;
-import LoginPage from '/js/pages/LoginPage.jsx';
-import GamesListPage from '/js/pages/GamesListPage.jsx';
-import GamePage from '/js/pages/GamePage.jsx';
-import SettingsPage from '/js/pages/SettingsPage.jsx';
+import LoginPage from '/js/pages/LoginPage.js';
+import GamesListPage from '/js/pages/GamesListPage.js';
+import GamePage from '/js/pages/GamePage.js';
+import SettingsPage from '/js/pages/SettingsPage.js';
 
 export default function AppRouter({ authenticated, keycloak, login, soundsOn, toggleSounds }) {
   const RequireAuth = ({ children }) =>
