@@ -297,6 +297,7 @@ export default function GamePage({ keycloak }) {
       },
       body: JSON.stringify({
         gameId: id,
+        playerId: keycloak.tokenParsed.sub,
         x: selected.x,
         y: selected.y,
         scanRange: range,
@@ -321,6 +322,7 @@ export default function GamePage({ keycloak }) {
       },
       body: JSON.stringify({
         gameId: id,
+        playerId: keycloak.tokenParsed.sub,
         x: selected.x,
         y: selected.y,
       }),

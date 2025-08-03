@@ -77,6 +77,11 @@ public class ScanResource {
         scan.setScanDate(LocalDateTime.now());
         playerScanRepository.persist(scan);
 
+        Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
+        if (mine != null) {
+            mine.setExploded(true);
+        }
+
         int mines = countMines(game, request.x(), request.y(), request.scanRange());
         return new ScanResult(mines);
     }
