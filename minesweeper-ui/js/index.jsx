@@ -80,6 +80,9 @@ function SettingsButton() {
       </Link>
     );
   }
+  if (location.pathname === '/login') {
+    return null;
+  }
   return (
     <Link to="/settings" className="settings-button" aria-label="Settings">
       <i className="fa-solid fa-gear"></i>
@@ -102,11 +105,8 @@ function Home() {
 function LoginPage({ onLogin }) {
   const { t } = React.useContext(LangContext);
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+    <div className="login-page">
       <button onClick={onLogin}>{t.login}</button>
-      <div style={{ marginTop: '1rem' }}>
-        <Link to="/settings">{t.settings}</Link>
-      </div>
     </div>
   );
 }
