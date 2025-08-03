@@ -239,7 +239,7 @@ export default function GamePage({ keycloak }) {
       const scan = scans.find((s) => s.x === x && s.y === y);
       const mine = mines.find((m) => m.x === x && m.y === y);
       setSelected({ x, y, scan, mine });
-      setScanRange((prev) => (scan ? scan.scanRange : prev));
+      if (scan) setScanRange(scan.scanRange);
       console.log({ x, y, scan, mine });
     }
     endDrag();
@@ -324,7 +324,7 @@ export default function GamePage({ keycloak }) {
           res,
         ]);
         setSelected((prev) => ({ x: res.x, y: res.y, scan: res, mine: prev.mine }));
-        setScanRange(res.scanRange);
+        setScanRange(res.scanRange ?? 1);
         requestAnimationFrame(draw);
       });
   };
@@ -376,7 +376,7 @@ export default function GamePage({ keycloak }) {
                   type="range"
                   min="1"
                   max="10"
-                  value={scanRange}
+                  value={scanRange ?? 1}
                   onChange={(e) => setScanRange(Number(e.target.value))}
                 />
               </label>
