@@ -51,7 +51,7 @@ h1 {
   align-items: center;
   height: 100vh;
   position: relative;
-  background-image: url("../images/images_background_parameters.png");
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_parameters.png");
 }
 
 .language-selection {
@@ -91,7 +91,7 @@ button:active {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url("../images/images_background_login.png");
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_login.png");
 }
 
 .logout-container {
@@ -184,7 +184,7 @@ button:active {
   align-items: center;
   text-align: center;
   height: 100vh;
-  background-image: url("../images/images_background_nogameinprogress.png");
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_nogameinprogress.png");
 }
 
 
