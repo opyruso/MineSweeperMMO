@@ -83,7 +83,7 @@ function App() {
             path="/"
             element={
               <RequireAuth>
-                <Home />
+                <Home keycloak={keycloak} />
               </RequireAuth>
             }
           />
@@ -113,14 +113,108 @@ function SettingsButton() {
   );
 }
 
-function Home() {
+function Home({ keycloak }) {
   const { t } = React.useContext(LangContext);
+  const [games, setGames] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`)
+      .then((r) => r.json())
+      .then(setGames)
+      .catch(() => setGames([]));
+  }, []);
+
+  const isAdmin =
+    (keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin')) ||
+    (keycloak && keycloak.hasResourceRole && keycloak.hasResourceRole('admin', 'minesweeper-app'));
+
+  if (games === null) {
+    return null;
+  }
+
   return (
     <div>
-      <h1>{t.title}</h1>
-      <nav>
-        <Link to="/settings">{t.settings}</Link>
-      </nav>
+      {games.length === 0 ? (
+        <div className="no-games">
+          <div className="no-games-message">
+            <p>{t.noGame}</p>
+          </div>
+          {isAdmin && <CreateGameForm />}
+        </div>
+      ) : (
+        <ul>
+          {games.map((g) => (
+            <li key={g.id}>{g.name || g.id}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function CreateGameForm() {
+  const { t } = React.useContext(LangContext);
+  const [show, setShow] = React.useState(false);
+  const [form, setForm] = React.useState({ title: '', width: '', height: '', endDate: '' });
+
+  const open = () => setShow(true);
+  const close = () => setShow(false);
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: form.title,
+        width: Number(form.width),
+        height: Number(form.height),
+        end_date: form.endDate,
+      }),
+    }).then(close);
+  };
+
+  return (
+    <div className="create-game-form">
+      <button className="main-button" onClick={open}>
+        {t.createGame}
+      </button>
+      {show && (
+        <div className="modal-overlay">
+          <form className="modal" onSubmit={handleSubmit}>
+            <label>
+              {t.gameTitleLabel}
+              <input name="title" value={form.title} onChange={handleChange} />
+            </label>
+            <label>
+              {t.width}
+              <input name="width" value={form.width} onChange={handleChange} />
+            </label>
+            <label>
+              {t.height}
+              <input name="height" value={form.height} onChange={handleChange} />
+            </label>
+            <label>
+              {t.endDate}
+              <input
+                name="endDate"
+                type="datetime-local"
+                value={form.endDate}
+                onChange={handleChange}
+              />
+            </label>
+            <div className="modal-actions">
+              <button type="submit" className="main-button">
+                {t.create}
+              </button>
+              <button type="button" className="main-button" onClick={close}>
+                {t.cancel}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
