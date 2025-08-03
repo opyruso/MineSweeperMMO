@@ -46,19 +46,6 @@ export default function GamePage({ keycloak }) {
       .catch(() => setMines([]));
   }, [apiUrl, id, keycloak, game]);
 
-  React.useEffect(() => {
-    const resize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      draw();
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, [draw]);
-
   const draw = React.useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -98,6 +85,19 @@ export default function GamePage({ keycloak }) {
       ctx.stroke();
     }
   }, [scans, mines, zoom, center, selected]);
+
+  React.useEffect(() => {
+    const resize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      draw();
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, [draw]);
 
   React.useEffect(() => {
     draw();
