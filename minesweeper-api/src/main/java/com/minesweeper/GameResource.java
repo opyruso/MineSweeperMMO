@@ -47,7 +47,6 @@ public class GameResource {
     }
 
     @POST
-    @Path("/new")
     @RolesAllowed("admin")
     @Transactional
     public GameInfo createGame(NewGameRequest request) {
