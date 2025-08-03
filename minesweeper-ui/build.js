@@ -37,3 +37,6 @@ cpSync('node_modules/flag-icons/css', 'dist/vendor/flag-icons/css', {
 cpSync('node_modules/flag-icons/flags', 'dist/vendor/flag-icons/flags', {
   recursive: true,
 });
+cpSync('node_modules/@fontsource/mouse-memoirs', 'dist/vendor/mouse-memoirs', {
+  recursive: true,
+});
