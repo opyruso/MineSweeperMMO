@@ -46,8 +46,9 @@ public class GameResource {
         game.setWidth(request.width());
         game.setHeight(request.height());
         game.setMineCount(request.mineCount());
-        game.setStartDate(LocalDateTime.now());
-        game.setEndDate(LocalDateTime.now().plusHours(1));
+        LocalDateTime now = LocalDateTime.now();
+        game.setStartDate(now);
+        game.setEndDate(request.endDate() != null ? request.endDate() : now.plusHours(1));
         gameRepository.persist(game);
 
         Random random = new Random();
