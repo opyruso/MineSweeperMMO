@@ -133,7 +133,7 @@ function Home({ keycloak }) {
   const { t } = React.useContext(LangContext);
   const [games, setGames] = React.useState(null);
 
-  React.useEffect(() => {
+  const loadGames = React.useCallback(() => {
     fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
       headers: { Authorization: `Bearer ${keycloak.token}` },
     })
@@ -141,6 +141,10 @@ function Home({ keycloak }) {
       .then(setGames)
       .catch(() => setGames([]));
   }, [keycloak]);
+
+  React.useEffect(() => {
+    loadGames();
+  }, [loadGames]);
 
   const isAdmin =
     (keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin')) ||
@@ -157,7 +161,9 @@ function Home({ keycloak }) {
           <div className="no-games-message">
             <p>{t.noGame}</p>
           </div>
-          {isAdmin && <CreateGameForm keycloak={keycloak} />}
+          {isAdmin && (
+            <CreateGameForm keycloak={keycloak} onGameCreated={loadGames} />
+          )}
         </div>
       ) : (
         <div className="games-page">
@@ -179,14 +185,16 @@ function Home({ keycloak }) {
               ))}
             </ul>
           </div>
-          {isAdmin && <CreateGameForm keycloak={keycloak} />}
+          {isAdmin && (
+            <CreateGameForm keycloak={keycloak} onGameCreated={loadGames} />
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function CreateGameForm({ keycloak }) {
+function CreateGameForm({ keycloak, onGameCreated }) {
   const { t } = React.useContext(LangContext);
   const [show, setShow] = React.useState(false);
   const [form, setForm] = React.useState({
@@ -216,7 +224,12 @@ function CreateGameForm({ keycloak }) {
         mineCount: Number(form.mineCount),
         end_date: form.endDate,
       }),
-    }).then(close);
+    }).then((r) => {
+      if (r.ok && onGameCreated) {
+        onGameCreated();
+      }
+      close();
+    });
   };
 
   return (
