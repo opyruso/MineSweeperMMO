@@ -47,8 +47,9 @@ export default function GamePage({ keycloak }) {
   }, [apiUrl, id, keycloak, game]);
 
   React.useEffect(() => {
-    const canvas = canvasRef.current;
     const resize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       draw();
@@ -56,7 +57,7 @@ export default function GamePage({ keycloak }) {
     resize();
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
-  }, []);
+  }, [draw]);
 
   const draw = React.useCallback(() => {
     const canvas = canvasRef.current;
