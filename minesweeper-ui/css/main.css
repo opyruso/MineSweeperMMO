@@ -1,5 +1,7 @@
+@import url("../vendor/mouse-memoirs/index.css");
+
 body {
-  font-family: sans-serif;
+  font-family: "Mouse Memoirs", sans-serif;
   margin: 0;
   padding: 0;
 }
