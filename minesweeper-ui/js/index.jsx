@@ -157,7 +157,13 @@ function Home({ keycloak }) {
 function CreateGameForm({ keycloak }) {
   const { t } = React.useContext(LangContext);
   const [show, setShow] = React.useState(false);
-  const [form, setForm] = React.useState({ title: '', width: '', height: '', endDate: '' });
+  const [form, setForm] = React.useState({
+    title: '',
+    width: '',
+    height: '',
+    mineCount: '',
+    endDate: '',
+  });
 
   const open = () => setShow(true);
   const close = () => setShow(false);
@@ -175,6 +181,7 @@ function CreateGameForm({ keycloak }) {
         title: form.title,
         width: Number(form.width),
         height: Number(form.height),
+        mineCount: Number(form.mineCount),
         end_date: form.endDate,
       }),
     }).then(close);
@@ -199,6 +206,10 @@ function CreateGameForm({ keycloak }) {
             <label>
               {t.height}
               <input name="height" value={form.height} onChange={handleChange} />
+            </label>
+            <label>
+              {t.mineCount}
+              <input name="mineCount" value={form.mineCount} onChange={handleChange} />
             </label>
             <label>
               {t.endDate}
