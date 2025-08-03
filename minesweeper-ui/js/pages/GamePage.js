@@ -104,7 +104,8 @@ export default function GamePage({ keycloak }) {
   }, [draw]);
 
   const handlePointerMove = (e) => {
-    if (!dragRef.current) return;
+    if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return;
+    e.preventDefault();
     const cellSize = Math.pow(2, zoom);
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
@@ -115,6 +116,10 @@ export default function GamePage({ keycloak }) {
   };
 
   const endDrag = () => {
+    const canvas = canvasRef.current;
+    if (dragRef.current && canvas && canvas.hasPointerCapture(dragRef.current.pointerId)) {
+      canvas.releasePointerCapture(dragRef.current.pointerId);
+    }
     window.removeEventListener('pointermove', handlePointerMove);
     window.removeEventListener('pointerup', handlePointerUp);
     window.removeEventListener('pointercancel', handlePointerUp);
@@ -141,12 +146,17 @@ export default function GamePage({ keycloak }) {
   };
 
   const handlePointerDown = (e) => {
+    e.preventDefault();
     dragRef.current = {
       startX: e.clientX,
       startY: e.clientY,
       startCenter: { ...center },
       pointerId: e.pointerId,
     };
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.setPointerCapture(e.pointerId);
+    }
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
