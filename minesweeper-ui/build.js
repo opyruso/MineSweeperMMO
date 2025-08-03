@@ -18,6 +18,7 @@ mkdirSync('dist/vendor', { recursive: true });
 cpSync('node_modules/@babel/standalone/babel.min.js', 'dist/vendor/babel.min.js');
 cpSync('node_modules/react/umd/react.development.js', 'dist/vendor/react.development.js');
 cpSync('node_modules/react-dom/umd/react-dom.development.js', 'dist/vendor/react-dom.development.js');
+cpSync('node_modules/@remix-run/router/dist/router.umd.js', 'dist/vendor/router.umd.js');
 cpSync('node_modules/react-router/dist/umd/react-router.development.js', 'dist/vendor/react-router.development.js');
 cpSync(
   'node_modules/react-router-dom/dist/umd/react-router-dom.development.js',
