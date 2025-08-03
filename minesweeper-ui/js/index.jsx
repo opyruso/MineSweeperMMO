@@ -118,11 +118,13 @@ function Home({ keycloak }) {
   const [games, setGames] = React.useState(null);
 
   React.useEffect(() => {
-    fetch(`${window.CONFIG['minesweeper-api-url']}/games`)
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    })
       .then((r) => r.json())
       .then(setGames)
       .catch(() => setGames([]));
-  }, []);
+  }, [keycloak]);
 
   const isAdmin =
     (keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin')) ||
@@ -139,7 +141,7 @@ function Home({ keycloak }) {
           <div className="no-games-message">
             <p>{t.noGame}</p>
           </div>
-          {isAdmin && <CreateGameForm />}
+          {isAdmin && <CreateGameForm keycloak={keycloak} />}
         </div>
       ) : (
         <ul>
@@ -152,7 +154,7 @@ function Home({ keycloak }) {
   );
 }
 
-function CreateGameForm() {
+function CreateGameForm({ keycloak }) {
   const { t } = React.useContext(LangContext);
   const [show, setShow] = React.useState(false);
   const [form, setForm] = React.useState({ title: '', width: '', height: '', endDate: '' });
@@ -165,7 +167,10 @@ function CreateGameForm() {
     e.preventDefault();
     fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${keycloak.token}`,
+      },
       body: JSON.stringify({
         title: form.title,
         width: Number(form.width),
