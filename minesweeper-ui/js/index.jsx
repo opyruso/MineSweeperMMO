@@ -47,7 +47,15 @@ function App() {
               </RequireUnauth>
             }
           />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route
+            path="/settings"
+            element={
+              <SettingsPage
+                authenticated={authenticated}
+                onLogout={() => keycloak.logout()}
+              />
+            }
+          />
           <Route
             path="/"
             element={
@@ -103,19 +111,31 @@ function LoginPage({ onLogin }) {
   );
 }
 
-function SettingsPage() {
+function SettingsPage({ authenticated, onLogout }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <h2>{t.settings}</h2>
-      <div>
-        <button onClick={() => changeLang('en')} disabled={lang === 'en'}>
-          <span className="fi fi-gb"></span> {t.english}
+    <div className="settings-page">
+      <div className="language-selection">
+        <button
+          className="flag-button"
+          onClick={() => changeLang('en')}
+          disabled={lang === 'en'}
+        >
+          <span className="fi fi-gb"></span>
         </button>
-        <button onClick={() => changeLang('fr')} disabled={lang === 'fr'}>
-          <span className="fi fi-fr"></span> {t.french}
+        <button
+          className="flag-button"
+          onClick={() => changeLang('fr')}
+          disabled={lang === 'fr'}
+        >
+          <span className="fi fi-fr"></span>
         </button>
       </div>
+      {authenticated && (
+        <div className="logout-container">
+          <button onClick={onLogout}>{t.logout}</button>
+        </div>
+      )}
     </div>
   );
 }
