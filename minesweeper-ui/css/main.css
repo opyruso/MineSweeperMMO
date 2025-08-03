@@ -38,7 +38,8 @@ h1 {
 
 .settings-page,
 .login-page,
-.no-games {
+.no-games,
+.games-page {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -210,6 +211,7 @@ button:active {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_gameinprogress.png");
 }
 
 .games-list-container {

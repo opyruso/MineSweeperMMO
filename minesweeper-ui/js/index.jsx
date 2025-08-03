@@ -81,7 +81,12 @@ function App() {
             element={
               <SettingsPage
                 authenticated={authenticated}
-                onLogout={() => keycloak.logout()}
+                onLogout={() =>
+                  keycloak.logout({
+                    redirectUri:
+                      window.location.href.split('#')[0] + '#/login',
+                  })
+                }
                 soundsOn={soundsOn}
                 toggleSounds={toggleSounds}
               />
@@ -118,9 +123,6 @@ function SettingsButton() {
         <i className="fa-solid fa-arrow-left"></i>
       </Link>
     );
-  }
-  if (location.pathname === '/login') {
-    return null;
   }
   return (
     <Link to="/settings" className="settings-button" aria-label="Settings">
