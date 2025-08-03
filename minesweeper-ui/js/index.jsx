@@ -26,9 +26,9 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    musicRef.current = new Audio('sounds/sound_background.mp3');
+    musicRef.current = window.backgroundMusic || new Audio('sounds/sound_background.mp3');
     musicRef.current.loop = true;
-    musicRef.current.volume = 0.03;
+    musicRef.current.volume = 0.01;
     if (musicOnRef.current) {
       musicRef.current.play().catch(() => {});
     }
