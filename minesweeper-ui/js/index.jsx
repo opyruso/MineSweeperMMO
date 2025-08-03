@@ -5,6 +5,8 @@ import { LangProvider, LangContext } from '/js/i18n.js';
 function App() {
   const [keycloak, setKeycloak] = React.useState(null);
   const [authenticated, setAuthenticated] = React.useState(false);
+  const [musicOn, setMusicOn] = React.useState(true);
+  const musicRef = React.useRef(null);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -22,9 +24,42 @@ function App() {
       });
   }, []);
 
+  React.useEffect(() => {
+    musicRef.current = new Audio('sounds/sound_background.mp3');
+    musicRef.current.loop = true;
+    if (musicOn) {
+      musicRef.current.play();
+    }
+    const handleClick = () => {
+      const sounds = [
+        'sounds/sound_click_1.mp3',
+        'sounds/sound_click_2.mp3',
+      ];
+      const audio = new Audio(
+        sounds[Math.floor(Math.random() * sounds.length)]
+      );
+      audio.play();
+    };
+    window.addEventListener('click', handleClick);
+    return () => {
+      window.removeEventListener('click', handleClick);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!musicRef.current) return;
+    if (musicOn) {
+      musicRef.current.play();
+    } else {
+      musicRef.current.pause();
+    }
+  }, [musicOn]);
+
   if (!keycloak) {
     return null;
   }
+
+  const toggleMusic = () => setMusicOn((m) => !m);
 
   const login = () => keycloak.login({ idpHint: 'google' });
 
@@ -53,6 +88,8 @@ function App() {
               <SettingsPage
                 authenticated={authenticated}
                 onLogout={() => keycloak.logout()}
+                musicOn={musicOn}
+                toggleMusic={toggleMusic}
               />
             }
           />
@@ -111,7 +148,7 @@ function LoginPage({ onLogin }) {
   );
 }
 
-function SettingsPage({ authenticated, onLogout }) {
+function SettingsPage({ authenticated, onLogout, musicOn, toggleMusic }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   return (
     <div className="settings-page">
@@ -127,6 +164,11 @@ function SettingsPage({ authenticated, onLogout }) {
           onClick={() => changeLang('fr')}
         >
           <span className="fi fi-fr"></span>
+        </button>
+      </div>
+      <div className="music-toggle-container">
+        <button className="music-toggle" onClick={toggleMusic} aria-label="Toggle music">
+          <i className={`fa-solid ${musicOn ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
         </button>
       </div>
       {authenticated && (
