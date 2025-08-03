@@ -7,6 +7,7 @@ function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
   const [musicOn, setMusicOn] = React.useState(true);
   const musicRef = React.useRef(null);
+  const musicOnRef = React.useRef(musicOn);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -27,18 +28,15 @@ function App() {
   React.useEffect(() => {
     musicRef.current = new Audio('sounds/sound_background.mp3');
     musicRef.current.loop = true;
-    if (musicOn) {
-      musicRef.current.play();
+    musicRef.current.volume = 0.1;
+    if (musicOnRef.current) {
+      musicRef.current.play().catch(() => {});
     }
     const handleClick = () => {
-      const sounds = [
-        'sounds/sound_click_1.mp3',
-        'sounds/sound_click_2.mp3',
-      ];
-      const audio = new Audio(
-        sounds[Math.floor(Math.random() * sounds.length)]
-      );
-      audio.play();
+      new Audio('sounds/sound_click_2.mp3').play();
+      if (musicOnRef.current && musicRef.current.paused) {
+        musicRef.current.play();
+      }
     };
     window.addEventListener('click', handleClick);
     return () => {
@@ -47,9 +45,10 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    musicOnRef.current = musicOn;
     if (!musicRef.current) return;
     if (musicOn) {
-      musicRef.current.play();
+      musicRef.current.play().catch(() => {});
     } else {
       musicRef.current.pause();
     }
