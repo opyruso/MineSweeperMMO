@@ -4,16 +4,21 @@
     <meta charset="UTF-8" />
     <title>MineSweeper UI</title>
     <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
-    <link rel="stylesheet" href="../node_modules/flag-icons/css/flag-icons.min.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
   </head>
   <body>
     <div id="root"></div>
-    <script src="../node_modules/@babel/standalone/babel.min.js"></script>
-    <script src="../node_modules/react/umd/react.development.js"></script>
-    <script src="../node_modules/react-dom/umd/react-dom.development.js"></script>
-    <script src="../node_modules/react-router-dom/umd/react-router-dom.development.js"></script>
-    <script src="../node_modules/keycloak-js/dist/keycloak.js"></script>
-    <script type="text/babel" data-presets="react" src="js/index.jsx"></script>
+    <script src="config.js"></script>
+    <script src="vendor/babel.min.js"></script>
+    <script src="vendor/react.development.js"></script>
+    <script src="vendor/react-dom.development.js"></script>
+    <script src="vendor/react-router.development.js"></script>
+    <script src="vendor/react-router-dom.development.js"></script>
+    <script type="module">
+      import Keycloak from './vendor/keycloak.js';
+      window.Keycloak = Keycloak;
+    </script>
+    <script type="text/babel" data-presets="react" data-type="module" src="js/index.jsx"></script>
   </body>
 </html>
