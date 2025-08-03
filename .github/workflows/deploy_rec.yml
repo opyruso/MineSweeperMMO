@@ -57,4 +57,4 @@ jobs:
           echo "📁 redemarrage du service..."
           sudo systemctl restart quarkus-minesweeper-api-rec.service
 
-          echo "✅ Déploiement DEV terminé !"
+          echo "✅ Déploiement REC terminé !"
