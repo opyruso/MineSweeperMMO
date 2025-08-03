@@ -15,10 +15,10 @@ function LangProvider({ children }) {
 
   const t = translations[lang];
 
-  return (
-    <LangContext.Provider value={{ lang, changeLang, t }}>
-      {children}
-    </LangContext.Provider>
+  return React.createElement(
+    LangContext.Provider,
+    { value: { lang, changeLang, t } },
+    children
   );
 }
 
