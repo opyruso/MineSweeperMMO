@@ -1,9 +1,22 @@
 @import url("../vendor/mouse-memoirs/index.css");
 
+html,
 body {
-  font-family: "Mouse Memoirs", sans-serif;
+  overflow: hidden;
   margin: 0;
   padding: 0;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: "Mouse Memoirs", sans-serif;
 }
 
 h1 {
@@ -51,15 +64,22 @@ button {
   font-family: inherit;
   background: none;
   cursor: pointer;
-  transition: font-size 0.2s, transform 0.1s;
+  transition: transform 0.1s;
 }
 
 button:hover {
-  font-size: 1.05em;
+  transform: scale(1.05);
 }
 
 button:active {
   transform: scale(0.95);
+}
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .logout-container {
