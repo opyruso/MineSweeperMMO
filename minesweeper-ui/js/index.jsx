@@ -83,7 +83,7 @@ function App() {
             path="/"
             element={
               <RequireAuth>
-                <Home />
+                <Home keycloak={keycloak} />
               </RequireAuth>
             }
           />
@@ -113,15 +113,55 @@ function SettingsButton() {
   );
 }
 
-function Home() {
+function Home({ keycloak }) {
   const { t } = React.useContext(LangContext);
+  const [games, setGames] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`)
+      .then((r) => r.json())
+      .then(setGames)
+      .catch(() => setGames([]));
+  }, []);
+
+  const isAdmin = keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin');
+
+  if (games === null) {
+    return null;
+  }
+
   return (
     <div>
       <h1>{t.title}</h1>
+      {games.length === 0 ? (
+        <div className="no-games">
+          <p>{t.noGame}</p>
+          {isAdmin && <CreateGameForm />}
+        </div>
+      ) : (
+        <ul>
+          {games.map((g) => (
+            <li key={g.id}>{g.name || g.id}</li>
+          ))}
+        </ul>
+      )}
       <nav>
         <Link to="/settings">{t.settings}</Link>
       </nav>
     </div>
+  );
+}
+
+function CreateGameForm() {
+  const { t } = React.useContext(LangContext);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, { method: 'POST' });
+  };
+  return (
+    <form onSubmit={handleSubmit} className="create-game-form">
+      <button type="submit">{t.createGame}</button>
+    </form>
   );
 }
 

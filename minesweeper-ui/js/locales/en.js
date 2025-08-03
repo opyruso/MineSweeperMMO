@@ -5,5 +5,7 @@ export default {
   "logout": "Logout",
   "language": "Language",
   "english": "English",
-  "french": "French"
+  "french": "French",
+  "noGame": "No game in progress at the moment...",
+  "createGame": "Create a game"
 };
