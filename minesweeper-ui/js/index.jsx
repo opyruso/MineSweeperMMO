@@ -1,4 +1,12 @@
-const { HashRouter, Routes, Route, Navigate, Link, useLocation } = ReactRouterDOM;
+const {
+  HashRouter,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useLocation,
+  useParams,
+} = ReactRouterDOM;
 
 import { LangProvider, LangContext } from '/js/i18n.js';
 
@@ -87,6 +95,14 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route
+            path="/games/:id"
+            element={
+              <RequireAuth>
+                <GamePage keycloak={keycloak} />
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </HashRouter>
@@ -145,11 +161,24 @@ function Home({ keycloak }) {
         </div>
       ) : (
         <>
-          <ul>
-            {games.map((g) => (
-              <li key={g.id}>{g.name || g.id}</li>
-            ))}
-          </ul>
+          <div className="games-list-container">
+            <ul className="games-list">
+              {games.map((g) => (
+                <li key={g.id}>
+                  <Link to={`/games/${g.id}`} className="game-item">
+                    <span className="game-prefix">
+                      {g.foundMines}/{g.mineCount}:
+                    </span>
+                    <span className="game-title">{g.title}</span>
+                    <span className="game-suffix">
+                      , {new Date(g.endDate).toLocaleString()} ({g.width}L*
+                      {g.height}H)
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
           {isAdmin && <CreateGameForm keycloak={keycloak} />}
         </>
       )}
@@ -243,6 +272,15 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-page">
       <button onClick={onLogin}>{t.login}</button>
+    </div>
+  );
+}
+
+function GamePage() {
+  const { id } = useParams();
+  return (
+    <div className="game-page">
+      <p>{id}</p>
     </div>
   );
 }
