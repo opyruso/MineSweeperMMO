@@ -1,4 +1,4 @@
-import { rmSync, mkdirSync, cpSync } from 'fs';
+import { rmSync, mkdirSync, cpSync, existsSync } from 'fs';
 
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist', { recursive: true });
@@ -6,6 +6,12 @@ mkdirSync('dist', { recursive: true });
 cpSync('public', 'dist', { recursive: true });
 cpSync('js', 'dist/js', { recursive: true });
 cpSync('css', 'dist/css', { recursive: true });
+
+const env = (process.env.CONFIG_ENV || 'dev').toLowerCase();
+const cfg = `config/${env}.js`;
+if (existsSync(cfg)) {
+  cpSync(cfg, 'dist/config.js');
+}
 
 // bundle external dependencies for static hosting
 mkdirSync('dist/vendor', { recursive: true });

@@ -1,13 +1,17 @@
 const { HashRouter, Routes, Route, Navigate, Link } = ReactRouterDOM;
 
-import { LangProvider, LangContext } from './js/i18n.js';
+import { LangProvider, LangContext } from './i18n.js';
 
 function App() {
   const [keycloak, setKeycloak] = React.useState(null);
   const [authenticated, setAuthenticated] = React.useState(false);
 
   React.useEffect(() => {
-    const kc = new Keycloak();
+    const kc = new Keycloak({
+      url: window.CONFIG['auth-url'],
+      realm: window.CONFIG['auth-realm'],
+      clientId: window.CONFIG['auth-client-id'],
+    });
     kc.init({ onLoad: 'check-sso', checkLoginIframe: false })
       .then((auth) => {
         setAuthenticated(auth);
