@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy-dev:
+  deploy-rec:
     runs-on: self-hosted
 
     steps:
@@ -50,7 +50,7 @@ jobs:
           echo "🧹 Nettoyage du dossier de test..."
           rm -rf /opt/minesweeper/minesweeper-api-rec/minesweeper-api-runner.jar
 
-          echo "📁 Copie des fichiers dans pictos-dev..."
+          echo "📁 Copie des fichiers dans minesweeper-api-rec..."
           cp -r target/minesweeper-api-1.0.0-SNAPSHOT-runner.jar /opt/minesweeper/minesweeper-api-rec/minesweeper-api-runner.jar
           sudo chown minesweeper-api-rec: /opt/minesweeper/minesweeper-api-rec/minesweeper-api-runner.jar
 
