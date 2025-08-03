@@ -103,15 +103,6 @@ export default function GamePage({ keycloak }) {
     draw();
   }, [draw]);
 
-  const handlePointerDown = (e) => {
-    canvasRef.current.setPointerCapture(e.pointerId);
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startCenter: { ...center },
-    };
-  };
-
   const handlePointerMove = (e) => {
     if (!dragRef.current) return;
     const cellSize = Math.pow(2, zoom);
@@ -123,25 +114,42 @@ export default function GamePage({ keycloak }) {
     });
   };
 
+  const endDrag = () => {
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', handlePointerUp);
+    window.removeEventListener('pointercancel', handlePointerUp);
+    dragRef.current = null;
+  };
+
   const handlePointerUp = (e) => {
-    canvasRef.current.releasePointerCapture(e.pointerId);
-    if (dragRef.current) {
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
-      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        const cellSize = Math.pow(2, zoom);
-        const left = center.x - rect.width / (2 * cellSize);
-        const top = center.y - rect.height / (2 * cellSize);
-        const x = Math.floor(left + (e.clientX - rect.left) / cellSize);
-        const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
-        const scan = scans.find((s) => s.x === x && s.y === y);
-        setSelected({ x, y, scan });
-        setScanRange(scan ? scan.scanRange : 1);
-      }
-      dragRef.current = null;
+    if (!dragRef.current || e.pointerId !== dragRef.current.pointerId) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+      const canvas = canvasRef.current;
+      const rect = canvas.getBoundingClientRect();
+      const cellSize = Math.pow(2, zoom);
+      const left = center.x - rect.width / (2 * cellSize);
+      const top = center.y - rect.height / (2 * cellSize);
+      const x = Math.floor(left + (e.clientX - rect.left) / cellSize);
+      const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
+      const scan = scans.find((s) => s.x === x && s.y === y);
+      setSelected({ x, y, scan });
+      setScanRange(scan ? scan.scanRange : 1);
     }
+    endDrag();
+  };
+
+  const handlePointerDown = (e) => {
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startCenter: { ...center },
+      pointerId: e.pointerId,
+    };
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
   };
 
   const handleScan = () => {
@@ -198,8 +206,6 @@ export default function GamePage({ keycloak }) {
         ref={canvasRef}
         className="game-canvas"
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
       ></canvas>
       <input
         className="zoom-slider"
