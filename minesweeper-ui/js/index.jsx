@@ -145,12 +145,12 @@ function Home({ keycloak }) {
         </div>
       ) : (
         <>
-          {isAdmin && <CreateGameForm keycloak={keycloak} />}
           <ul>
             {games.map((g) => (
               <li key={g.id}>{g.name || g.id}</li>
             ))}
           </ul>
+          {isAdmin && <CreateGameForm keycloak={keycloak} />}
         </>
       )}
     </div>
