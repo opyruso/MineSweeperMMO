@@ -160,24 +160,27 @@ function Home({ keycloak }) {
           {isAdmin && <CreateGameForm keycloak={keycloak} />}
         </div>
       ) : (
-        <div className="games-list-container">
-          <ul className="games-list">
-            {games.map((g) => (
-              <li key={g.id}>
-                <Link to={`/games/${g.id}`} className="game-item">
-                  <span className="game-prefix">
-                    {g.foundMines}/{g.mineCount}:
-                  </span>
-                  <span className="game-title">{g.title}</span>
-                  <span className="game-suffix">
-                    , {new Date(g.endDate).toLocaleString()} ({g.width}L*
-                    {g.height}H)
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <div className="games-list-container">
+            <ul className="games-list">
+              {games.map((g) => (
+                <li key={g.id}>
+                  <Link to={`/games/${g.id}`} className="game-item">
+                    <span className="game-prefix">
+                      {g.foundMines}/{g.mineCount}:
+                    </span>
+                    <span className="game-title">{g.title}</span>
+                    <span className="game-suffix">
+                      , {new Date(g.endDate).toLocaleString()} ({g.width}L*
+                      {g.height}H)
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {isAdmin && <CreateGameForm keycloak={keycloak} />}
+        </>
       )}
     </div>
   );
