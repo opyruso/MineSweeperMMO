@@ -138,6 +138,15 @@ function SettingsPage({ authenticated, onLogout }) {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const rootElement = document.getElementById('root');
+const root = ReactDOM.createRoot(rootElement);
 root.render(<App />);
+
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loading-screen');
+  if (loader) {
+    loader.style.display = 'none';
+  }
+  rootElement.style.display = 'block';
+});
 

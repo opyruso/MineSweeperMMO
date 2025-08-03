@@ -17,6 +17,8 @@ body {
 
 body {
   font-family: "Mouse Memoirs", sans-serif;
+  background-color: #000;
+  color: #fff;
 }
 
 h1 {
@@ -84,4 +86,29 @@ button:active {
 
 .logout-container {
   margin-top: 2rem;
+}
+
+.login-page button,
+.logout-container button {
+  font-size: 2rem;
+  padding: 1rem 2rem;
+}
+
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  z-index: 1000;
+}
+
+#root {
+  display: none;
 }
