@@ -9,6 +9,7 @@ export default {
   "gameTitleLabel": "Title",
   "width": "Width",
   "height": "Height",
+  "mineCount": "Number of mines",
   "endDate": "End date",
   "create": "Create",
   "cancel": "Cancel"
