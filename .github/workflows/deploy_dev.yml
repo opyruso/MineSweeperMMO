@@ -16,7 +16,7 @@ jobs:
       - name: 🚀 Déploiement sur minesweeper-dev
         run: |
           cd minesweeper-ui
-          export APP_ENV=dev
+          export CONFIG_ENV=dev
           echo "📦 Installation des dépendances..."
           npm install
 
