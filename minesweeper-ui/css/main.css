@@ -217,6 +217,7 @@ button:active {
   justify-content: center;
   align-items: center;
   flex: 1;
+  overflow: auto;
 }
 
 .games-list {
