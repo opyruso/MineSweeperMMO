@@ -1,4 +1,4 @@
-const { HashRouter, Routes, Route, Navigate, Link } = ReactRouterDOM;
+const { HashRouter, Routes, Route, Navigate, Link, useLocation } = ReactRouterDOM;
 
 import { LangProvider, LangContext } from '/js/i18n.js';
 
@@ -37,6 +37,7 @@ function App() {
   return (
     <LangProvider>
       <HashRouter>
+        <SettingsButton />
         <Routes>
           <Route
             path="/login"
@@ -67,6 +68,22 @@ function App() {
         </Routes>
       </HashRouter>
     </LangProvider>
+  );
+}
+
+function SettingsButton() {
+  const location = useLocation();
+  if (location.pathname === '/settings') {
+    return (
+      <Link to="/" className="settings-button" aria-label="Back">
+        <i className="fa-solid fa-arrow-left"></i>
+      </Link>
+    );
+  }
+  return (
+    <Link to="/settings" className="settings-button" aria-label="Settings">
+      <i className="fa-solid fa-gear"></i>
+    </Link>
   );
 }
 
