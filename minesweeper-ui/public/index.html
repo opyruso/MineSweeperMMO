@@ -7,6 +7,9 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
     <title>MineSweeper UI</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
     <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
@@ -38,5 +41,6 @@
         document.getElementById('root').style.display = 'block';
       });
     </script>
+    <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("service-worker.js");});}</script>
   </body>
 </html>
