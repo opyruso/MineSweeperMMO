@@ -88,8 +88,13 @@ export default function GamePage({ keycloak }) {
         const cx = (s.x - left + 0.5) * cellSize;
         const cy = (s.y - top + 0.5) * cellSize;
         const radius = Math.floor(s.scanRange) * cellSize;
-        ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
-        ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+        const hasMines = (s.mineCount ?? 0) > 0;
+        ctx.fillStyle = hasMines
+          ? 'rgba(255, 165, 0, 0.2)'
+          : 'rgba(0, 0, 255, 0.2)';
+        ctx.strokeStyle = hasMines
+          ? 'rgba(255, 165, 0, 0.5)'
+          : 'rgba(0, 0, 255, 0.5)';
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         ctx.fill();
