@@ -15,6 +15,7 @@ export default function GamePage({ keycloak }) {
   const [center, setCenter] = React.useState({ x: 0, y: 0 });
   const [selected, setSelected] = React.useState(null);
   const [scanRange, setScanRange] = React.useState(1);
+  const [visibleScans, setVisibleScans] = React.useState(new Set());
   const zoomRef = React.useRef(zoom);
   const centerRef = React.useRef(center);
 
@@ -83,6 +84,17 @@ export default function GamePage({ keycloak }) {
       const py = (s.y - top) * cellSize;
       ctx.fillStyle = '#00008b';
       ctx.fillRect(px, py, cellSize, cellSize);
+      if (visibleScans.has(`${s.x},${s.y}`)) {
+        const cx = (s.x - left + 0.5) * cellSize;
+        const cy = (s.y - top + 0.5) * cellSize;
+        const radius = Math.floor(s.scanRange) * cellSize;
+        ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
+        ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
     }
 
     for (const m of mines) {
@@ -90,19 +102,6 @@ export default function GamePage({ keycloak }) {
       const py = (m.y - top) * cellSize;
       ctx.fillStyle = m.status === 'cleared' ? '#008000' : '#ff0000';
       ctx.fillRect(px, py, cellSize, cellSize);
-    }
-
-    if (selected && selected.scan && selected.showArea) {
-      const s = selected.scan;
-      const px = (s.x - left + 0.5) * cellSize;
-      const py = (s.y - top + 0.5) * cellSize;
-      const radius = Math.floor(s.scanRange) * cellSize;
-      ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
-      ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
-      ctx.beginPath();
-      ctx.arc(px, py, radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
     }
 
     if (selected && !selected.mine) {
@@ -129,7 +128,7 @@ export default function GamePage({ keycloak }) {
       ctx.strokeRect(px, py, cellSize, cellSize);
       ctx.setLineDash([]);
     }
-  }, [game, scans, mines, zoom, center, selected, scanRange]);
+  }, [game, scans, mines, zoom, center, selected, scanRange, visibleScans]);
 
   React.useEffect(() => {
     const resize = () => {
@@ -238,13 +237,20 @@ export default function GamePage({ keycloak }) {
       const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
       const scan = scans.find((s) => s.x === x && s.y === y);
       const mine = mines.find((m) => m.x === x && m.y === y);
-      setSelected((prev) => {
-        if (prev && prev.x === x && prev.y === y && scan) {
-          return { ...prev, scan, mine, showArea: !prev.showArea };
-        }
-        return { x, y, scan, mine, showArea: scan ? true : false };
-      });
-      if (scan) setScanRange(scan.scanRange);
+      if (scan) {
+        setVisibleScans((prev) => {
+          const key = `${scan.x},${scan.y}`;
+          const next = new Set(prev);
+          if (next.has(key)) {
+            next.delete(key);
+          } else {
+            next.add(key);
+          }
+          return next;
+        });
+        setScanRange(scan.scanRange);
+      }
+      setSelected({ x, y, scan, mine });
       console.log({ x, y, scan, mine });
     }
     endDrag();
@@ -335,12 +341,16 @@ export default function GamePage({ keycloak }) {
           ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
           res,
         ]);
+        setVisibleScans((prev) => {
+          const next = new Set(prev);
+          next.add(`${res.x},${res.y}`);
+          return next;
+        });
         setSelected((prev) => ({
           x: res.x,
           y: res.y,
           scan: res,
           mine: prev.mine,
-          showArea: true,
         }));
         setScanRange(res.scanRange ?? 1);
         requestAnimationFrame(draw);
@@ -377,7 +387,12 @@ export default function GamePage({ keycloak }) {
             ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
             scan,
           ]);
-          setSelected({ x: res.x, y: res.y, scan, mine: null, showArea: true });
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.add(`${scan.x},${scan.y}`);
+            return next;
+          });
+          setSelected({ x: res.x, y: res.y, scan, mine: null });
           setScanRange(0);
           requestAnimationFrame(draw);
         } else {
@@ -387,7 +402,6 @@ export default function GamePage({ keycloak }) {
             y: res.y,
             scan: prev.scan,
             mine: res,
-            showArea: prev.showArea,
           }));
         }
       });
