@@ -341,6 +341,11 @@ button:active {
   align-items: center;
   gap: 1rem;
   color: #fff;
+  flex-wrap: nowrap;
+}
+
+.info-panel input[type="range"] {
+  width: 20vw;
 }
 
 .name-form {
