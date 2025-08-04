@@ -277,7 +277,7 @@ export default function GamePage({ keycloak }) {
     }
   };
 
-  const handleWheel = (e) => {
+  const handleWheel = React.useCallback((e) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -304,7 +304,14 @@ export default function GamePage({ keycloak }) {
     centerRef.current = newCenter;
     setZoom(nextZoom);
     zoomRef.current = nextZoom;
-  };
+  }, []);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
   const handleScan = () => {
     const range = scanRange;
@@ -396,7 +403,6 @@ export default function GamePage({ keycloak }) {
         ref={canvasRef}
         className="game-canvas"
         onPointerDown={handlePointerDown}
-        onWheel={handleWheel}
       ></canvas>
       {selected && (
         <div className="info-panel">
