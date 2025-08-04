@@ -43,7 +43,7 @@ export default function App() {
 
   React.useEffect(() => {
     const handleOrientationChange = () => {
-      const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+      const isLandscape = window.innerWidth > window.innerHeight;
       const elem = document.documentElement;
       if (isLandscape) {
         if (!document.fullscreenElement && elem.requestFullscreen) {
@@ -54,10 +54,10 @@ export default function App() {
       }
     };
 
-    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
     handleOrientationChange();
     return () => {
-      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
     };
   }, []);
 
