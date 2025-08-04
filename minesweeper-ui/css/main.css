@@ -36,6 +36,30 @@ h1 {
   z-index: 10;
 }
 
+.stats-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 2rem;
+  padding: 0.25rem 0;
+  z-index: 30;
+  pointer-events: none;
+  white-space: pre;
+}
+
+.games-list-button {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  font-size: 4rem;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
 .settings-page,
 .login-page,
 .no-games,
@@ -318,4 +342,14 @@ button:active {
 .name-form input {
   font-size: 1.5rem;
   padding: 0.5rem;
+}
+
+@media screen and (orientation:portrait) {
+  body {
+    transform: rotate(90deg);
+    transform-origin: left top;
+    width: 100vh;
+    height: 100vw;
+    overflow: hidden;
+  }
 }

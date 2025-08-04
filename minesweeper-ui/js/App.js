@@ -43,22 +43,22 @@ export default function App() {
   }, [soundsOn]);
 
   React.useEffect(() => {
-    const handleOrientationChange = () => {
-      const isLandscape = window.innerWidth > window.innerHeight;
+    const lockLandscape = () => {
       const elem = document.documentElement;
-      if (isLandscape) {
-        if (!document.fullscreenElement && elem.requestFullscreen) {
-          elem.requestFullscreen().catch(() => {});
-        }
-      } else if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+      if (!document.fullscreenElement && elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
       }
     };
 
-    window.addEventListener('resize', handleOrientationChange);
-    handleOrientationChange();
+    window.addEventListener('orientationchange', lockLandscape);
+    window.addEventListener('resize', lockLandscape);
+    lockLandscape();
     return () => {
-      window.removeEventListener('resize', handleOrientationChange);
+      window.removeEventListener('orientationchange', lockLandscape);
+      window.removeEventListener('resize', lockLandscape);
     };
   }, []);
 
@@ -90,6 +90,7 @@ export default function App() {
       <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         {authenticated && playerData && <StatsBar data={playerData} />}
         <SettingsButton />
+        <GamesListButton />
         <AppRouter
           authenticated={authenticated}
           keycloak={keycloak}
@@ -126,6 +127,18 @@ function SettingsButton() {
       aria-label="Settings"
     >
       <i className="fa-solid fa-gear"></i>
+    </Link>
+  );
+}
+
+function GamesListButton() {
+  const location = useLocation();
+  if (location.pathname === '/games') {
+    return null;
+  }
+  return (
+    <Link to="/games" className="games-list-button" aria-label="Games">
+      <i className="fa-solid fa-table"></i>
     </Link>
   );
 }
