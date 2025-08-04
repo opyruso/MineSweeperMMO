@@ -22,5 +22,12 @@ export default {
   "scan": "Scanner",
   "rescan": "Re-scanner",
   "demine": "D\u00E9miner",
-  "status": "Statut"
+  "status": "Statut",
+  "gold": "Or",
+  "reputation": "R\u00E9putation",
+  "dailyIncome": "Salaire journalier",
+  "upgradeScan": "Am\u00E9liorer la port\u00E9e du scan",
+  "upgradeIncome": "Am\u00E9liorer le salaire",
+  "cost": "Co\u00FBt",
+  "info": "Infos"
 };

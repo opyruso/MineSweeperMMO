@@ -7,6 +7,7 @@ export default function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
   const [soundsOn, setSoundsOn] = React.useState(true);
   const soundsOnRef = React.useRef(soundsOn);
+  const [playerData, setPlayerData] = React.useState(null);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -68,9 +69,26 @@ export default function App() {
   const toggleSounds = () => setSoundsOn((s) => !s);
   const login = () => keycloak.login({ idpHint: 'google' });
 
+  const fetchPlayerData = React.useCallback(() => {
+    if (!keycloak) return;
+    fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    })
+      .then((r) => r.json())
+      .then(setPlayerData)
+      .catch(() => {});
+  }, [keycloak]);
+
+  React.useEffect(() => {
+    if (authenticated) {
+      fetchPlayerData();
+    }
+  }, [authenticated, fetchPlayerData]);
+
   return (
     <LangProvider>
       <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        {authenticated && playerData && <StatsBar data={playerData} />}
         <SettingsButton />
         <AppRouter
           authenticated={authenticated}
@@ -78,6 +96,8 @@ export default function App() {
           login={login}
           soundsOn={soundsOn}
           toggleSounds={toggleSounds}
+          playerData={playerData}
+          refreshPlayerData={fetchPlayerData}
         />
       </HashRouter>
     </LangProvider>
@@ -107,5 +127,13 @@ function SettingsButton() {
     >
       <i className="fa-solid fa-gear"></i>
     </Link>
+  );
+}
+
+function StatsBar({ data }) {
+  return (
+    <div className="stats-bar">
+      {`Gold: ${data.gold} po    scan: ${data.scanRangeMax}    reputation: ${data.reputation}`}
+    </div>
   );
 }
