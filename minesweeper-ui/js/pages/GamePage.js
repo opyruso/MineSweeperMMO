@@ -30,10 +30,39 @@ export default function GamePage({ keycloak }) {
         const g = list.find((g) => g.id === id);
         if (g) {
           setGame(g);
-          setCenter({ x: Math.floor(g.width / 2), y: Math.floor(g.height / 2) });
         }
       });
   }, [apiUrl, id, keycloak]);
+
+  React.useEffect(() => {
+    if (!game) return;
+    const stored = localStorage.getItem(`gameState-${id}`);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (typeof parsed.zoom === 'number') {
+          setZoom(parsed.zoom);
+          zoomRef.current = parsed.zoom;
+        }
+        if (parsed.center && typeof parsed.center.x === 'number' && typeof parsed.center.y === 'number') {
+          setCenter(parsed.center);
+          centerRef.current = parsed.center;
+        } else {
+          setCenter({ x: Math.floor(game.width / 2), y: Math.floor(game.height / 2) });
+        }
+        if (typeof parsed.scanRange === 'number') {
+          setScanRange(parsed.scanRange);
+        }
+        if (Array.isArray(parsed.visibleScans)) {
+          setVisibleScans(new Set(parsed.visibleScans));
+        }
+      } catch {
+        setCenter({ x: Math.floor(game.width / 2), y: Math.floor(game.height / 2) });
+      }
+    } else {
+      setCenter({ x: Math.floor(game.width / 2), y: Math.floor(game.height / 2) });
+    }
+  }, [game, id]);
 
   React.useEffect(() => {
     if (!game) return;
@@ -58,6 +87,17 @@ export default function GamePage({ keycloak }) {
   React.useEffect(() => {
     centerRef.current = center;
   }, [center]);
+
+  React.useEffect(() => {
+    if (!game) return;
+    const data = {
+      zoom,
+      center,
+      scanRange,
+      visibleScans: Array.from(visibleScans),
+    };
+    localStorage.setItem(`gameState-${id}`, JSON.stringify(data));
+  }, [id, game, zoom, center, scanRange, visibleScans]);
 
   const draw = React.useCallback(() => {
     const canvas = canvasRef.current;
