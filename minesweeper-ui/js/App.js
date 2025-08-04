@@ -41,6 +41,26 @@ export default function App() {
     soundsOnRef.current = soundsOn;
   }, [soundsOn]);
 
+  React.useEffect(() => {
+    const handleOrientationChange = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const elem = document.documentElement;
+      if (isLandscape) {
+        if (!document.fullscreenElement && elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => {});
+        }
+      } else if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+
+    window.addEventListener('resize', handleOrientationChange);
+    handleOrientationChange();
+    return () => {
+      window.removeEventListener('resize', handleOrientationChange);
+    };
+  }, []);
+
   if (!keycloak) {
     return null;
   }
