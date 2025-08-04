@@ -4,6 +4,8 @@ export default {
   "language": "Langue",
   "english": "Anglais",
   "french": "Fran\u00E7ais",
+  "playerName": "Nom du joueur",
+  "save": "Enregistrer",
   "noGame": "Aucune partie en cours pour le moment...",
   "createGame": "Cr\u00E9er une partie",
   "gameTitleLabel": "Titre",

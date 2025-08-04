@@ -96,12 +96,7 @@ button:active {
   background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_login.png");
 }
 
-.logout-container {
-  margin-top: 2rem;
-}
-
 .login-page button,
-.logout-container button,
 .main-button {
   font-size: 2rem;
   padding: 1rem 2rem;
@@ -171,13 +166,33 @@ button:active {
 
 .sound-toggle-container {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
+  top: 5rem;
+  right: 0.5rem;
 }
 
 .sound-toggle {
   font-size: 3rem;
   color: inherit;
+}
+
+.name-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.player-name-label {
+  font-size: 2rem;
+}
+
+.action-buttons {
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .no-games {
@@ -290,4 +305,17 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.name-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.name-form input {
+  font-size: 1.5rem;
+  padding: 0.5rem;
 }
