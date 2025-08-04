@@ -44,7 +44,9 @@ public class PlayerLastConnexionFilter implements ContainerRequestFilter {
         if (player == null) {
             player = new Player();
             player.setId(playerId);
-            player.setName(identity.getPrincipal().getName());
+            String firstName = jwt.getClaim("given_name");
+            String defaultName = identity.getPrincipal().getName();
+            player.setName(firstName != null ? firstName : defaultName);
             player.setDateLastConnexion(now);
             playerRepository.persist(player);
         } else {

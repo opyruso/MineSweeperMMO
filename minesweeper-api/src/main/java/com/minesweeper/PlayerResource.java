@@ -34,7 +34,8 @@ public class PlayerResource {
         if (player == null) {
             player = new Player();
             player.setId(id);
-            player.setName(id);
+            String firstName = jwt.getClaim("given_name");
+            player.setName(firstName != null ? firstName : id);
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
@@ -51,10 +52,14 @@ public class PlayerResource {
         if (player == null) {
             player = new Player();
             player.setId(id);
+            String firstName = jwt.getClaim("given_name");
+            player.setName(firstName != null ? firstName : id);
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
-        player.setName(request.name());
+        if (request.name() != null && !request.name().isBlank()) {
+            player.setName(request.name());
+        }
         return new PlayerInfo(player.getId(), player.getName());
     }
 }
