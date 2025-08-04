@@ -342,6 +342,12 @@ button:active {
   gap: 1rem;
   color: #fff;
   flex-wrap: nowrap;
+  font-size: 3vh;
+}
+
+.info-panel span {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .info-panel input[type="range"] {
