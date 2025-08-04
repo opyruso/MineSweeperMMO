@@ -166,7 +166,7 @@ button:active {
 
 .sound-toggle-container {
   position: absolute;
-  bottom: 1rem;
+  top: 5rem;
   right: 1rem;
 }
 
