@@ -311,7 +311,7 @@ export default function GamePage({ keycloak }) {
     if (!canvas) return;
     canvas.addEventListener('wheel', handleWheel, { passive: false });
     return () => canvas.removeEventListener('wheel', handleWheel);
-  }, [handleWheel]);
+  }, [handleWheel, game]);
 
   const handleScan = () => {
     const range = scanRange;
