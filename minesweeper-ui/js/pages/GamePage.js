@@ -106,8 +106,7 @@ export default function GamePage({ keycloak }) {
     const cellSize = Math.pow(2, zoom);
     const width = canvas.width;
     const height = canvas.height;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
     const left = center.x - width / (2 * cellSize);
     const top = center.y - height / (2 * cellSize);
 
