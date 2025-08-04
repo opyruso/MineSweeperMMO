@@ -41,14 +41,20 @@ h1 {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 80%;
   text-align: left;
-  font-size: 10vh;
+  font-size: 12vh;
   padding: 0.25rem 0;
   z-index: 30;
   pointer-events: auto;
-  white-space: pre;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
+  color: #fff;
+  -webkit-text-stroke: 1px #333;
+  text-shadow: -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 1px 1px 0 #333;
+  display: inline-block;
 }
 
 .games-list-button {
