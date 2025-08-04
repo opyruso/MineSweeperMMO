@@ -130,7 +130,11 @@ function SettingsButton() {
       className="settings-button"
       aria-label="Settings"
     >
-      <i className="fa-solid fa-gear"></i>
+      <img
+        src="images/icons/actions/icon_wheel.png"
+        alt="Settings"
+        className="icon"
+      />
     </Link>
   );
 }
