@@ -334,7 +334,7 @@ button:active {
 
 .info-panel {
   position: absolute;
-  bottom: 1rem;
+  bottom: 1vh;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -342,7 +342,11 @@ button:active {
   gap: 1rem;
   color: #fff;
   flex-wrap: nowrap;
-  font-size: 3vh;
+  font-size: 4vh;
+}
+
+.info-panel .main-button {
+  padding: 0;
 }
 
 .info-panel span {
