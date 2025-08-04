@@ -382,22 +382,34 @@ export default function GamePage({ keycloak }) {
     })
       .then((r) => r.json())
       .then((res) => {
-        setScans((prev) => [
-          ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
-          res,
-        ]);
-        setVisibleScans((prev) => {
-          const next = new Set(prev);
-          next.add(`${res.x},${res.y}`);
-          return next;
-        });
-        setSelected((prev) => ({
-          x: res.x,
-          y: res.y,
-          scan: res,
-          mine: prev.mine,
-        }));
-        setScanRange(res.scanRange ?? 1);
+        if (res.exploded) {
+          const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
+          setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.delete(`${res.x},${res.y}`);
+            return next;
+          });
+          setMines((prev) => [...prev, mine]);
+          setSelected({ x: res.x, y: res.y, scan: null, mine });
+        } else {
+          setScans((prev) => [
+            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+            res,
+          ]);
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.add(`${res.x},${res.y}`);
+            return next;
+          });
+          setSelected((prev) => ({
+            x: res.x,
+            y: res.y,
+            scan: res,
+            mine: prev.mine,
+          }));
+          setScanRange(res.scanRange ?? 1);
+        }
         requestAnimationFrame(draw);
       });
   };
