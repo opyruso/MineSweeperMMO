@@ -145,8 +145,8 @@ function GamesListButton() {
 
 function StatsBar({ data }) {
   return (
-    <div className="stats-bar">
+    <Link to="/info" className="stats-bar">
       {`Gold: ${data.gold} po    scan: ${data.scanRangeMax}    reputation: ${data.reputation}`}
-    </div>
+    </Link>
   );
 }

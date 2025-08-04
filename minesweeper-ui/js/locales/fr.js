@@ -28,6 +28,5 @@ export default {
   "dailyIncome": "Salaire journalier",
   "upgradeScan": "Am\u00E9liorer la port\u00E9e du scan",
   "upgradeIncome": "Am\u00E9liorer le salaire",
-  "cost": "Co\u00FBt",
-  "info": "Infos"
+  "cost": "Co\u00FBt"
 };

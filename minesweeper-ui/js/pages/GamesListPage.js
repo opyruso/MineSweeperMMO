@@ -30,9 +30,6 @@ export default function GamesListPage({ keycloak }) {
 
   return (
     <div>
-      <Link to="/info" className="main-button">
-        {t.info}
-      </Link>
       {games.length === 0 ? (
         <div className="no-games">
           <div className="no-games-message">
