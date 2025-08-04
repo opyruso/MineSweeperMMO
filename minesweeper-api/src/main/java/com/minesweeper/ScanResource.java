@@ -45,8 +45,15 @@ public class ScanResource {
             throw new NotFoundException();
         }
         return playerScanRepository.list("game", game).stream()
-                .map(scan -> new ScanInfo(scan.getId(), scan.getPlayer().getId(), scan.getX(), scan.getY(),
-                        scan.getScanDate(), scan.getScanRange(), countMines(game, scan.getX(), scan.getY(), scan.getScanRange())))
+                .map(scan -> new ScanInfo(
+                        scan.getId(),
+                        scan.getPlayer().getId(),
+                        scan.getX(),
+                        scan.getY(),
+                        scan.getScanDate(),
+                        scan.getScanRange(),
+                        countMines(game, scan.getX(), scan.getY(), scan.getScanRange()),
+                        false))
                 .toList();
     }
 
@@ -66,6 +73,15 @@ public class ScanResource {
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
+        Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
+        LocalDateTime now = LocalDateTime.now();
+        if (mine != null) {
+            mine.setExploded(true);
+            int mines = countMines(game, request.x(), request.y(), request.scanRange());
+            return new ScanInfo(null, player.getId(), request.x(), request.y(),
+                    now, request.scanRange(), mines, true);
+        }
+
         PlayerScan scan = new PlayerScan();
         scan.setId(UUID.randomUUID().toString());
         scan.setGame(game);
@@ -73,17 +89,12 @@ public class ScanResource {
         scan.setX(request.x());
         scan.setY(request.y());
         scan.setScanRange(request.scanRange());
-        scan.setScanDate(LocalDateTime.now());
+        scan.setScanDate(now);
         playerScanRepository.persist(scan);
-
-        Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
-        if (mine != null) {
-            mine.setExploded(true);
-        }
 
         int mines = countMines(game, request.x(), request.y(), request.scanRange());
         return new ScanInfo(scan.getId(), player.getId(), scan.getX(), scan.getY(),
-                scan.getScanDate(), scan.getScanRange(), mines);
+                scan.getScanDate(), scan.getScanRange(), mines, false);
     }
 
     private int countMines(Game game, int x, int y, int range) {
