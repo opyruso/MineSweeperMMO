@@ -1,4 +1,4 @@
-const { HashRouter, Link, useLocation } = ReactRouterDOM;
+const { HashRouter, Link, useLocation, useNavigate } = ReactRouterDOM;
 import { LangProvider } from './i18n.js';
 import AppRouter from './router.js';
 
@@ -86,15 +86,25 @@ export default function App() {
 
 function SettingsButton() {
   const location = useLocation();
+  const navigate = useNavigate();
   if (location.pathname === '/settings') {
     return (
-      <Link to="/" className="settings-button" aria-label="Back">
+      <button
+        onClick={() => navigate(location.state?.from || '/')}
+        className="settings-button"
+        aria-label="Back"
+      >
         <i className="fa-solid fa-arrow-left"></i>
-      </Link>
+      </button>
     );
   }
   return (
-    <Link to="/settings" className="settings-button" aria-label="Settings">
+    <Link
+      to="/settings"
+      state={{ from: location.pathname }}
+      className="settings-button"
+      aria-label="Settings"
+    >
       <i className="fa-solid fa-gear"></i>
     </Link>
   );
