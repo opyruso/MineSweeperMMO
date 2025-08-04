@@ -62,10 +62,6 @@ export default function App() {
     };
   }, []);
 
-  if (!keycloak) {
-    return null;
-  }
-
   const toggleSounds = () => setSoundsOn((s) => !s);
   const login = () => keycloak.login({ idpHint: 'google' });
 
@@ -84,6 +80,10 @@ export default function App() {
       fetchPlayerData();
     }
   }, [authenticated, fetchPlayerData]);
+
+  if (!keycloak) {
+    return null;
+  }
 
   return (
     <LangProvider>
