@@ -39,7 +39,8 @@ h1 {
 .settings-page,
 .login-page,
 .no-games,
-.games-page {
+.games-page,
+.game-page {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -258,6 +259,7 @@ button:active {
 
 .game-page {
   position: relative;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/images_background_game.png");
   width: 100vw;
   height: 100vh;
   overflow: hidden;
