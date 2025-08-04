@@ -18,6 +18,7 @@ export default {
   "x": "X",
   "y": "Y",
   "scanRange": "Port\u00E9e du scan",
+  "power": "Puissance",
   "scanResult": "R\u00E9sultat du scan",
   "scan": "Scanner",
   "rescan": "Re-scanner",

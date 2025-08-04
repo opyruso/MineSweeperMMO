@@ -301,7 +301,6 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         setScanRange(Math.max(scan.scanRange, 2));
       }
       setSelected({ x, y, scan, mine });
-      console.log({ x, y, scan, mine });
     }
     endDrag();
   };
@@ -484,25 +483,21 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       ></canvas>
       {selected && (
         <div className="info-panel">
-          <p>{t.x}: {selected.x}</p>
-          <p>{t.y}: {selected.y}</p>
+          <span>({selected.x}, {selected.y})</span>
           {selected.mine ? (
-            <p>{t.status}: {selected.mine.status}</p>
+            <span>{t.status}: {selected.mine.status}</span>
           ) : (
             <>
-              <label>
-                {t.scanRange}: {scanRange}{' '}
-                <input
-                  type="range"
-                  min="2"
-                  max={playerData?.scanRangeMax ?? 10}
-                  value={scanRange ?? 2}
-                  onChange={(e) => setScanRange(Number(e.target.value))}
-                />
-              </label>
-              {selected.scan && (
-                <p>{t.scanResult}: {selected.scan.mineCount}</p>
-              )}
+              <span>
+                {t.power} ({scanRange}):
+              </span>
+              <input
+                type="range"
+                min="2"
+                max={playerData?.scanRangeMax ?? 10}
+                value={scanRange ?? 2}
+                onChange={(e) => setScanRange(Number(e.target.value))}
+              />
               <button
                 className="main-button"
                 onClick={handleScan}

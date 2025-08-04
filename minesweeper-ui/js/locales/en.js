@@ -18,6 +18,7 @@ export default {
   "x": "X",
   "y": "Y",
   "scanRange": "Scan range",
+  "power": "Power",
   "scanResult": "Scan result",
   "scan": "Scan",
   "rescan": "Rescan",
