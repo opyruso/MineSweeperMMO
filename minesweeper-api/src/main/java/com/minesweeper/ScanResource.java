@@ -2,7 +2,6 @@ package com.minesweeper;
 
 import com.minesweeper.dto.NewScanRequest;
 import com.minesweeper.dto.ScanInfo;
-import com.minesweeper.dto.ScanResult;
 import com.minesweeper.entity.Game;
 import com.minesweeper.entity.Mine;
 import com.minesweeper.entity.Player;
@@ -54,7 +53,7 @@ public class ScanResource {
     @POST
     @Authenticated
     @Transactional
-    public ScanResult createScan(NewScanRequest request) {
+    public ScanInfo createScan(NewScanRequest request) {
         Game game = gameRepository.findById(request.gameId());
         if (game == null) {
             throw new NotFoundException();
@@ -83,7 +82,8 @@ public class ScanResource {
         }
 
         int mines = countMines(game, request.x(), request.y(), request.scanRange());
-        return new ScanResult(mines);
+        return new ScanInfo(scan.getId(), player.getId(), scan.getX(), scan.getY(),
+                scan.getScanDate(), scan.getScanRange(), mines);
     }
 
     private int countMines(Game game, int x, int y, int range) {
