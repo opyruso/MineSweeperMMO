@@ -7,6 +7,7 @@ export default function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
   const [soundsOn, setSoundsOn] = React.useState(true);
   const soundsOnRef = React.useRef(soundsOn);
+  const [playerData, setPlayerData] = React.useState(null);
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -42,42 +43,62 @@ export default function App() {
   }, [soundsOn]);
 
   React.useEffect(() => {
-    const handleOrientationChange = () => {
-      const isLandscape = window.innerWidth > window.innerHeight;
+    const lockLandscape = () => {
       const elem = document.documentElement;
-      if (isLandscape) {
-        if (!document.fullscreenElement && elem.requestFullscreen) {
-          elem.requestFullscreen().catch(() => {});
-        }
-      } else if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+      if (!document.fullscreenElement && elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
       }
     };
 
-    window.addEventListener('resize', handleOrientationChange);
-    handleOrientationChange();
+    window.addEventListener('orientationchange', lockLandscape);
+    window.addEventListener('resize', lockLandscape);
+    lockLandscape();
     return () => {
-      window.removeEventListener('resize', handleOrientationChange);
+      window.removeEventListener('orientationchange', lockLandscape);
+      window.removeEventListener('resize', lockLandscape);
     };
   }, []);
+
+  const toggleSounds = () => setSoundsOn((s) => !s);
+  const login = () => keycloak.login({ idpHint: 'google' });
+
+  const fetchPlayerData = React.useCallback(() => {
+    if (!keycloak) return;
+    fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    })
+      .then((r) => r.json())
+      .then(setPlayerData)
+      .catch(() => {});
+  }, [keycloak]);
+
+  React.useEffect(() => {
+    if (authenticated) {
+      fetchPlayerData();
+    }
+  }, [authenticated, fetchPlayerData]);
 
   if (!keycloak) {
     return null;
   }
 
-  const toggleSounds = () => setSoundsOn((s) => !s);
-  const login = () => keycloak.login({ idpHint: 'google' });
-
   return (
     <LangProvider>
       <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        {authenticated && playerData && <StatsBar data={playerData} />}
         <SettingsButton />
+        <GamesListButton />
         <AppRouter
           authenticated={authenticated}
           keycloak={keycloak}
           login={login}
           soundsOn={soundsOn}
           toggleSounds={toggleSounds}
+          playerData={playerData}
+          refreshPlayerData={fetchPlayerData}
         />
       </HashRouter>
     </LangProvider>
@@ -106,6 +127,26 @@ function SettingsButton() {
       aria-label="Settings"
     >
       <i className="fa-solid fa-gear"></i>
+    </Link>
+  );
+}
+
+function GamesListButton() {
+  const location = useLocation();
+  if (location.pathname === '/games') {
+    return null;
+  }
+  return (
+    <Link to="/games" className="games-list-button" aria-label="Games">
+      <i className="fa-solid fa-table"></i>
+    </Link>
+  );
+}
+
+function StatsBar({ data }) {
+  return (
+    <Link to="/info" className="stats-bar">
+      {`Gold: ${data.gold} po | scan: ${data.scanRangeMax} | reputation: ${data.reputation}`}
     </Link>
   );
 }

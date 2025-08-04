@@ -22,5 +22,11 @@ export default {
   "scan": "Scan",
   "rescan": "Rescan",
   "demine": "Clear",
-  "status": "Status"
+  "status": "Status",
+  "gold": "Gold",
+  "reputation": "Reputation",
+  "dailyIncome": "Daily income",
+  "upgradeScan": "Upgrade scan range",
+  "upgradeIncome": "Upgrade daily income",
+  "cost": "Cost"
 };

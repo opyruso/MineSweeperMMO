@@ -1,7 +1,7 @@
 const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 
-export default function GamePage({ keycloak }) {
+export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const { id } = useParams();
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
@@ -33,6 +33,12 @@ export default function GamePage({ keycloak }) {
         }
       });
   }, [apiUrl, id, keycloak]);
+
+  React.useEffect(() => {
+    if (playerData && scanRange > playerData.scanRangeMax) {
+      setScanRange(playerData.scanRangeMax);
+    }
+  }, [playerData, scanRange]);
 
   React.useEffect(() => {
     if (!game) return;
@@ -410,6 +416,7 @@ export default function GamePage({ keycloak }) {
           setScanRange(Math.max(res.scanRange ?? 2, 2));
         }
         requestAnimationFrame(draw);
+        refreshPlayerData && refreshPlayerData();
       });
   };
 
@@ -460,6 +467,7 @@ export default function GamePage({ keycloak }) {
             mine: res,
           }));
         }
+        refreshPlayerData && refreshPlayerData();
       });
   };
 
@@ -487,7 +495,7 @@ export default function GamePage({ keycloak }) {
                 <input
                   type="range"
                   min="2"
-                  max="10"
+                  max={playerData?.scanRangeMax ?? 10}
                   value={scanRange ?? 2}
                   onChange={(e) => setScanRange(Number(e.target.value))}
                 />
@@ -495,7 +503,7 @@ export default function GamePage({ keycloak }) {
               {selected.scan && (
                 <p>{t.scanResult}: {selected.scan.mineCount}</p>
               )}
-              <button className="main-button" onClick={handleScan}>
+              <button className="main-button" onClick={handleScan} disabled={playerData?.gold <= 0}>
                 {selected.scan ? t.rescan : t.scan}
               </button>
               {!selected.scan && (

@@ -6,10 +6,12 @@ import com.minesweeper.entity.Game;
 import com.minesweeper.entity.Mine;
 import com.minesweeper.entity.Player;
 import com.minesweeper.entity.PlayerScan;
+import com.minesweeper.entity.PlayerData;
 import com.minesweeper.repository.GameRepository;
 import com.minesweeper.repository.MineRepository;
 import com.minesweeper.repository.PlayerRepository;
 import com.minesweeper.repository.PlayerScanRepository;
+import com.minesweeper.repository.PlayerDataRepository;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -35,6 +37,9 @@ public class ScanResource {
 
     @Inject
     PlayerScanRepository playerScanRepository;
+
+    @Inject
+    PlayerDataRepository playerDataRepository;
 
     @GET
     @Path("/{idGame}")
@@ -73,13 +78,29 @@ public class ScanResource {
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
-        if (request.scanRange() < 2 || request.scanRange() > 10) {
+        PlayerData data = playerDataRepository.findById(player.getId());
+        if (data == null) {
+            data = new PlayerData();
+            data.setIdPlayer(player.getId());
+            data.setReputation(0);
+            data.setGold(50);
+            data.setScanRangeMax(10);
+            data.setIncomePerDay(50);
+            playerDataRepository.persist(data);
+        }
+        if (data.getGold() <= 0) {
             throw new BadRequestException();
         }
+        if (request.scanRange() < 2 || request.scanRange() > data.getScanRangeMax()) {
+            throw new BadRequestException();
+        }
+        data.setGold(data.getGold() - 1);
         Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
         LocalDateTime now = LocalDateTime.now();
         if (mine != null) {
             mine.setExploded(true);
+            data.setGold(Math.max(0, data.getGold() - 500));
+            data.setReputation(Math.max(0, data.getReputation() - 10));
             int mines = countMines(game, request.x(), request.y(), request.scanRange());
             return new ScanInfo(null, player.getId(), request.x(), request.y(),
                     now, request.scanRange(), mines, true);

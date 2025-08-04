@@ -6,10 +6,12 @@ import com.minesweeper.entity.Game;
 import com.minesweeper.entity.Mine;
 import com.minesweeper.entity.Player;
 import com.minesweeper.entity.PlayerScan;
+import com.minesweeper.entity.PlayerData;
 import com.minesweeper.repository.GameRepository;
 import com.minesweeper.repository.MineRepository;
 import com.minesweeper.repository.PlayerRepository;
 import com.minesweeper.repository.PlayerScanRepository;
+import com.minesweeper.repository.PlayerDataRepository;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -36,6 +38,9 @@ public class MineResource {
 
     @Inject
     PlayerScanRepository playerScanRepository;
+
+    @Inject
+    PlayerDataRepository playerDataRepository;
 
     @GET
     @Path("/cleared")
@@ -68,11 +73,23 @@ public class MineResource {
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
+        PlayerData data = playerDataRepository.findById(player.getId());
+        if (data == null) {
+            data = new PlayerData();
+            data.setIdPlayer(player.getId());
+            data.setReputation(0);
+            data.setGold(50);
+            data.setScanRangeMax(10);
+            data.setIncomePerDay(50);
+            playerDataRepository.persist(data);
+        }
 
         Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
         if (mine != null) {
             mine.setFoundBy(player);
             mine.setExploded(false);
+            data.setGold(data.getGold() + 1000);
+            data.setReputation(data.getReputation() + 1);
             return new MineInfo(mine.getId(), mine.getX(), mine.getY(), "cleared");
         }
 
@@ -88,6 +105,8 @@ public class MineResource {
 
         Mine exploded = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
         if (exploded != null && Boolean.TRUE.equals(exploded.getExploded())) {
+            data.setGold(Math.max(0, data.getGold() - 500));
+            data.setReputation(Math.max(0, data.getReputation() - 10));
             return new MineInfo(exploded.getId(), exploded.getX(), exploded.getY(), "explosed");
         }
         return new MineInfo(null, request.x(), request.y(), "wrong");

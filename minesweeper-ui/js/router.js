@@ -3,8 +3,9 @@ import LoginPage from './pages/LoginPage.js';
 import GamesListPage from './pages/GamesListPage.js';
 import GamePage from './pages/GamePage.js';
 import SettingsPage from './pages/SettingsPage.js';
+import InfoPage from './pages/InfoPage.js';
 
-export default function AppRouter({ authenticated, keycloak, login, soundsOn, toggleSounds }) {
+export default function AppRouter({ authenticated, keycloak, login, soundsOn, toggleSounds, playerData, refreshPlayerData }) {
   const RequireAuth = ({ children }) =>
     authenticated ? children : <Navigate to="/login" />;
 
@@ -49,7 +50,15 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/games/:id"
         element={
           <RequireAuth>
-            <GamePage keycloak={keycloak} />
+            <GamePage keycloak={keycloak} playerData={playerData} refreshPlayerData={refreshPlayerData} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/info"
+        element={
+          <RequireAuth>
+            <InfoPage keycloak={keycloak} playerData={playerData} refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />
