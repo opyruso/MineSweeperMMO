@@ -124,26 +124,61 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     ctx.fillStyle = '#333';
     ctx.fillRect(mapLeft, mapTop, mapWidth, mapHeight);
 
+    const drawScanArea = (cx, cy, range, fillStyle) => {
+      const r = Math.ceil(range);
+      const cells = [];
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          if (Math.hypot(dx, dy) < range) {
+            const x = cx + dx;
+            const y = cy + dy;
+            const px = (x - left) * cellSize;
+            const py = (y - top) * cellSize;
+            cells.push({ x, y, px, py });
+          }
+        }
+      }
+      ctx.fillStyle = fillStyle;
+      for (const c of cells) {
+        ctx.fillRect(c.px, c.py, cellSize, cellSize);
+      }
+      ctx.strokeStyle = '#ff0000';
+      ctx.setLineDash([4, 2]);
+      ctx.beginPath();
+      const cellSet = new Set(cells.map((c) => `${c.x},${c.y}`));
+      for (const c of cells) {
+        if (!cellSet.has(`${c.x - 1},${c.y}`)) {
+          ctx.moveTo(c.px, c.py);
+          ctx.lineTo(c.px, c.py + cellSize);
+        }
+        if (!cellSet.has(`${c.x + 1},${c.y}`)) {
+          ctx.moveTo(c.px + cellSize, c.py);
+          ctx.lineTo(c.px + cellSize, c.py + cellSize);
+        }
+        if (!cellSet.has(`${c.x},${c.y - 1}`)) {
+          ctx.moveTo(c.px, c.py);
+          ctx.lineTo(c.px + cellSize, c.py);
+        }
+        if (!cellSet.has(`${c.x},${c.y + 1}`)) {
+          ctx.moveTo(c.px, c.py + cellSize);
+          ctx.lineTo(c.px + cellSize, c.py + cellSize);
+        }
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
     for (const s of scans) {
       const px = (s.x - left) * cellSize;
       const py = (s.y - top) * cellSize;
       ctx.fillStyle = '#00008b';
       ctx.fillRect(px, py, cellSize, cellSize);
       if (visibleScans.has(`${s.x},${s.y}`)) {
-        const cx = (s.x - left + 0.5) * cellSize;
-        const cy = (s.y - top + 0.5) * cellSize;
-        const radius = Math.floor(s.scanRange) * cellSize;
         const hasMines = (s.mineCount ?? 0) > 0;
-        ctx.fillStyle = hasMines
+        const fillStyle = hasMines
           ? 'rgba(255, 165, 0, 0.2)'
           : 'rgba(0, 0, 255, 0.2)';
-        ctx.strokeStyle = hasMines
-          ? 'rgba(255, 165, 0, 0.5)'
-          : 'rgba(0, 0, 255, 0.5)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        drawScanArea(s.x, s.y, s.scanRange, fillStyle);
       }
     }
 
@@ -155,15 +190,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     }
 
     if (selected && !selected.mine) {
-      const px = (selected.x - left + 0.5) * cellSize;
-      const py = (selected.y - top + 0.5) * cellSize;
-      const radius = Math.floor(scanRange) * cellSize;
-      ctx.strokeStyle = '#ff0000';
-      ctx.setLineDash([4, 2]);
-      ctx.beginPath();
-      ctx.arc(px, py, radius, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      drawScanArea(selected.x, selected.y, scanRange, 'rgba(0, 0, 255, 0.2)');
     }
 
     if (selected) {
