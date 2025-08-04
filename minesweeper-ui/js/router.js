@@ -26,6 +26,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         element={
           <SettingsPage
             authenticated={authenticated}
+            keycloak={keycloak}
             onLogout={() =>
               keycloak.logout({
                 redirectUri: window.location.href.split('#')[0] + '#/login',

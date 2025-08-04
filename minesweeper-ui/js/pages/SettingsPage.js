@@ -1,7 +1,31 @@
 import { LangContext } from '../i18n.js';
 
-export default function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
+export default function SettingsPage({ authenticated, keycloak, onLogout, soundsOn, toggleSounds }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
+  const [name, setName] = React.useState('');
+
+  React.useEffect(() => {
+    if (!authenticated) return;
+    fetch(`${window.CONFIG['minesweeper-api-url']}/players/me`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    })
+      .then((r) => r.json())
+      .then((p) => setName(p.name))
+      .catch(() => {});
+  }, [authenticated, keycloak]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${window.CONFIG['minesweeper-api-url']}/players/me`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${keycloak.token}`,
+      },
+      body: JSON.stringify({ name }),
+    });
+  };
+
   return (
     <div className="settings-page">
       <div className="language-selection">
@@ -24,9 +48,20 @@ export default function SettingsPage({ authenticated, onLogout, soundsOn, toggle
         </button>
       </div>
       {authenticated && (
-        <div className="logout-container">
-          <button onClick={onLogout}>{t.logout}</button>
-        </div>
+        <>
+          <form className="name-form" onSubmit={handleSubmit}>
+            <label>
+              {t.playerName}
+              <input value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+            <button type="submit" className="main-button">
+              {t.save}
+            </button>
+          </form>
+          <div className="logout-container">
+            <button onClick={onLogout}>{t.logout}</button>
+          </div>
+        </>
       )}
     </div>
   );

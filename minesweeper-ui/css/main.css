@@ -291,3 +291,16 @@ button:active {
   flex-direction: column;
   gap: 0.25rem;
 }
+
+.name-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.name-form input {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+}

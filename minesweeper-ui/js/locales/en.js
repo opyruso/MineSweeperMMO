@@ -4,6 +4,8 @@ export default {
   "language": "Language",
   "english": "English",
   "french": "French",
+  "playerName": "Player name",
+  "save": "Save",
   "noGame": "No game in progress at the moment...",
   "createGame": "Create a game",
   "gameTitleLabel": "Title",
