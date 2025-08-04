@@ -503,12 +503,24 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               {selected.scan && (
                 <p>{t.scanResult}: {selected.scan.mineCount}</p>
               )}
-              <button className="main-button" onClick={handleScan} disabled={playerData?.gold <= 0}>
-                {selected.scan ? t.rescan : t.scan}
+              <button
+                className="main-button"
+                onClick={handleScan}
+                disabled={playerData?.gold <= 0}
+              >
+                <img
+                  src="images/icons/actions/icon_scan_process.png"
+                  alt={selected.scan ? t.rescan : t.scan}
+                  className="icon"
+                />
               </button>
               {!selected.scan && (
                 <button className="main-button" onClick={handleDemine}>
-                  {t.demine}
+                  <img
+                    src="images/icons/actions/icon_defuse_process.png"
+                    alt={t.demine}
+                    className="icon"
+                  />
                 </button>
               )}
             </>

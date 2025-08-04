@@ -28,5 +28,10 @@ export default {
   "dailyIncome": "Daily income",
   "upgradeScan": "Upgrade scan range",
   "upgradeIncome": "Upgrade daily income",
-  "cost": "Cost"
+  "cost": "Cost",
+  "finished": "Finished",
+  "dayShort": "d",
+  "hourShort": "h",
+  "minuteShort": "m",
+  "secondShort": "s"
 };

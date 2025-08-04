@@ -26,6 +26,11 @@ h1 {
   text-align: center;
 }
 
+.icon {
+  height: 1em;
+  vertical-align: middle;
+}
+
 .settings-button {
   position: fixed;
   top: 0.5rem;
@@ -72,7 +77,8 @@ h1 {
 .login-page,
 .no-games,
 .games-page,
-.game-page {
+.game-page,
+.info-page {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -374,6 +380,8 @@ a {
   position: relative;
   height: 100vh;
   text-align: center;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/images_background_upgrade.png");
 }
 
 .income-line {
