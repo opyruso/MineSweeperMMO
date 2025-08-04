@@ -18,6 +18,7 @@ export default {
   "x": "X",
   "y": "Y",
   "scanRange": "Port\u00E9e du scan",
+  "power": "Puissance",
   "scanResult": "R\u00E9sultat du scan",
   "scan": "Scanner",
   "rescan": "Re-scanner",
@@ -28,5 +29,10 @@ export default {
   "dailyIncome": "Salaire journalier",
   "upgradeScan": "Am\u00E9liorer la port\u00E9e du scan",
   "upgradeIncome": "Am\u00E9liorer le salaire",
-  "cost": "Co\u00FBt"
+  "cost": "Co\u00FBt",
+  "finished": "Termin\u00E9",
+  "dayShort": "j",
+  "hourShort": "h",
+  "minuteShort": "min",
+  "secondShort": "s"
 };

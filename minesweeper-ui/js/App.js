@@ -115,7 +115,11 @@ function SettingsButton() {
         className="settings-button"
         aria-label="Back"
       >
-        <i className="fa-solid fa-arrow-left"></i>
+        <img
+          src="images/icons/actions/icon_arrow_back.png"
+          alt="Back"
+          className="icon"
+        />
       </button>
     );
   }
@@ -126,7 +130,11 @@ function SettingsButton() {
       className="settings-button"
       aria-label="Settings"
     >
-      <i className="fa-solid fa-gear"></i>
+      <img
+        src="images/icons/actions/icon_wheel.png"
+        alt="Settings"
+        className="icon"
+      />
     </Link>
   );
 }
@@ -138,7 +146,11 @@ function GamesListButton() {
   }
   return (
     <Link to="/games" className="games-list-button" aria-label="Games">
-      <i className="fa-solid fa-table"></i>
+      <img
+        src="images/icons/actions/icon_contracts.png"
+        alt="Games"
+        className="icon"
+      />
     </Link>
   );
 }
@@ -146,7 +158,30 @@ function GamesListButton() {
 function StatsBar({ data }) {
   return (
     <Link to="/info" className="stats-bar">
-      {`Gold: ${data.gold} po | scan: ${data.scanRangeMax} | reputation: ${data.reputation}`}
+      <span>
+        <img
+          src="images/icons/actions/icon_portfolio.png"
+          alt="Gold"
+          className="icon"
+        />{' '}
+        {data.gold}
+      </span>{' '}
+      <span>
+        <img
+          src="images/icons/actions/icon_scanner_power.png"
+          alt="Scan"
+          className="icon"
+        />{' '}
+        {data.scanRangeMax}
+      </span>{' '}
+      <span>
+        <img
+          src="images/icons/actions/icon_medal.png"
+          alt="Reputation"
+          className="icon"
+        />{' '}
+        {data.reputation}
+      </span>
     </Link>
   );
 }

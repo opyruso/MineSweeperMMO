@@ -24,6 +24,23 @@ export default function GamesListPage({ keycloak }) {
       keycloak.hasResourceRole &&
       keycloak.hasResourceRole('admin', 'minesweeper-app'));
 
+  const formatRemaining = React.useCallback(
+    (date) => {
+      const diff = new Date(date) - new Date();
+      if (diff <= 1000) return t.finished;
+      const s = Math.floor(diff / 1000);
+      const m = Math.floor(s / 60);
+      const h = Math.floor(m / 60);
+      const d = Math.floor(h / 24);
+      if (d >= 1) return `${d}${t.dayShort}`;
+      if (h >= 1) return `${h}${t.hourShort}`;
+      if (m >= 1) return `${m}${t.minuteShort}`;
+      if (s >= 1) return `${s}${t.secondShort}`;
+      return t.finished;
+    },
+    [t]
+  );
+
   if (games === null) {
     return null;
   }
@@ -46,13 +63,29 @@ export default function GamesListPage({ keycloak }) {
               {games.map((g) => (
                 <li key={g.id}>
                   <Link to={`/games/${g.id}`} className="game-item">
-                    <span className="game-prefix">
-                      {g.foundMines}/{g.mineCount}:
-                    </span>
-                    <span className="game-title">{g.title}</span>
-                    <span className="game-suffix">
-                      , {new Date(g.endDate).toLocaleString()} ({g.width}L*{g.height}H)
-                    </span>
+                    <div className="game-title-line">
+                      {g.title} (
+                      <img
+                        src="images/icons/actions/icon_calendar.png"
+                        alt="end"
+                        className="icon"
+                      />{' '}
+                      {formatRemaining(g.endDate)})
+                    </div>
+                    <div className="game-info-line">
+                      <img
+                        src="images/icons/actions/icon_bombs_found.png"
+                        alt="bombs"
+                        className="icon"
+                      />{' '}
+                      {g.foundMines}/{g.mineCount}, {' '}
+                      <img
+                        src="images/icons/actions/icon_map_size.png"
+                        alt="size"
+                        className="icon"
+                      />{' '}
+                      {g.width}L*{g.height}H
+                    </div>
                   </Link>
                 </li>
               ))}

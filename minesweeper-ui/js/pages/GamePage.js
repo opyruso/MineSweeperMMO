@@ -350,7 +350,6 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         setScanRange(Math.max(scan.scanRange, 2));
       }
       setSelected({ x, y, scan, mine });
-      console.log({ x, y, scan, mine });
     }
     endDrag();
   };
@@ -533,31 +532,39 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       ></canvas>
       {selected && (
         <div className="info-panel">
-          <p>{t.x}: {selected.x}</p>
-          <p>{t.y}: {selected.y}</p>
+          <span>({selected.x}, {selected.y})</span>
           {selected.mine ? (
-            <p>{t.status}: {selected.mine.status}</p>
+            <span>{t.status}: {selected.mine.status}</span>
           ) : (
             <>
-              <label>
-                {t.scanRange}: {scanRange}{' '}
-                <input
-                  type="range"
-                  min="2"
-                  max={playerData?.scanRangeMax ?? 10}
-                  value={scanRange ?? 2}
-                  onChange={(e) => setScanRange(Number(e.target.value))}
+              <span>
+                {t.power} ({scanRange}):
+              </span>
+              <input
+                type="range"
+                min="2"
+                max={playerData?.scanRangeMax ?? 10}
+                value={scanRange ?? 2}
+                onChange={(e) => setScanRange(Number(e.target.value))}
+              />
+              <button
+                className="main-button"
+                onClick={handleScan}
+                disabled={playerData?.gold <= 0}
+              >
+                <img
+                  src="images/icons/actions/icon_scan_process.png"
+                  alt={selected.scan ? t.rescan : t.scan}
+                  className="icon"
                 />
-              </label>
-              {selected.scan && (
-                <p>{t.scanResult}: {selected.scan.mineCount}</p>
-              )}
-              <button className="main-button" onClick={handleScan} disabled={playerData?.gold <= 0}>
-                {selected.scan ? t.rescan : t.scan}
               </button>
               {!selected.scan && (
                 <button className="main-button" onClick={handleDemine}>
-                  {t.demine}
+                  <img
+                    src="images/icons/actions/icon_defuse_process.png"
+                    alt={t.demine}
+                    className="icon"
+                  />
                 </button>
               )}
             </>
