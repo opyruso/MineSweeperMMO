@@ -50,7 +50,7 @@ export default function App() {
 
   return (
     <LangProvider>
-      <HashRouter>
+      <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <SettingsButton />
         <AppRouter
           authenticated={authenticated}
