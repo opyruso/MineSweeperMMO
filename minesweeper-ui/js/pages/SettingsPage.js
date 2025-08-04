@@ -49,17 +49,23 @@ export default function SettingsPage({ authenticated, keycloak, onLogout, sounds
       </div>
       {authenticated && (
         <>
-          <form className="name-form" onSubmit={handleSubmit}>
-            <label>
+          <form id="name-form" className="name-form" onSubmit={handleSubmit}>
+            <label htmlFor="player-name-input" className="player-name-label">
               {t.playerName}
-              <input value={name} onChange={(e) => setName(e.target.value)} />
             </label>
-            <button type="submit" className="main-button">
+            <input
+              id="player-name-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </form>
+          <div className="action-buttons">
+            <button type="submit" form="name-form" className="main-button">
               {t.save}
             </button>
-          </form>
-          <div className="logout-container">
-            <button onClick={onLogout}>{t.logout}</button>
+            <button onClick={onLogout} className="main-button">
+              {t.logout}
+            </button>
           </div>
         </>
       )}
