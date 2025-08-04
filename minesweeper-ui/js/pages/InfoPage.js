@@ -29,24 +29,26 @@ export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
 
   return (
     <div className="info-page">
-      <p>
+      <div className="income-line">
         {t.dailyIncome}: {playerData.incomePerDay} {t.gold}
-      </p>
-      <div className="upgrade-block">
-        <button className="main-button" onClick={upgradeScan}>
-          {t.upgradeScan}
-        </button>
-        <p>
-          {t.cost}: {scanCost}
-        </p>
       </div>
-      <div className="upgrade-block">
-        <button className="main-button" onClick={upgradeIncome}>
-          {t.upgradeIncome}
-        </button>
-        <p>
-          {t.cost}: {incomeCost}
-        </p>
+      <div className="upgrade-row">
+        <div className="upgrade-block">
+          <button className="main-button" onClick={upgradeScan}>
+            {t.upgradeScan}
+          </button>
+          <div className="upgrade-cost">
+            {t.cost}: {scanCost}
+          </div>
+        </div>
+        <div className="upgrade-block">
+          <button className="main-button" onClick={upgradeIncome}>
+            {t.upgradeIncome}
+          </button>
+          <div className="upgrade-cost">
+            {t.cost}: {incomeCost}
+          </div>
+        </div>
       </div>
     </div>
   );
