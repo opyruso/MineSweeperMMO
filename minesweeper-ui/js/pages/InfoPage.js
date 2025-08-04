@@ -34,11 +34,10 @@ export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
       </div>
       <div className="upgrade-row">
         <div className="upgrade-block">
-          <button className="main-button" onClick={upgradeScan}>
+          <button className="main-button upgrade-button" onClick={upgradeScan}>
             <img
               src="images/icons/actions/icon_upgrade_scanner.png"
               alt={t.upgradeScan}
-              className="icon"
             />
           </button>
           <div className="upgrade-cost">
@@ -46,11 +45,10 @@ export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
           </div>
         </div>
         <div className="upgrade-block">
-          <button className="main-button" onClick={upgradeIncome}>
+          <button className="main-button upgrade-button" onClick={upgradeIncome}>
             <img
               src="images/icons/actions/icon_upgrade_income.png"
               alt={t.upgradeIncome}
-              className="icon"
             />
           </button>
           <div className="upgrade-cost">

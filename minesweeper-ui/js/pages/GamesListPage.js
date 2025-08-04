@@ -63,29 +63,29 @@ export default function GamesListPage({ keycloak }) {
               {games.map((g) => (
                 <li key={g.id}>
                   <Link to={`/games/${g.id}`} className="game-item">
-                    <span className="game-prefix">
-                      <img
-                        src="images/icons/actions/icon_bombs_found.png"
-                        alt="bombs"
-                        className="icon"
-                      />{' '}
-                      {g.foundMines}/{g.mineCount}
-                    </span>
-                    <span className="game-title">{g.title}</span>
-                    <span className="game-suffix">
+                    <div className="game-title-line">
+                      {g.title} (
                       <img
                         src="images/icons/actions/icon_calendar.png"
                         alt="end"
                         className="icon"
                       />{' '}
-                      {formatRemaining(g.endDate)}{' '}
+                      {formatRemaining(g.endDate)})
+                    </div>
+                    <div className="game-info-line">
+                      <img
+                        src="images/icons/actions/icon_bombs_found.png"
+                        alt="bombs"
+                        className="icon"
+                      />{' '}
+                      {g.foundMines}/{g.mineCount}, {' '}
                       <img
                         src="images/icons/actions/icon_map_size.png"
                         alt="size"
                         className="icon"
                       />{' '}
                       {g.width}L*{g.height}H
-                    </span>
+                    </div>
                   </Link>
                 </li>
               ))}

@@ -42,6 +42,10 @@ h1 {
   z-index: 10;
 }
 
+.settings-button .icon {
+  height: 1.2em;
+}
+
 .stats-bar {
   position: fixed;
   top: 0;
@@ -288,28 +292,29 @@ button:active {
 }
 
 .games-list li {
-  margin: 0.5rem 0;
+  margin: 4vh 0;
 }
 
 .game-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   color: inherit;
   text-decoration: none;
-  white-space: nowrap;
+  text-align: center;
   max-width: 90vw;
   font-size: 10vh;
 }
 
-.game-prefix,
-.game-suffix {
-  flex-shrink: 0;
-}
-
-.game-title {
-  margin: 0 0.5rem;
+.game-title-line {
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.game-info-line {
+  margin-top: 2vh;
+  white-space: nowrap;
 }
 
 .game-page {
@@ -400,17 +405,24 @@ a {
 .upgrade-block {
   width: 50%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .upgrade-cost {
   margin-top: 1vh;
 }
 
-.info-page .upgrade-block .main-button {
+.upgrade-button {
   width: 40vh;
   height: 40vh;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.upgrade-button img {
+  height: 40vh;
 }
