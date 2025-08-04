@@ -14,7 +14,7 @@ export default function GamePage({ keycloak }) {
   const [zoom, setZoom] = React.useState(0);
   const [center, setCenter] = React.useState({ x: 0, y: 0 });
   const [selected, setSelected] = React.useState(null);
-  const [scanRange, setScanRange] = React.useState(1);
+  const [scanRange, setScanRange] = React.useState(2);
   const [visibleScans, setVisibleScans] = React.useState(new Set());
   const zoomRef = React.useRef(zoom);
   const centerRef = React.useRef(center);
@@ -51,7 +51,7 @@ export default function GamePage({ keycloak }) {
           setCenter({ x: Math.floor(game.width / 2), y: Math.floor(game.height / 2) });
         }
         if (typeof parsed.scanRange === 'number') {
-          setScanRange(parsed.scanRange);
+          setScanRange(Math.max(parsed.scanRange, 2));
         }
         if (Array.isArray(parsed.visibleScans)) {
           setVisibleScans(new Set(parsed.visibleScans));
@@ -292,7 +292,7 @@ export default function GamePage({ keycloak }) {
           }
           return next;
         });
-        setScanRange(scan.scanRange);
+        setScanRange(Math.max(scan.scanRange, 2));
       }
       setSelected({ x, y, scan, mine });
       console.log({ x, y, scan, mine });
@@ -407,7 +407,7 @@ export default function GamePage({ keycloak }) {
             scan: res,
             mine: prev.mine,
           }));
-          setScanRange(res.scanRange ?? 1);
+          setScanRange(Math.max(res.scanRange ?? 2, 2));
         }
         requestAnimationFrame(draw);
       });
@@ -449,7 +449,7 @@ export default function GamePage({ keycloak }) {
             return next;
           });
           setSelected({ x: res.x, y: res.y, scan, mine: null });
-          setScanRange(0);
+          setScanRange(2);
           requestAnimationFrame(draw);
         } else {
           setMines((prev) => [...prev, res]);
@@ -486,9 +486,9 @@ export default function GamePage({ keycloak }) {
                 {t.scanRange}: {scanRange}{' '}
                 <input
                   type="range"
-                  min="1"
+                  min="2"
                   max="10"
-                  value={scanRange ?? 1}
+                  value={scanRange ?? 2}
                   onChange={(e) => setScanRange(Number(e.target.value))}
                 />
               </label>

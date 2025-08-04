@@ -73,6 +73,9 @@ public class ScanResource {
             player.setDateLastConnexion(LocalDateTime.now());
             playerRepository.persist(player);
         }
+        if (request.scanRange() < 2 || request.scanRange() > 10) {
+            throw new BadRequestException();
+        }
         Mine mine = mineRepository.find("game = ?1 and x = ?2 and y = ?3", game, request.x(), request.y()).firstResult();
         LocalDateTime now = LocalDateTime.now();
         if (mine != null) {
