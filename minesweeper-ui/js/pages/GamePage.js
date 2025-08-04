@@ -124,6 +124,20 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     ctx.fillStyle = '#333';
     ctx.fillRect(mapLeft, mapTop, mapWidth, mapHeight);
 
+    const drawScanCircle = (cx, cy, range, fillStyle) => {
+      const px = (cx - left + 0.5) * cellSize;
+      const py = (cy - top + 0.5) * cellSize;
+      const radius = Math.floor(range) * cellSize;
+      ctx.fillStyle = fillStyle;
+      ctx.strokeStyle = '#ff0000';
+      ctx.setLineDash([4, 2]);
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
     const drawScanArea = (cx, cy, range, fillStyle) => {
       const r = Math.ceil(range);
       const cells = [];
@@ -178,7 +192,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         const fillStyle = hasMines
           ? 'rgba(255, 165, 0, 0.2)'
           : 'rgba(0, 0, 255, 0.2)';
-        drawScanArea(s.x, s.y, s.scanRange, fillStyle);
+        if (zoom >= 4) {
+          drawScanArea(s.x, s.y, s.scanRange, fillStyle);
+        } else {
+          drawScanCircle(s.x, s.y, s.scanRange, fillStyle);
+        }
       }
     }
 
@@ -190,7 +208,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     }
 
     if (selected && !selected.mine) {
-      drawScanArea(selected.x, selected.y, scanRange, 'rgba(0, 0, 255, 0.2)');
+      if (zoom >= 4) {
+        drawScanArea(selected.x, selected.y, scanRange, 'rgba(0, 0, 255, 0.2)');
+      } else {
+        drawScanCircle(selected.x, selected.y, scanRange, 'rgba(0, 0, 255, 0.2)');
+      }
     }
 
     if (selected) {
