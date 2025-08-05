@@ -149,17 +149,19 @@ h1 {
 .leaderboard-tabs {
   position: fixed;
   top: 15vh;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   gap: 2rem;
   font-size: 15vh;
   z-index: 20;
+  pointer-events: none;
 }
 
 .leaderboard-tabs button {
   font-size: inherit;
+  pointer-events: auto;
   color: #fff;
   -webkit-text-stroke: 1px #333;
   text-shadow: -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 1px 1px 0 #333;
