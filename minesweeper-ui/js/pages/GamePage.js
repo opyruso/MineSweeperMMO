@@ -559,19 +559,23 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               setScanRange(2);
               requestAnimationFrame(draw);
             } else {
+              setScans((prev) =>
+                prev.filter((s) => !(s.x === res.x && s.y === res.y))
+              );
+              setVisibleScans((prev) => {
+                const next = new Set(prev);
+                next.delete(`${res.x},${res.y}`);
+                return next;
+              });
               setMines((prev) => [...prev, res]);
-              setSelected((prev) => ({
-                x: res.x,
-                y: res.y,
-                scan: prev.scan,
-                mine: res,
-              }));
+              setSelected({ x: res.x, y: res.y, scan: null, mine: res });
               const pos = getEffectPosition(res.x, res.y);
               setEffect({
                 icon: 'icon_bomb_defused.png',
                 sound: 'sound_click_1.mp3',
                 ...pos,
               });
+              requestAnimationFrame(draw);
             }
             refreshPlayerData && refreshPlayerData();
           })
