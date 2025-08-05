@@ -1,19 +1,13 @@
-export default function BoostPage({ keycloak, refreshPlayerData }) {
+export default function BoostPage({ refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
   const buy = (amount) => {
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/player-data/me/add-gold`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${keycloak.token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ amount }),
-        }).then(() => refreshPlayerData())
-      )
-      .catch(() => {});
+    fetch(`${apiUrl}/player-data/me/add-gold`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount }),
+    }).then(() => refreshPlayerData());
   };
   const items = [
     { icon: 'icon_buy_small.png', gold: 1000, price: '1.99€' },

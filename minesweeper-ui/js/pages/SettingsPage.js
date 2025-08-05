@@ -1,18 +1,16 @@
 import { LangContext } from '../i18n.js';
 
-export default function SettingsPage({ authenticated, keycloak, onLogout, soundsOn, toggleSounds }) {
+export default function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   const [name, setName] = React.useState('');
 
   React.useEffect(() => {
     if (!authenticated) return;
-    fetch(`${window.CONFIG['minesweeper-api-url']}/players/me`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
+    fetch(`${window.CONFIG['minesweeper-api-url']}/players/me`)
       .then((r) => r.json())
       .then((p) => setName(p.name))
       .catch(() => {});
-  }, [authenticated, keycloak]);
+  }, [authenticated]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,7 +18,6 @@ export default function SettingsPage({ authenticated, keycloak, onLogout, sounds
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${keycloak.token}`,
       },
       body: JSON.stringify({ name }),
     });

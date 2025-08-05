@@ -1,10 +1,11 @@
 const { HashRouter, Link, useLocation, useNavigate } = ReactRouterDOM;
 import { LangProvider } from './i18n.js';
 import AppRouter from './router.js';
+import { init as initKeycloak, login, logout } from './keycloak.js';
 
 export default function App() {
-  const [keycloak, setKeycloak] = React.useState(null);
   const [authenticated, setAuthenticated] = React.useState(false);
+  const [initialized, setInitialized] = React.useState(false);
   const [soundsOn, setSoundsOn] = React.useState(true);
   const soundsOnRef = React.useRef(soundsOn);
   window.soundsOnRef = soundsOnRef;
@@ -14,19 +15,10 @@ export default function App() {
   );
 
   React.useEffect(() => {
-    const kc = new Keycloak({
-      url: window.CONFIG['auth-url'],
-      realm: window.CONFIG['auth-realm'],
-      clientId: window.CONFIG['auth-client-id'],
+    initKeycloak().then((auth) => {
+      setAuthenticated(auth);
+      setInitialized(true);
     });
-    kc.init({ onLoad: 'check-sso', checkLoginIframe: false })
-      .then((auth) => {
-        setAuthenticated(auth);
-        setKeycloak(kc);
-      })
-      .catch(() => {
-        setKeycloak(kc);
-      });
   }, []);
 
   React.useEffect(() => {
@@ -84,24 +76,14 @@ export default function App() {
   }, []);
 
   const toggleSounds = () => setSoundsOn((s) => !s);
-  const login = () => keycloak.login({ idpHint: 'google' });
 
   const fetchPlayerData = React.useCallback(() => {
-    if (!keycloak) return;
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then(setPlayerData)
-          .catch(() => {})
-      )
-      .catch(() => {
-        setAuthenticated(false);
-      });
-  }, [keycloak]);
+    if (!authenticated) return;
+    fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`)
+      .then((r) => r.json())
+      .then(setPlayerData)
+      .catch(() => {});
+  }, [authenticated]);
 
   React.useEffect(() => {
     if (authenticated) {
@@ -109,17 +91,7 @@ export default function App() {
     }
   }, [authenticated, fetchPlayerData]);
 
-  React.useEffect(() => {
-    if (!keycloak || !authenticated) return;
-    const id = setInterval(() => {
-      keycloak.updateToken(60).catch(() => {
-        setAuthenticated(false);
-      });
-    }, 10000);
-    return () => clearInterval(id);
-  }, [keycloak, authenticated]);
-
-  if (!keycloak) {
+  if (!initialized) {
     return null;
   }
 
@@ -133,8 +105,8 @@ export default function App() {
         <BoostButton />
         <AppRouter
           authenticated={authenticated}
-          keycloak={keycloak}
-          login={login}
+          login={() => login({ idpHint: 'google' })}
+          logout={logout}
           soundsOn={soundsOn}
           toggleSounds={toggleSounds}
           playerData={playerData}
