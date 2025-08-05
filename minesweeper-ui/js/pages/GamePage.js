@@ -454,7 +454,9 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     };
   }, []);
 
-  const handleScan = () => {
+  const handleScan = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     const range = scanRange;
     keycloak
       .updateToken(60)
@@ -517,7 +519,9 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       .catch(() => {});
   };
 
-  const handleDemine = () => {
+  const handleDemine = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     keycloak
       .updateToken(60)
       .then(() =>
