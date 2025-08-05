@@ -7,7 +7,11 @@ export default function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
   const [soundsOn, setSoundsOn] = React.useState(true);
   const soundsOnRef = React.useRef(soundsOn);
+  window.soundsOnRef = soundsOnRef;
   const [playerData, setPlayerData] = React.useState(null);
+  const [isPortrait, setIsPortrait] = React.useState(
+    window.matchMedia('(orientation: portrait)').matches
+  );
 
   React.useEffect(() => {
     const kc = new Keycloak({
@@ -41,6 +45,23 @@ export default function App() {
   React.useEffect(() => {
     soundsOnRef.current = soundsOn;
   }, [soundsOn]);
+
+  React.useEffect(() => {
+    const mql = window.matchMedia('(orientation: portrait)');
+    const handler = (e) => setIsPortrait(e.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handler);
+    } else {
+      mql.addListener(handler);
+    }
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handler);
+      } else {
+        mql.removeListener(handler);
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     const lockLandscape = () => {
@@ -119,6 +140,7 @@ export default function App() {
           playerData={playerData}
           refreshPlayerData={fetchPlayerData}
         />
+        {isPortrait && <RotateMobileOverlay />}
       </HashRouter>
     </LangProvider>
   );
@@ -240,5 +262,13 @@ function StatsBar({ data }) {
         {data.reputation}
       </span>
     </Link>
+  );
+}
+
+function RotateMobileOverlay() {
+  return (
+    <div className="rotate-mobile-page">
+      <i className="fa-solid fa-mobile-screen rotate-mobile-icon"></i>
+    </div>
   );
 }

@@ -16,10 +16,20 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const [selected, setSelected] = React.useState(null);
   const [scanRange, setScanRange] = React.useState(2);
   const [visibleScans, setVisibleScans] = React.useState(new Set());
+  const [effect, setEffect] = React.useState(null);
   const zoomRef = React.useRef(zoom);
   const centerRef = React.useRef(center);
 
   const apiUrl = window.CONFIG['minesweeper-api-url'];
+
+  React.useEffect(() => {
+    if (!effect) return;
+    if (!window.soundsOnRef || window.soundsOnRef.current) {
+      new Audio(`sounds/${effect.sound}`).play();
+    }
+    const timer = setTimeout(() => setEffect(null), 5000);
+    return () => clearTimeout(timer);
+  }, [effect]);
 
   React.useEffect(() => {
     keycloak
@@ -431,6 +441,19 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     return () => canvas.removeEventListener('wheel', handleWheel);
   }, [handleWheel, game]);
 
+  const getEffectPosition = React.useCallback((x, y) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { left: 0, top: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const cellSize = Math.pow(2, zoomRef.current);
+    const left = centerRef.current.x - rect.width / (2 * cellSize);
+    const top = centerRef.current.y - rect.height / (2 * cellSize);
+    return {
+      left: rect.left + (x - left + 0.5) * cellSize,
+      top: rect.top + (y - top + 0.5) * cellSize,
+    };
+  }, []);
+
   const handleScan = () => {
     const range = scanRange;
     keycloak
@@ -452,6 +475,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         })
           .then((r) => r.json())
           .then((res) => {
+            const pos = getEffectPosition(res.x, res.y);
             if (res.exploded) {
               const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
               setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
@@ -462,6 +486,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               });
               setMines((prev) => [...prev, mine]);
               setSelected({ x: res.x, y: res.y, scan: null, mine });
+              setEffect({ icon: 'icon_explosion.png', sound: 'sound_explosion.mp3', ...pos });
             } else {
               setScans((prev) => [
                 ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
@@ -479,6 +504,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 mine: prev.mine,
               }));
               setScanRange(Math.max(res.scanRange ?? 2, 2));
+              if ((res.mineCount ?? 0) > 0) {
+                setEffect({ icon: 'icon_alarm.png', sound: 'sound_warning.mp3', ...pos });
+              } else {
+                setEffect({ icon: 'icon_empty_hole.png', sound: 'sound_nothing.mp3', ...pos });
+              }
             }
             requestAnimationFrame(draw);
             refreshPlayerData && refreshPlayerData();
@@ -536,6 +566,12 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 scan: prev.scan,
                 mine: res,
               }));
+              const pos = getEffectPosition(res.x, res.y);
+              setEffect({
+                icon: 'icon_bomb_defused.png',
+                sound: 'sound_click_1.mp3',
+                ...pos,
+              });
             }
             refreshPlayerData && refreshPlayerData();
           })
@@ -605,6 +641,14 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               )}
             </>
           )}
+        </div>
+      )}
+      {effect && (
+        <div
+          className="ephemeral-icon"
+          style={{ top: effect.top, left: effect.left }}
+        >
+          <img src={`images/icons/actions/${effect.icon}`} alt="effect" />
         </div>
       )}
     </div>
