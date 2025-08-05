@@ -56,7 +56,7 @@ public class LeaderboardResource {
             default -> throw new BadRequestException();
         }
         List<ActionEvent> events = actionEventRepository.list("eventDate >= ?1 and eventDate < ?2", start, end);
-        Map<String, Integer> points = new HashMap<>();
+        Map<com.minesweeper.entity.Player, Integer> points = new HashMap<>();
         for (ActionEvent e : events) {
             int delta = switch (e.getEventType()) {
                 case "SCAN_NOTHING" -> 1;
@@ -65,11 +65,11 @@ public class LeaderboardResource {
                 case "DEFUSED" -> 10;
                 default -> 0;
             };
-            points.merge(e.getPlayer().getId(), delta, Integer::sum);
+            points.merge(e.getPlayer(), delta, Integer::sum);
         }
         return points.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .map(e -> new LeaderboardInfo(e.getKey(), e.getValue()))
+                .sorted(Map.Entry.<com.minesweeper.entity.Player, Integer>comparingByValue().reversed())
+                .map(e -> new LeaderboardInfo(e.getKey().getName(), e.getValue()))
                 .toList();
     }
 }

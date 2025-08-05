@@ -99,6 +99,12 @@ h1 {
   z-index: 10;
 }
 
+.games-list-button.selected .icon,
+.leaderboard-button.selected .icon,
+.boost-button.selected .icon {
+  transform: scale(1.5);
+}
+
 .show-zones-button {
   position: fixed;
   bottom: 6rem;
@@ -134,9 +140,22 @@ h1 {
   background-repeat: no-repeat;
 }
 
+
 .leaderboard-page {
   text-align: center;
-  padding-top: 8rem;
+  padding-top: 25vh;
+}
+
+.leaderboard-tabs {
+  position: fixed;
+  top: 10vh;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 12vh;
+  z-index: 20;
 }
 
 .leaderboard-tabs button.active {
@@ -163,6 +182,10 @@ h1 {
 .boost-item {
   text-align: center;
   cursor: pointer;
+}
+
+.boost-item .icon {
+  height: 30vh;
 }
 
 .settings-page {

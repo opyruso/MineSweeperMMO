@@ -8,11 +8,16 @@ export default function LeaderboardPage({ keycloak }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
   const load = React.useCallback(() => {
-    fetch(`${apiUrl}/leaderboard/${period}`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
-      .then((r) => r.json())
-      .then(setData)
+    keycloak
+      .updateToken(60)
+      .then(() =>
+        fetch(`${apiUrl}/leaderboard/${period}`, {
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        })
+          .then((r) => r.json())
+          .then(setData)
+          .catch(() => setData([]))
+      )
       .catch(() => setData([]));
   }, [apiUrl, period, keycloak]);
 
@@ -42,7 +47,7 @@ export default function LeaderboardPage({ keycloak }) {
       </div>
       <ul className="leaderboard-list">
         {data.map((row, i) => (
-          <li key={row.playerId}>
+          <li key={row.playerName}>
             {renderIcon(i) && (
               <img
                 src={`images/icons/actions/${renderIcon(i)}`}
@@ -50,7 +55,7 @@ export default function LeaderboardPage({ keycloak }) {
                 className="icon"
               />
             )}
-            {row.playerId}: {row.points}
+            {row.playerName}: {row.points}
           </li>
         ))}
       </ul>
