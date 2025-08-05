@@ -88,19 +88,12 @@ export default function App() {
 
   const fetchPlayerData = React.useCallback(() => {
     if (!keycloak) return;
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then(setPlayerData)
-          .catch(() => {})
-      )
-      .catch(() => {
-        setAuthenticated(false);
-      });
+    fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    })
+      .then((r) => r.json())
+      .then(setPlayerData)
+      .catch(() => {});
   }, [keycloak]);
 
   React.useEffect(() => {
