@@ -1,4 +1,2 @@
-export const PlayerDataContext = React.createContext({
-  playerData: null,
-  refreshPlayerData: () => {},
-});
+export const PlayerDataContext = React.createContext(null);
+export const PlayerDataRefreshContext = React.createContext(() => {});

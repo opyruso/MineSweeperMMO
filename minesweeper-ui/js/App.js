@@ -1,6 +1,6 @@
 const { HashRouter, Link, useLocation, useNavigate } = ReactRouterDOM;
 import { LangProvider } from './i18n.js';
-import { PlayerDataContext } from './playerData.js';
+import { PlayerDataContext, PlayerDataRefreshContext } from './playerData.js';
 import AppRouter from './router.js';
 import { init as initKeycloak, login, logout } from './keycloak.js';
 
@@ -98,24 +98,24 @@ export default function App() {
 
   return (
     <LangProvider>
-      <PlayerDataContext.Provider
-        value={{ playerData, refreshPlayerData: fetchPlayerData }}
-      >
-        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          {authenticated && playerData && <StatsBar data={playerData} />}
-          <SettingsButton />
-          <GamesListButton />
-          <LeaderboardButton />
-          <BoostButton />
-          <AppRouter
-            authenticated={authenticated}
-            login={() => login({ idpHint: 'google' })}
-            logout={logout}
-            soundsOn={soundsOn}
-            toggleSounds={toggleSounds}
-          />
-          {isPortrait && <RotateMobileOverlay />}
-        </HashRouter>
+      <PlayerDataContext.Provider value={playerData}>
+        <PlayerDataRefreshContext.Provider value={fetchPlayerData}>
+          <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            {authenticated && playerData && <StatsBar data={playerData} />}
+            <SettingsButton />
+            <GamesListButton />
+            <LeaderboardButton />
+            <BoostButton />
+            <AppRouter
+              authenticated={authenticated}
+              login={() => login({ idpHint: 'google' })}
+              logout={logout}
+              soundsOn={soundsOn}
+              toggleSounds={toggleSounds}
+            />
+            {isPortrait && <RotateMobileOverlay />}
+          </HashRouter>
+        </PlayerDataRefreshContext.Provider>
       </PlayerDataContext.Provider>
     </LangProvider>
   );

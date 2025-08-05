@@ -1,10 +1,10 @@
 const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { getUserId } from '../keycloak.js';
-import { PlayerDataContext } from '../playerData.js';
+import { PlayerDataRefreshContext } from '../playerData.js';
 
 export default function GamePage() {
-  const { playerData, refreshPlayerData } = React.useContext(PlayerDataContext);
+  const refreshPlayerData = React.useContext(PlayerDataRefreshContext);
   const { id } = useParams();
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
@@ -46,11 +46,6 @@ export default function GamePage() {
       .catch(() => {});
   }, [apiUrl, id]);
 
-  React.useEffect(() => {
-    if (playerData && scanRange > playerData.scanRangeMax) {
-      setScanRange(playerData.scanRangeMax);
-    }
-  }, [playerData, scanRange]);
 
   React.useEffect(() => {
     if (!game) return;
@@ -591,14 +586,13 @@ export default function GamePage() {
               <input
                 type="range"
                 min="2"
-                max={playerData?.scanRangeMax ?? 10}
+                max={10}
                 value={scanRange ?? 2}
                 onChange={(e) => setScanRange(Number(e.target.value))}
               />
               <button
                 className="main-button"
                 onClick={handleScan}
-                disabled={playerData?.gold <= 0}
               >
                 <img
                   src="images/icons/actions/icon_scan_process.png"
