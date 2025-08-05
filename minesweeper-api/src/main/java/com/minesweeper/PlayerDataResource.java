@@ -1,6 +1,7 @@
 package com.minesweeper;
 
 import com.minesweeper.dto.PlayerDataInfo;
+import com.minesweeper.dto.AddGoldRequest;
 import com.minesweeper.entity.PlayerData;
 import com.minesweeper.repository.PlayerDataRepository;
 import io.quarkus.security.Authenticated;
@@ -79,6 +80,17 @@ public class PlayerDataResource {
         }
         data.setGold(data.getGold() - cost);
         data.setIncomePerDay(data.getIncomePerDay() + 10);
+        return new PlayerDataInfo(data.getReputation(), data.getGold(), data.getScanRangeMax(), data.getIncomePerDay());
+    }
+
+    @POST
+    @Path("/me/add-gold")
+    @Authenticated
+    @Transactional
+    public PlayerDataInfo addGold(AddGoldRequest request) {
+        String id = jwt.getSubject();
+        PlayerData data = getOrCreate(id);
+        data.setGold(data.getGold() + Math.max(0, request.amount()));
         return new PlayerDataInfo(data.getReputation(), data.getGold(), data.getScanRangeMax(), data.getIncomePerDay());
     }
 }

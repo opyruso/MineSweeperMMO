@@ -12,6 +12,8 @@ import com.minesweeper.repository.MineRepository;
 import com.minesweeper.repository.PlayerRepository;
 import com.minesweeper.repository.PlayerScanRepository;
 import com.minesweeper.repository.PlayerDataRepository;
+import com.minesweeper.repository.ActionEventRepository;
+import com.minesweeper.entity.ActionEvent;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -40,6 +42,9 @@ public class ScanResource {
 
     @Inject
     PlayerDataRepository playerDataRepository;
+
+    @Inject
+    ActionEventRepository actionEventRepository;
 
     @GET
     @Path("/{idGame}")
@@ -101,6 +106,13 @@ public class ScanResource {
             mine.setExploded(true);
             data.setGold(Math.max(0, data.getGold() - 500));
             data.setReputation(Math.max(0, data.getReputation() - 10));
+            ActionEvent event = new ActionEvent();
+            event.setId(UUID.randomUUID().toString());
+            event.setPlayer(player);
+            event.setGame(game);
+            event.setEventType("EXPLOSION");
+            event.setEventDate(now);
+            actionEventRepository.persist(event);
             int mines = countMines(game, request.x(), request.y(), request.scanRange());
             return new ScanInfo(null, player.getId(), request.x(), request.y(),
                     now, request.scanRange(), mines, true);
@@ -117,6 +129,13 @@ public class ScanResource {
         playerScanRepository.persist(scan);
 
         int mines = countMines(game, request.x(), request.y(), request.scanRange());
+        ActionEvent event = new ActionEvent();
+        event.setId(UUID.randomUUID().toString());
+        event.setPlayer(player);
+        event.setGame(game);
+        event.setEventDate(now);
+        event.setEventType(mines > 0 ? "SCAN_MINEDETECTED" : "SCAN_NOTHING");
+        actionEventRepository.persist(event);
         return new ScanInfo(scan.getId(), player.getId(), scan.getX(), scan.getY(),
                 scan.getScanDate(), scan.getScanRange(), mines, false);
     }

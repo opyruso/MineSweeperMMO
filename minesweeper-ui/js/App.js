@@ -67,12 +67,19 @@ export default function App() {
 
   const fetchPlayerData = React.useCallback(() => {
     if (!keycloak) return;
-    fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
-      .then((r) => r.json())
-      .then(setPlayerData)
-      .catch(() => {});
+    keycloak
+      .updateToken(60)
+      .then(() =>
+        fetch(`${window.CONFIG['minesweeper-api-url']}/player-data/me`, {
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        })
+          .then((r) => r.json())
+          .then(setPlayerData)
+          .catch(() => {})
+      )
+      .catch(() => {
+        setAuthenticated(false);
+      });
   }, [keycloak]);
 
   React.useEffect(() => {
@@ -80,6 +87,16 @@ export default function App() {
       fetchPlayerData();
     }
   }, [authenticated, fetchPlayerData]);
+
+  React.useEffect(() => {
+    if (!keycloak || !authenticated) return;
+    const id = setInterval(() => {
+      keycloak.updateToken(60).catch(() => {
+        setAuthenticated(false);
+      });
+    }, 10000);
+    return () => clearInterval(id);
+  }, [keycloak, authenticated]);
 
   if (!keycloak) {
     return null;
@@ -91,6 +108,8 @@ export default function App() {
         {authenticated && playerData && <StatsBar data={playerData} />}
         <SettingsButton />
         <GamesListButton />
+        <LeaderboardButton />
+        <BoostButton />
         <AppRouter
           authenticated={authenticated}
           keycloak={keycloak}
@@ -141,14 +160,52 @@ function SettingsButton() {
 
 function GamesListButton() {
   const location = useLocation();
-  if (location.pathname === '/games') {
-    return null;
-  }
+  const selected = location.pathname === '/';
   return (
-    <Link to="/games" className="games-list-button" aria-label="Games">
+    <Link
+      to="/"
+      className={`games-list-button${selected ? ' selected' : ''}`}
+      aria-label="Games"
+    >
       <img
         src="images/icons/actions/icon_contracts.png"
         alt="Games"
+        className="icon"
+      />
+    </Link>
+  );
+}
+
+function LeaderboardButton() {
+  const location = useLocation();
+  const selected = location.pathname === '/leaderboard';
+  return (
+    <Link
+      to="/leaderboard"
+      className={`leaderboard-button${selected ? ' selected' : ''}`}
+      aria-label="Leaderboard"
+    >
+      <img
+        src="images/icons/actions/icon_trophy_loser.png"
+        alt="Leaderboard"
+        className="icon"
+      />
+    </Link>
+  );
+}
+
+function BoostButton() {
+  const location = useLocation();
+  const selected = location.pathname === '/boost';
+  return (
+    <Link
+      to="/boost"
+      className={`boost-button${selected ? ' selected' : ''}`}
+      aria-label="Boost"
+    >
+      <img
+        src="images/icons/actions/icon_boost.png"
+        alt="Boost"
         className="icon"
       />
     </Link>

@@ -4,6 +4,8 @@ import GamesListPage from './pages/GamesListPage.js';
 import GamePage from './pages/GamePage.js';
 import SettingsPage from './pages/SettingsPage.js';
 import InfoPage from './pages/InfoPage.js';
+import LeaderboardPage from './pages/LeaderboardPage.js';
+import BoostPage from './pages/BoostPage.js';
 
 export default function AppRouter({ authenticated, keycloak, login, soundsOn, toggleSounds, playerData, refreshPlayerData }) {
   const RequireAuth = ({ children }) =>
@@ -59,6 +61,22 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         element={
           <RequireAuth>
             <InfoPage keycloak={keycloak} playerData={playerData} refreshPlayerData={refreshPlayerData} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/leaderboard"
+        element={
+          <RequireAuth>
+            <LeaderboardPage keycloak={keycloak} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/boost"
+        element={
+          <RequireAuth>
+            <BoostPage keycloak={keycloak} refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />

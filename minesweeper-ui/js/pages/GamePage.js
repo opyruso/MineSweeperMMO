@@ -22,16 +22,21 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
   React.useEffect(() => {
-    fetch(`${apiUrl}/games`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
-      .then((r) => r.json())
-      .then((list) => {
-        const g = list.find((g) => g.id === id);
-        if (g) {
-          setGame(g);
-        }
-      });
+    keycloak
+      .updateToken(60)
+      .then(() =>
+        fetch(`${apiUrl}/games`, {
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        })
+          .then((r) => r.json())
+          .then((list) => {
+            const g = list.find((g) => g.id === id);
+            if (g) {
+              setGame(g);
+            }
+          })
+      )
+      .catch(() => {});
   }, [apiUrl, id, keycloak]);
 
   React.useEffect(() => {
@@ -70,21 +75,30 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     }
   }, [game, id]);
 
+  const refreshBoard = React.useCallback(() => {
+    keycloak
+      .updateToken(60)
+      .then(() => {
+        fetch(`${apiUrl}/scans/${id}`, {
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        })
+          .then((r) => r.json())
+          .then(setScans)
+          .catch(() => setScans([]));
+        fetch(`${apiUrl}/mines/cleared?gameId=${id}`, {
+          headers: { Authorization: `Bearer ${keycloak.token}` },
+        })
+          .then((r) => r.json())
+          .then(setMines)
+          .catch(() => setMines([]));
+      })
+      .catch(() => {});
+  }, [apiUrl, id, keycloak]);
+
   React.useEffect(() => {
     if (!game) return;
-    fetch(`${apiUrl}/scans/${id}`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
-      .then((r) => r.json())
-      .then(setScans)
-      .catch(() => setScans([]));
-    fetch(`${apiUrl}/mines/cleared?gameId=${id}`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
-      .then((r) => r.json())
-      .then(setMines)
-      .catch(() => setMines([]));
-  }, [apiUrl, id, keycloak, game]);
+    refreshBoard();
+  }, [apiUrl, id, keycloak, game, refreshBoard]);
 
   React.useEffect(() => {
     zoomRef.current = zoom;
@@ -419,104 +433,114 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
 
   const handleScan = () => {
     const range = scanRange;
-    fetch(`${apiUrl}/scans`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${keycloak.token}`,
-      },
-      body: JSON.stringify({
-        gameId: id,
-        playerId: keycloak.tokenParsed.sub,
-        x: selected.x,
-        y: selected.y,
-        scanRange: range,
-      }),
-    })
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.exploded) {
-          const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
-          setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
-          setVisibleScans((prev) => {
-            const next = new Set(prev);
-            next.delete(`${res.x},${res.y}`);
-            return next;
-          });
-          setMines((prev) => [...prev, mine]);
-          setSelected({ x: res.x, y: res.y, scan: null, mine });
-        } else {
-          setScans((prev) => [
-            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
-            res,
-          ]);
-          setVisibleScans((prev) => {
-            const next = new Set(prev);
-            next.add(`${res.x},${res.y}`);
-            return next;
-          });
-          setSelected((prev) => ({
-            x: res.x,
-            y: res.y,
-            scan: res,
-            mine: prev.mine,
-          }));
-          setScanRange(Math.max(res.scanRange ?? 2, 2));
-        }
-        requestAnimationFrame(draw);
-        refreshPlayerData && refreshPlayerData();
-      });
+    keycloak
+      .updateToken(60)
+      .then(() =>
+        fetch(`${apiUrl}/scans`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify({
+            gameId: id,
+            playerId: keycloak.tokenParsed.sub,
+            x: selected.x,
+            y: selected.y,
+            scanRange: range,
+          }),
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res.exploded) {
+              const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
+              setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
+              setVisibleScans((prev) => {
+                const next = new Set(prev);
+                next.delete(`${res.x},${res.y}`);
+                return next;
+              });
+              setMines((prev) => [...prev, mine]);
+              setSelected({ x: res.x, y: res.y, scan: null, mine });
+            } else {
+              setScans((prev) => [
+                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+                res,
+              ]);
+              setVisibleScans((prev) => {
+                const next = new Set(prev);
+                next.add(`${res.x},${res.y}`);
+                return next;
+              });
+              setSelected((prev) => ({
+                x: res.x,
+                y: res.y,
+                scan: res,
+                mine: prev.mine,
+              }));
+              setScanRange(Math.max(res.scanRange ?? 2, 2));
+            }
+            requestAnimationFrame(draw);
+            refreshPlayerData && refreshPlayerData();
+          })
+      )
+      .catch(() => {});
   };
 
   const handleDemine = () => {
-    fetch(`${apiUrl}/mines/clear`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${keycloak.token}`,
-      },
-      body: JSON.stringify({
-        gameId: id,
-        playerId: keycloak.tokenParsed.sub,
-        x: selected.x,
-        y: selected.y,
-      }),
-    })
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.status === 'wrong') {
-          const scan = {
-            id: null,
+    keycloak
+      .updateToken(60)
+      .then(() =>
+        fetch(`${apiUrl}/mines/clear`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify({
+            gameId: id,
             playerId: keycloak.tokenParsed.sub,
-            x: res.x,
-            y: res.y,
-            scanDate: new Date().toISOString(),
-            scanRange: 0,
-            mineCount: 0,
-          };
-          setScans((prev) => [
-            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
-            scan,
-          ]);
-          setVisibleScans((prev) => {
-            const next = new Set(prev);
-            next.add(`${scan.x},${scan.y}`);
-            return next;
-          });
-          setSelected({ x: res.x, y: res.y, scan, mine: null });
-          setScanRange(2);
-          requestAnimationFrame(draw);
-        } else {
-          setMines((prev) => [...prev, res]);
-          setSelected((prev) => ({
-            x: res.x,
-            y: res.y,
-            scan: prev.scan,
-            mine: res,
-          }));
-        }
-        refreshPlayerData && refreshPlayerData();
-      });
+            x: selected.x,
+            y: selected.y,
+          }),
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res.status === 'wrong') {
+              const scan = {
+                id: null,
+                playerId: keycloak.tokenParsed.sub,
+                x: res.x,
+                y: res.y,
+                scanDate: new Date().toISOString(),
+                scanRange: 0,
+                mineCount: 0,
+              };
+              setScans((prev) => [
+                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+                scan,
+              ]);
+              setVisibleScans((prev) => {
+                const next = new Set(prev);
+                next.add(`${scan.x},${scan.y}`);
+                return next;
+              });
+              setSelected({ x: res.x, y: res.y, scan, mine: null });
+              setScanRange(2);
+              requestAnimationFrame(draw);
+            } else {
+              setMines((prev) => [...prev, res]);
+              setSelected((prev) => ({
+                x: res.x,
+                y: res.y,
+                scan: prev.scan,
+                mine: res,
+              }));
+            }
+            refreshPlayerData && refreshPlayerData();
+          })
+      )
+      .catch(() => {});
   };
 
   if (!game) {
@@ -530,6 +554,18 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         className="game-canvas"
         onPointerDown={handlePointerDown}
       ></canvas>
+      <button
+        className="show-zones-button"
+        onClick={() => setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))}
+      >
+        <img src="images/icons/actions/icon_eyes_open.png" alt="show" className="icon" />
+      </button>
+      <button className="hide-zones-button" onClick={() => setVisibleScans(new Set())}>
+        <img src="images/icons/actions/icon_eyes_close.png" alt="hide" className="icon" />
+      </button>
+      <button className="refresh-button" onClick={refreshBoard}>
+        <img src="images/icons/actions/icon_refresh.png" alt="refresh" className="icon" />
+      </button>
       {selected && (
         <div className="info-panel">
           <span>({selected.x}, {selected.y})</span>
