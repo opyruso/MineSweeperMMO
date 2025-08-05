@@ -456,126 +456,118 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
 
   const handleScan = () => {
     const range = scanRange;
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/scans`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-          body: JSON.stringify({
-            gameId: id,
-            playerId: keycloak.tokenParsed.sub,
-            x: selected.x,
-            y: selected.y,
-            scanRange: range,
-          }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
-            const pos = getEffectPosition(res.x, res.y);
-            if (res.exploded) {
-              const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
-              setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
-              setVisibleScans((prev) => {
-                const next = new Set(prev);
-                next.delete(`${res.x},${res.y}`);
-                return next;
-              });
-              setMines((prev) => [...prev, mine]);
-              setSelected({ x: res.x, y: res.y, scan: null, mine });
-              setEffect({ icon: 'icon_explosion.png', sound: 'sound_explosion.mp3', ...pos });
-            } else {
-              setScans((prev) => [
-                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
-                res,
-              ]);
-              setVisibleScans((prev) => {
-                const next = new Set(prev);
-                next.add(`${res.x},${res.y}`);
-                return next;
-              });
-              setSelected((prev) => ({
-                x: res.x,
-                y: res.y,
-                scan: res,
-                mine: prev.mine,
-              }));
-              setScanRange(Math.max(res.scanRange ?? 2, 2));
-              if ((res.mineCount ?? 0) > 0) {
-                setEffect({ icon: 'icon_alarm.png', sound: 'sound_warning.mp3', ...pos });
-              } else {
-                setEffect({ icon: 'icon_empty_hole.png', sound: 'sound_nothing.mp3', ...pos });
-              }
-            }
-            requestAnimationFrame(draw);
-            refreshPlayerData && refreshPlayerData();
-          })
-      )
+    fetch(`${apiUrl}/scans`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${keycloak.token}`,
+      },
+      body: JSON.stringify({
+        gameId: id,
+        playerId: keycloak.tokenParsed.sub,
+        x: selected.x,
+        y: selected.y,
+        scanRange: range,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        const pos = getEffectPosition(res.x, res.y);
+        if (res.exploded) {
+          const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
+          setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.delete(`${res.x},${res.y}`);
+            return next;
+          });
+          setMines((prev) => [...prev, mine]);
+          setSelected({ x: res.x, y: res.y, scan: null, mine });
+          setEffect({ icon: 'icon_explosion.png', sound: 'sound_explosion.mp3', ...pos });
+        } else {
+          setScans((prev) => [
+            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+            res,
+          ]);
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.add(`${res.x},${res.y}`);
+            return next;
+          });
+          setSelected((prev) => ({
+            x: res.x,
+            y: res.y,
+            scan: res,
+            mine: prev.mine,
+          }));
+          setScanRange(Math.max(res.scanRange ?? 2, 2));
+          if ((res.mineCount ?? 0) > 0) {
+            setEffect({ icon: 'icon_alarm.png', sound: 'sound_warning.mp3', ...pos });
+          } else {
+            setEffect({ icon: 'icon_empty_hole.png', sound: 'sound_nothing.mp3', ...pos });
+          }
+        }
+        requestAnimationFrame(draw);
+        refreshPlayerData && refreshPlayerData();
+      })
       .catch(() => {});
   };
 
   const handleDemine = () => {
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/mines/clear`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-          body: JSON.stringify({
-            gameId: id,
+    fetch(`${apiUrl}/mines/clear`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${keycloak.token}`,
+      },
+      body: JSON.stringify({
+        gameId: id,
+        playerId: keycloak.tokenParsed.sub,
+        x: selected.x,
+        y: selected.y,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.status === 'wrong') {
+          const scan = {
+            id: null,
             playerId: keycloak.tokenParsed.sub,
-            x: selected.x,
-            y: selected.y,
-          }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
-            if (res.status === 'wrong') {
-              const scan = {
-                id: null,
-                playerId: keycloak.tokenParsed.sub,
-                x: res.x,
-                y: res.y,
-                scanDate: new Date().toISOString(),
-                scanRange: 0,
-                mineCount: 0,
-              };
-              setScans((prev) => [
-                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
-                scan,
-              ]);
-              setVisibleScans((prev) => {
-                const next = new Set(prev);
-                next.add(`${scan.x},${scan.y}`);
-                return next;
-              });
-              setSelected({ x: res.x, y: res.y, scan, mine: null });
-              setScanRange(2);
-              requestAnimationFrame(draw);
-            } else {
-              setMines((prev) => [...prev, res]);
-              setSelected((prev) => ({
-                x: res.x,
-                y: res.y,
-                scan: prev.scan,
-                mine: res,
-              }));
-              const pos = getEffectPosition(res.x, res.y);
-              setEffect({
-                icon: 'icon_bomb_defused.png',
-                sound: 'sound_click_1.mp3',
-                ...pos,
-              });
-            }
-            refreshPlayerData && refreshPlayerData();
-          })
-      )
+            x: res.x,
+            y: res.y,
+            scanDate: new Date().toISOString(),
+            scanRange: 0,
+            mineCount: 0,
+          };
+          setScans((prev) => [
+            ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+            scan,
+          ]);
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.add(`${scan.x},${scan.y}`);
+            return next;
+          });
+          setSelected({ x: res.x, y: res.y, scan, mine: null });
+          setScanRange(2);
+          requestAnimationFrame(draw);
+        } else {
+          setMines((prev) => [...prev, res]);
+          setSelected((prev) => ({
+            x: res.x,
+            y: res.y,
+            scan: prev.scan,
+            mine: res,
+          }));
+          const pos = getEffectPosition(res.x, res.y);
+          setEffect({
+            icon: 'icon_bomb_defused.png',
+            sound: 'sound_click_1.mp3',
+            ...pos,
+          });
+        }
+        refreshPlayerData && refreshPlayerData();
+      })
       .catch(() => {});
   };
 
