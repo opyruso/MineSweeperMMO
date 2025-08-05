@@ -9,8 +9,8 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const pointers = React.useRef(new Map());
   const pinchRef = React.useRef(null);
   const [game, setGame] = React.useState(null);
-  const [scans, setScans] = React.useState([]);
-  const [mines, setMines] = React.useState([]);
+  const scansRef = React.useRef([]);
+  const minesRef = React.useRef([]);
   const [zoom, setZoom] = React.useState(0);
   const [center, setCenter] = React.useState({ x: 0, y: 0 });
   const [selected, setSelected] = React.useState(null);
@@ -89,18 +89,27 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     keycloak
       .updateToken(60)
       .then(() => {
-        fetch(`${apiUrl}/scans/${id}`, {
+        const fetchScans = fetch(`${apiUrl}/scans/${id}`, {
           headers: { Authorization: `Bearer ${keycloak.token}` },
         })
           .then((r) => r.json())
-          .then(setScans)
-          .catch(() => setScans([]));
-        fetch(`${apiUrl}/mines/cleared?gameId=${id}`, {
+          .catch(() => []);
+        const fetchMines = fetch(`${apiUrl}/mines/cleared?gameId=${id}`, {
           headers: { Authorization: `Bearer ${keycloak.token}` },
         })
           .then((r) => r.json())
-          .then(setMines)
-          .catch(() => setMines([]));
+          .catch(() => []);
+        Promise.all([fetchScans, fetchMines])
+          .then(([s, m]) => {
+            scansRef.current = s;
+            minesRef.current = m;
+            draw();
+          })
+          .catch(() => {
+            scansRef.current = [];
+            minesRef.current = [];
+            draw();
+          });
       })
       .catch(() => {});
   }, [apiUrl, id, keycloak]);
@@ -206,7 +215,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       ctx.setLineDash([]);
     };
 
-    for (const s of scans) {
+    for (const s of scansRef.current) {
       const px = (s.x - left) * cellSize;
       const py = (s.y - top) * cellSize;
       ctx.fillStyle = '#00008b';
@@ -224,7 +233,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       }
     }
 
-    for (const m of mines) {
+    for (const m of minesRef.current) {
       const px = (m.x - left) * cellSize;
       const py = (m.y - top) * cellSize;
       ctx.fillStyle = m.status === 'cleared' ? '#008000' : '#ff0000';
@@ -251,7 +260,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       ctx.strokeRect(px, py, cellSize, cellSize);
       ctx.setLineDash([]);
     }
-  }, [game, scans, mines, zoom, center, selected, scanRange, visibleScans]);
+  }, [game, zoom, center, selected, scanRange, visibleScans]);
 
   React.useEffect(() => {
     const resize = () => {
@@ -358,8 +367,8 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       const top = center.y - rect.height / (2 * cellSize);
       const x = Math.floor(left + (e.clientX - rect.left) / cellSize);
       const y = Math.floor(top + (e.clientY - rect.top) / cellSize);
-      const scan = scans.find((s) => s.x === x && s.y === y);
-      const mine = mines.find((m) => m.x === x && m.y === y);
+      const scan = scansRef.current.find((s) => s.x === x && s.y === y);
+      const mine = minesRef.current.find((m) => m.x === x && m.y === y);
       if (scan) {
         setVisibleScans((prev) => {
           const key = `${scan.x},${scan.y}`;
@@ -480,20 +489,24 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
             const pos = getEffectPosition(res.x, res.y);
             if (res.exploded) {
               const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
-              setScans((prev) => prev.filter((s) => !(s.x === res.x && s.y === res.y)));
+              scansRef.current = scansRef.current.filter(
+                (s) => !(s.x === res.x && s.y === res.y)
+              );
               setVisibleScans((prev) => {
                 const next = new Set(prev);
                 next.delete(`${res.x},${res.y}`);
                 return next;
               });
-              setMines((prev) => [...prev, mine]);
+              minesRef.current = [...minesRef.current, mine];
               setSelected({ x: res.x, y: res.y, scan: null, mine });
               setEffect({ icon: 'icon_explosion.png', sound: 'sound_explosion.mp3', ...pos });
             } else {
-              setScans((prev) => [
-                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+              scansRef.current = [
+                ...scansRef.current.filter(
+                  (s) => !(s.x === res.x && s.y === res.y)
+                ),
                 res,
-              ]);
+              ];
               setVisibleScans((prev) => {
                 const next = new Set(prev);
                 next.add(`${res.x},${res.y}`);
@@ -512,7 +525,6 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 setEffect({ icon: 'icon_empty_hole.png', sound: 'sound_nothing.mp3', ...pos });
               }
             }
-            requestAnimationFrame(draw);
             refreshPlayerData && refreshPlayerData();
           })
       )
@@ -550,10 +562,12 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 scanRange: 0,
                 mineCount: 0,
               };
-              setScans((prev) => [
-                ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
+              scansRef.current = [
+                ...scansRef.current.filter(
+                  (s) => !(s.x === res.x && s.y === res.y)
+                ),
                 scan,
-              ]);
+              ];
               setVisibleScans((prev) => {
                 const next = new Set(prev);
                 next.add(`${scan.x},${scan.y}`);
@@ -561,17 +575,16 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               });
               setSelected({ x: res.x, y: res.y, scan, mine: null });
               setScanRange(2);
-              requestAnimationFrame(draw);
             } else {
-              setScans((prev) =>
-                prev.filter((s) => !(s.x === res.x && s.y === res.y))
+              scansRef.current = scansRef.current.filter(
+                (s) => !(s.x === res.x && s.y === res.y)
               );
               setVisibleScans((prev) => {
                 const next = new Set(prev);
                 next.delete(`${res.x},${res.y}`);
                 return next;
               });
-              setMines((prev) => [...prev, res]);
+              minesRef.current = [...minesRef.current, res];
               setSelected({ x: res.x, y: res.y, scan: null, mine: res });
               const pos = getEffectPosition(res.x, res.y);
               setEffect({
@@ -579,7 +592,6 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 sound: 'sound_click_1.mp3',
                 ...pos,
               });
-              requestAnimationFrame(draw);
             }
             refreshPlayerData && refreshPlayerData();
           })
@@ -601,7 +613,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       <button
         type="button"
         className="show-zones-button"
-        onClick={() => setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))}
+        onClick={() => setVisibleScans(new Set(scansRef.current.map((s) => `${s.x},${s.y}`)))}
       >
         <img src="images/icons/actions/icon_eyes_open.png" alt="show" className="icon" />
       </button>
