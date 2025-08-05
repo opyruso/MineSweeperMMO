@@ -16,10 +16,20 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const [selected, setSelected] = React.useState(null);
   const [scanRange, setScanRange] = React.useState(2);
   const [visibleScans, setVisibleScans] = React.useState(new Set());
+  const [effect, setEffect] = React.useState(null);
   const zoomRef = React.useRef(zoom);
   const centerRef = React.useRef(center);
 
   const apiUrl = window.CONFIG['minesweeper-api-url'];
+
+  React.useEffect(() => {
+    if (!effect) return;
+    if (!window.soundsOnRef || window.soundsOnRef.current) {
+      new Audio(`sounds/${effect.sound}`).play();
+    }
+    const timer = setTimeout(() => setEffect(null), 3000);
+    return () => clearTimeout(timer);
+  }, [effect]);
 
   React.useEffect(() => {
     keycloak
@@ -462,6 +472,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               });
               setMines((prev) => [...prev, mine]);
               setSelected({ x: res.x, y: res.y, scan: null, mine });
+              setEffect({ icon: 'icon_explosion.png', sound: 'sound_explosion.mp3' });
             } else {
               setScans((prev) => [
                 ...prev.filter((s) => !(s.x === res.x && s.y === res.y)),
@@ -479,6 +490,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 mine: prev.mine,
               }));
               setScanRange(Math.max(res.scanRange ?? 2, 2));
+              if ((res.mineCount ?? 0) > 0) {
+                setEffect({ icon: 'icon_alarm.png', sound: 'sound_warning.mp3' });
+              } else {
+                setEffect({ icon: 'icon_empty_hole.png', sound: 'sound_nothing.mp3' });
+              }
             }
             requestAnimationFrame(draw);
             refreshPlayerData && refreshPlayerData();
@@ -536,6 +552,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 scan: prev.scan,
                 mine: res,
               }));
+              setEffect({ icon: 'icon_bomb_defused.png', sound: 'sound_click_1.mp3' });
             }
             refreshPlayerData && refreshPlayerData();
           })
@@ -605,6 +622,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               )}
             </>
           )}
+        </div>
+      )}
+      {effect && (
+        <div className="ephemeral-icon">
+          <img src={`images/icons/actions/${effect.icon}`} alt="effect" />
         </div>
       )}
     </div>

@@ -144,6 +144,11 @@ h1 {
 .leaderboard-page {
   text-align: center;
   padding-top: 30vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/images_background_leaderboard.png");
 }
 
 .leaderboard-tabs {
@@ -181,6 +186,11 @@ h1 {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/images_background_boost.png");
 }
 
 .boost-container {
@@ -481,16 +491,6 @@ button:active {
   width: 50%;
 }
 
-@media screen and (orientation:portrait) {
-body {
-    transform: rotate(90deg);
-    transform-origin: left top;
-    width: 100vh;
-    height: 100vw;
-    overflow: hidden;
-  }
-}
-
 a {
   text-decoration: none;
   color: inherit;
@@ -540,4 +540,68 @@ a {
 
 .upgrade-button img {
   height: 40vh;
+}
+
+.ephemeral-icon {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: fade 3s forwards;
+  pointer-events: none;
+  z-index: 200;
+}
+
+.ephemeral-icon img {
+  height: 20vh;
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+
+.rotate-mobile-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/images_background_rotatemobile.png");
+}
+
+.rotate-mobile-icon {
+  font-size: 20vh;
+  animation: rotate-mobile 2s infinite linear;
+}
+
+@keyframes rotate-mobile {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
