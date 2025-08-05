@@ -1,8 +1,10 @@
 const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { getUserId } from '../keycloak.js';
+import { PlayerDataContext } from '../playerData.js';
 
-export default function GamePage({ playerData, refreshPlayerData }) {
+export default function GamePage() {
+  const { playerData, refreshPlayerData } = React.useContext(PlayerDataContext);
   const { id } = useParams();
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
@@ -493,6 +495,7 @@ export default function GamePage({ playerData, refreshPlayerData }) {
               }
             }
             requestAnimationFrame(draw);
+            refreshPlayerData && refreshPlayerData();
           });
   };
 
@@ -548,6 +551,7 @@ export default function GamePage({ playerData, refreshPlayerData }) {
                 ...pos,
               });
             }
+            refreshPlayerData && refreshPlayerData();
           });
   };
 

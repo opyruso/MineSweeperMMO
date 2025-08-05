@@ -7,7 +7,7 @@ import InfoPage from './pages/InfoPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
 import BoostPage from './pages/BoostPage.js';
 
-export default function AppRouter({ authenticated, login, logout, soundsOn, toggleSounds, playerData, refreshPlayerData }) {
+function AppRouter({ authenticated, login, logout, soundsOn, toggleSounds }) {
   const RequireAuth = ({ children }) =>
     authenticated ? children : <Navigate to="/login" />;
 
@@ -51,7 +51,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/games/:id"
         element={
           <RequireAuth>
-            <GamePage playerData={playerData} refreshPlayerData={refreshPlayerData} />
+            <GamePage />
           </RequireAuth>
         }
       />
@@ -59,7 +59,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/info"
         element={
           <RequireAuth>
-            <InfoPage playerData={playerData} refreshPlayerData={refreshPlayerData} />
+            <InfoPage />
           </RequireAuth>
         }
       />
@@ -75,7 +75,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/boost"
         element={
           <RequireAuth>
-            <BoostPage refreshPlayerData={refreshPlayerData} />
+            <BoostPage />
           </RequireAuth>
         }
       />
@@ -83,3 +83,5 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
     </Routes>
   );
 }
+
+export default React.memo(AppRouter);

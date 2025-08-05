@@ -1,6 +1,8 @@
 import { LangContext } from '../i18n.js';
+import { PlayerDataContext } from '../playerData.js';
 
-export default function InfoPage({ playerData, refreshPlayerData }) {
+export default function InfoPage() {
+  const { playerData, refreshPlayerData } = React.useContext(PlayerDataContext);
   const { t } = React.useContext(LangContext);
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 

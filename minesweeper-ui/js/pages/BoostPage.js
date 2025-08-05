@@ -1,4 +1,7 @@
-export default function BoostPage({ refreshPlayerData }) {
+import { PlayerDataContext } from '../playerData.js';
+
+export default function BoostPage() {
+  const { refreshPlayerData } = React.useContext(PlayerDataContext);
   const apiUrl = window.CONFIG['minesweeper-api-url'];
   const buy = (amount) => {
     fetch(`${apiUrl}/player-data/me/add-gold`, {
