@@ -1,25 +1,18 @@
 const { useState, useEffect } = React;
 import { LangContext } from '../i18n.js';
 
-export default function LeaderboardPage({ keycloak }) {
+export default function LeaderboardPage() {
   const { t } = React.useContext(LangContext);
   const [period, setPeriod] = useState('daily');
   const [data, setData] = useState([]);
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
   const load = React.useCallback(() => {
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/leaderboard/${period}`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then(setData)
-          .catch(() => setData([]))
-      )
+    fetch(`${apiUrl}/leaderboard/${period}`)
+      .then((r) => r.json())
+      .then(setData)
       .catch(() => setData([]));
-  }, [apiUrl, period, keycloak]);
+  }, [apiUrl, period]);
 
   useEffect(() => {
     load();

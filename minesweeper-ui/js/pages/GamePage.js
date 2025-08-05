@@ -1,7 +1,8 @@
 const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
+import { getUserId } from '../keycloak.js';
 
-export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
+export default function GamePage({ playerData, refreshPlayerData }) {
   const { id } = useParams();
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
@@ -32,22 +33,16 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   }, [effect]);
 
   React.useEffect(() => {
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/games`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then((list) => {
-            const g = list.find((g) => g.id === id);
-            if (g) {
-              setGame(g);
-            }
-          })
-      )
+    fetch(`${apiUrl}/games`)
+      .then((r) => r.json())
+      .then((list) => {
+        const g = list.find((g) => g.id === id);
+        if (g) {
+          setGame(g);
+        }
+      })
       .catch(() => {});
-  }, [apiUrl, id, keycloak]);
+  }, [apiUrl, id]);
 
   React.useEffect(() => {
     if (playerData && scanRange > playerData.scanRangeMax) {
@@ -86,29 +81,20 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   }, [game, id]);
 
   const refreshBoard = React.useCallback(() => {
-    keycloak
-      .updateToken(60)
-      .then(() => {
-        fetch(`${apiUrl}/scans/${id}`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then(setScans)
-          .catch(() => setScans([]));
-        fetch(`${apiUrl}/mines/cleared?gameId=${id}`, {
-          headers: { Authorization: `Bearer ${keycloak.token}` },
-        })
-          .then((r) => r.json())
-          .then(setMines)
-          .catch(() => setMines([]));
-      })
-      .catch(() => {});
-  }, [apiUrl, id, keycloak]);
+    fetch(`${apiUrl}/scans/${id}`)
+      .then((r) => r.json())
+      .then(setScans)
+      .catch(() => setScans([]));
+    fetch(`${apiUrl}/mines/cleared?gameId=${id}`)
+      .then((r) => r.json())
+      .then(setMines)
+      .catch(() => setMines([]));
+  }, [apiUrl, id]);
 
   React.useEffect(() => {
     if (!game) return;
     refreshBoard();
-  }, [apiUrl, id, keycloak, game, refreshBoard]);
+  }, [apiUrl, id, game, refreshBoard]);
 
   React.useEffect(() => {
     zoomRef.current = zoom;
@@ -456,25 +442,21 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
 
   const handleScan = () => {
     const range = scanRange;
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/scans`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-          body: JSON.stringify({
-            gameId: id,
-            playerId: keycloak.tokenParsed.sub,
-            x: selected.x,
-            y: selected.y,
-            scanRange: range,
-          }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
+    fetch(`${apiUrl}/scans`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        gameId: id,
+        playerId: getUserId(),
+        x: selected.x,
+        y: selected.y,
+        scanRange: range,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
             const pos = getEffectPosition(res.x, res.y);
             if (res.exploded) {
               const mine = { id: res.id, x: res.x, y: res.y, status: 'explosed' };
@@ -512,34 +494,28 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
             }
             requestAnimationFrame(draw);
             refreshPlayerData && refreshPlayerData();
-          })
-      )
-      .catch(() => {});
+          });
   };
 
   const handleDemine = () => {
-    keycloak
-      .updateToken(60)
-      .then(() =>
-        fetch(`${apiUrl}/mines/clear`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-          body: JSON.stringify({
-            gameId: id,
-            playerId: keycloak.tokenParsed.sub,
-            x: selected.x,
-            y: selected.y,
-          }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
+    fetch(`${apiUrl}/mines/clear`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        gameId: id,
+        playerId: getUserId(),
+        x: selected.x,
+        y: selected.y,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
             if (res.status === 'wrong') {
               const scan = {
                 id: null,
-                playerId: keycloak.tokenParsed.sub,
+                playerId: getUserId(),
                 x: res.x,
                 y: res.y,
                 scanDate: new Date().toISOString(),
@@ -574,9 +550,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               });
             }
             refreshPlayerData && refreshPlayerData();
-          })
-      )
-      .catch(() => {});
+          });
   };
 
   if (!game) {

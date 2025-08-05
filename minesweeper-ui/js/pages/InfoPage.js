@@ -1,6 +1,6 @@
 import { LangContext } from '../i18n.js';
 
-export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
+export default function InfoPage({ playerData, refreshPlayerData }) {
   const { t } = React.useContext(LangContext);
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
@@ -9,7 +9,6 @@ export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
   const upgradeScan = () => {
     fetch(`${apiUrl}/player-data/me/upgrade-scan`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${keycloak.token}` },
     })
       .then((r) => r.json())
       .then(() => refreshPlayerData());
@@ -18,7 +17,6 @@ export default function InfoPage({ keycloak, playerData, refreshPlayerData }) {
   const upgradeIncome = () => {
     fetch(`${apiUrl}/player-data/me/upgrade-income`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${keycloak.token}` },
     })
       .then((r) => r.json())
       .then(() => refreshPlayerData());

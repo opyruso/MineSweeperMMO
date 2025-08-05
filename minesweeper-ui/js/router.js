@@ -7,7 +7,7 @@ import InfoPage from './pages/InfoPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
 import BoostPage from './pages/BoostPage.js';
 
-export default function AppRouter({ authenticated, keycloak, login, soundsOn, toggleSounds, playerData, refreshPlayerData }) {
+export default function AppRouter({ authenticated, login, logout, soundsOn, toggleSounds, playerData, refreshPlayerData }) {
   const RequireAuth = ({ children }) =>
     authenticated ? children : <Navigate to="/login" />;
 
@@ -29,9 +29,8 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         element={
           <SettingsPage
             authenticated={authenticated}
-            keycloak={keycloak}
             onLogout={() =>
-              keycloak.logout({
+              logout({
                 redirectUri: window.location.href.split('#')[0] + '#/login',
               })
             }
@@ -44,7 +43,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/"
         element={
           <RequireAuth>
-            <GamesListPage keycloak={keycloak} />
+            <GamesListPage />
           </RequireAuth>
         }
       />
@@ -52,7 +51,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/games/:id"
         element={
           <RequireAuth>
-            <GamePage keycloak={keycloak} playerData={playerData} refreshPlayerData={refreshPlayerData} />
+            <GamePage playerData={playerData} refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />
@@ -60,7 +59,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/info"
         element={
           <RequireAuth>
-            <InfoPage keycloak={keycloak} playerData={playerData} refreshPlayerData={refreshPlayerData} />
+            <InfoPage playerData={playerData} refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />
@@ -68,7 +67,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/leaderboard"
         element={
           <RequireAuth>
-            <LeaderboardPage keycloak={keycloak} />
+            <LeaderboardPage />
           </RequireAuth>
         }
       />
@@ -76,7 +75,7 @@ export default function AppRouter({ authenticated, keycloak, login, soundsOn, to
         path="/boost"
         element={
           <RequireAuth>
-            <BoostPage keycloak={keycloak} refreshPlayerData={refreshPlayerData} />
+            <BoostPage refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />

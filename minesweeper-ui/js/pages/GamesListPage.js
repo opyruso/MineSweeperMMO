@@ -1,28 +1,24 @@
 const { Link } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
+import { hasRealmRole, hasResourceRole } from '../keycloak.js';
 
-export default function GamesListPage({ keycloak }) {
+export default function GamesListPage() {
   const { t } = React.useContext(LangContext);
   const [games, setGames] = React.useState(null);
 
   const loadGames = React.useCallback(() => {
-    fetch(`${window.CONFIG['minesweeper-api-url']}/games`, {
-      headers: { Authorization: `Bearer ${keycloak.token}` },
-    })
+    fetch(`${window.CONFIG['minesweeper-api-url']}/games`)
       .then((r) => r.json())
       .then(setGames)
       .catch(() => setGames([]));
-  }, [keycloak]);
+  }, []);
 
   React.useEffect(() => {
     loadGames();
   }, [loadGames]);
 
   const isAdmin =
-    (keycloak && keycloak.hasRealmRole && keycloak.hasRealmRole('admin')) ||
-    (keycloak &&
-      keycloak.hasResourceRole &&
-      keycloak.hasResourceRole('admin', 'minesweeper-app'));
+    hasRealmRole('admin') || hasResourceRole('admin', 'minesweeper-app');
 
   const formatRemaining = React.useCallback(
     (date) => {
@@ -52,9 +48,7 @@ export default function GamesListPage({ keycloak }) {
           <div className="no-games-message">
             <p>{t.noGame}</p>
           </div>
-          {isAdmin && (
-            <CreateGameForm keycloak={keycloak} onGameCreated={loadGames} />
-          )}
+          {isAdmin && <CreateGameForm onGameCreated={loadGames} />}
         </div>
       ) : (
         <div className="games-page">
@@ -91,16 +85,14 @@ export default function GamesListPage({ keycloak }) {
               ))}
             </ul>
           </div>
-          {isAdmin && (
-            <CreateGameForm keycloak={keycloak} onGameCreated={loadGames} />
-          )}
+          {isAdmin && <CreateGameForm onGameCreated={loadGames} />}
         </div>
       )}
     </div>
   );
 }
 
-function CreateGameForm({ keycloak, onGameCreated }) {
+function CreateGameForm({ onGameCreated }) {
   const { t } = React.useContext(LangContext);
   const [show, setShow] = React.useState(false);
   const [form, setForm] = React.useState({
@@ -121,7 +113,6 @@ function CreateGameForm({ keycloak, onGameCreated }) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${keycloak.token}`,
       },
       body: JSON.stringify({
         title: form.title,
