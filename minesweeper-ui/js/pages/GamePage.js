@@ -70,8 +70,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
     }
   }, [game, id]);
 
-  React.useEffect(() => {
-    if (!game) return;
+  const refreshBoard = React.useCallback(() => {
     fetch(`${apiUrl}/scans/${id}`, {
       headers: { Authorization: `Bearer ${keycloak.token}` },
     })
@@ -84,7 +83,12 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
       .then((r) => r.json())
       .then(setMines)
       .catch(() => setMines([]));
-  }, [apiUrl, id, keycloak, game]);
+  }, [apiUrl, id, keycloak]);
+
+  React.useEffect(() => {
+    if (!game) return;
+    refreshBoard();
+  }, [apiUrl, id, keycloak, game, refreshBoard]);
 
   React.useEffect(() => {
     zoomRef.current = zoom;
@@ -530,6 +534,18 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         className="game-canvas"
         onPointerDown={handlePointerDown}
       ></canvas>
+      <button
+        className="show-zones-button"
+        onClick={() => setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))}
+      >
+        <img src="images/icons/actions/icon_eyes_open.png" alt="show" className="icon" />
+      </button>
+      <button className="hide-zones-button" onClick={() => setVisibleScans(new Set())}>
+        <img src="images/icons/actions/icon_eyes_close.png" alt="hide" className="icon" />
+      </button>
+      <button className="refresh-button" onClick={refreshBoard}>
+        <img src="images/icons/actions/icon_refresh.png" alt="refresh" className="icon" />
+      </button>
       {selected && (
         <div className="info-panel">
           <span>({selected.x}, {selected.y})</span>

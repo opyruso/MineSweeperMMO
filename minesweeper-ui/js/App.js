@@ -91,6 +91,8 @@ export default function App() {
         {authenticated && playerData && <StatsBar data={playerData} />}
         <SettingsButton />
         <GamesListButton />
+        <LeaderboardButton />
+        <BoostButton />
         <AppRouter
           authenticated={authenticated}
           keycloak={keycloak}
@@ -149,6 +151,38 @@ function GamesListButton() {
       <img
         src="images/icons/actions/icon_contracts.png"
         alt="Games"
+        className="icon"
+      />
+    </Link>
+  );
+}
+
+function LeaderboardButton() {
+  const location = useLocation();
+  if (location.pathname === '/leaderboard') {
+    return null;
+  }
+  return (
+    <Link to="/leaderboard" className="leaderboard-button" aria-label="Leaderboard">
+      <img
+        src="images/icons/actions/icon_trophy_loser.png"
+        alt="Leaderboard"
+        className="icon"
+      />
+    </Link>
+  );
+}
+
+function BoostButton() {
+  const location = useLocation();
+  if (location.pathname === '/boost') {
+    return null;
+  }
+  return (
+    <Link to="/boost" className="boost-button" aria-label="Boost">
+      <img
+        src="images/icons/actions/icon_boost.png"
+        alt="Boost"
         className="icon"
       />
     </Link>
