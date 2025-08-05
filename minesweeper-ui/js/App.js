@@ -160,10 +160,10 @@ function SettingsButton() {
 
 function GamesListButton() {
   const location = useLocation();
-  const selected = location.pathname === '/games';
+  const selected = location.pathname === '/';
   return (
     <Link
-      to="/games"
+      to="/"
       className={`games-list-button${selected ? ' selected' : ''}`}
       aria-label="Games"
     >
