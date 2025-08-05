@@ -595,15 +595,20 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
         onPointerDown={handlePointerDown}
       ></canvas>
       <button
+        type="button"
         className="show-zones-button"
         onClick={() => setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))}
       >
         <img src="images/icons/actions/icon_eyes_open.png" alt="show" className="icon" />
       </button>
-      <button className="hide-zones-button" onClick={() => setVisibleScans(new Set())}>
+      <button
+        type="button"
+        className="hide-zones-button"
+        onClick={() => setVisibleScans(new Set())}
+      >
         <img src="images/icons/actions/icon_eyes_close.png" alt="hide" className="icon" />
       </button>
-      <button className="refresh-button" onClick={refreshBoard}>
+      <button type="button" className="refresh-button" onClick={refreshBoard}>
         <img src="images/icons/actions/icon_refresh.png" alt="refresh" className="icon" />
       </button>
       {selected && (
@@ -624,6 +629,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 onChange={(e) => setScanRange(Number(e.target.value))}
               />
               <button
+                type="button"
                 className="main-button"
                 onClick={handleScan}
                 disabled={playerData?.gold <= 0}
@@ -635,7 +641,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 />
               </button>
               {!selected.scan && (
-                <button className="main-button" onClick={handleDemine}>
+                <button
+                  type="button"
+                  className="main-button"
+                  onClick={handleDemine}
+                >
                   <img
                     src="images/icons/actions/icon_defuse_process.png"
                     alt={t.demine}
