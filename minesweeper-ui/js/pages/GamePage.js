@@ -457,6 +457,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
   const handleScan = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent && e.nativeEvent.stopImmediatePropagation();
     const range = scanRange;
     keycloak
       .updateToken(60)
@@ -517,11 +518,13 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
           })
       )
       .catch(() => {});
+    return false;
   };
 
   const handleDemine = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent && e.nativeEvent.stopImmediatePropagation();
     keycloak
       .updateToken(60)
       .then(() =>
@@ -581,6 +584,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
           })
       )
       .catch(() => {});
+    return false;
   };
 
   if (!game) {
@@ -627,7 +631,7 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
               <button
                 type="button"
                 className="main-button"
-                onClick={handleScan}
+                onClick={(e) => handleScan(e)}
                 disabled={playerData?.gold <= 0}
               >
                 <img
@@ -637,7 +641,11 @@ export default function GamePage({ keycloak, playerData, refreshPlayerData }) {
                 />
               </button>
               {!selected.scan && (
-                <button type="button" className="main-button" onClick={handleDemine}>
+                <button
+                  type="button"
+                  className="main-button"
+                  onClick={(e) => handleDemine(e)}
+                >
                   <img
                     src="images/icons/actions/icon_defuse_process.png"
                     alt={t.demine}
