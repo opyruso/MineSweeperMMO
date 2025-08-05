@@ -493,7 +493,6 @@ export default function GamePage({ playerData, refreshPlayerData }) {
               }
             }
             requestAnimationFrame(draw);
-            refreshPlayerData && refreshPlayerData();
           });
   };
 
@@ -549,7 +548,6 @@ export default function GamePage({ playerData, refreshPlayerData }) {
                 ...pos,
               });
             }
-            refreshPlayerData && refreshPlayerData();
           });
   };
 
