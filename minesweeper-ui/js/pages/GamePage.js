@@ -140,6 +140,13 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
     const left = center.x - width / (2 * cellSize);
     const top = center.y - height / (2 * cellSize);
 
+    const cellsWide = width / cellSize;
+    const cellsHigh = height / cellSize;
+    const minX = center.x - cellsWide / 2 - scanRange / 2 - 1;
+    const maxX = center.x + cellsWide / 2 + scanRange / 2 + 1;
+    const minY = center.y - cellsHigh / 2 - scanRange / 2 - 1;
+    const maxY = center.y + cellsHigh / 2 + scanRange / 2 + 1;
+
     // draw map area
     const mapLeft = (0 - left) * cellSize;
     const mapTop = (0 - top) * cellSize;
@@ -207,6 +214,7 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
     };
 
     for (const s of scans) {
+      if (s.x < minX || s.x > maxX || s.y < minY || s.y > maxY) continue;
       const px = (s.x - left) * cellSize;
       const py = (s.y - top) * cellSize;
       ctx.fillStyle = '#00008b';
@@ -225,6 +233,7 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
     }
 
     for (const m of mines) {
+      if (m.x < minX || m.x > maxX || m.y < minY || m.y > maxY) continue;
       const px = (m.x - left) * cellSize;
       const py = (m.y - top) * cellSize;
       ctx.fillStyle = m.status === 'cleared' ? '#008000' : '#ff0000';
