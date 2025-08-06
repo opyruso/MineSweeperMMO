@@ -656,3 +656,28 @@ a {
     transform: rotate(360deg);
   }
 }
+
+.boost-verify {
+  position: absolute;
+  bottom: 2rem;
+  cursor: pointer;
+}
+
+.payment-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-popup .popup-box {
+  background: #333;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
