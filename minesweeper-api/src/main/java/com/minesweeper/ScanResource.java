@@ -56,7 +56,7 @@ public class ScanResource {
         if (game == null) {
             throw new NotFoundException();
         }
-        eventPublisher.publishGlobal("LOADING_MAP", jwt.getSubject(), jwt.getClaim("preferred_username"),
+        eventPublisher.publishGlobal("LOADING_MAP", jwt.getSubject(), jwt.getClaim("name"),
                 new io.vertx.core.json.JsonObject()
                         .put("game-id", game.getId())
                         .put("title", game.getTitle()));

@@ -52,7 +52,7 @@ public class PlayerDataResource {
     public PlayerDataInfo me() {
         String id = jwt.getSubject();
         PlayerData data = getOrCreate(id);
-        eventPublisher.publishGlobal("LOGIN", id, jwt.getClaim("preferred_username"), new io.vertx.core.json.JsonObject());
+        eventPublisher.publishGlobal("LOGIN", id, jwt.getClaim("name"), new io.vertx.core.json.JsonObject());
         return new PlayerDataInfo(data.getReputation(), data.getGold(), data.getScanRangeMax(), data.getIncomePerDay());
         }
 

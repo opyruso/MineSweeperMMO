@@ -32,8 +32,8 @@ function formatEvent(e) {
 function EventLog({ messages }) {
   return (
     <div className="event-log">
-      {messages.map((m, i) => (
-        <div key={i}>{m}</div>
+      {messages.map((m) => (
+        <div key={m.id}>{m.text}</div>
       ))}
     </div>
   );
@@ -67,7 +67,11 @@ export default function App() {
       if (msg && msg.type === 'event') {
         const text = formatEvent(msg.data);
         if (text) {
-          setEvents((prev) => [...prev, text].slice(-5));
+          const id = Date.now() + Math.random();
+          setEvents((prev) => [...prev, { id, text }].slice(-5));
+          setTimeout(() => {
+            setEvents((prev) => prev.filter((m) => m.id !== id));
+          }, 5000);
         }
       }
     };

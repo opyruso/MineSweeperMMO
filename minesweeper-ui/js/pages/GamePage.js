@@ -454,6 +454,101 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
     };
   }, []);
 
+  React.useEffect(() => {
+    if (!navigator.serviceWorker) return;
+    const handler = (event) => {
+      const msg = event.data;
+      if (msg && msg.type === 'event') {
+        const e = msg.data;
+        const data = e.data || {};
+        if (data['game-id'] !== id) return;
+        const x = Number(data.x);
+        const y = Number(data.y);
+        const pos = getEffectPosition(x, y);
+        if (
+          e['event-type'] === 'SCAN_NOTHING' ||
+          e['event-type'] === 'SCAN_MINEDETECTED'
+        ) {
+          const scan = {
+            id: null,
+            playerId: e['player-id'] || null,
+            x,
+            y,
+            scanDate: new Date().toISOString(),
+            scanRange: Number(data.range),
+            mineCount: e['event-type'] === 'SCAN_MINEDETECTED' ? 1 : 0,
+          };
+          setScans((prev) => [
+            ...prev.filter((s) => !(s.x === x && s.y === y)),
+            scan,
+          ]);
+          setVisibleScans((prev) => {
+            const next = new Set(prev);
+            next.add(`${x},${y}`);
+            return next;
+          });
+          setSelected((prev) =>
+            prev && prev.x === x && prev.y === y
+              ? { x, y, scan, mine: prev.mine }
+              : prev
+          );
+          setEffect({
+            icon:
+              e['event-type'] === 'SCAN_MINEDETECTED'
+                ? 'icon_alarm.png'
+                : 'icon_empty_hole.png',
+            sound:
+              e['event-type'] === 'SCAN_MINEDETECTED'
+                ? 'sound_warning.mp3'
+                : 'sound_nothing.mp3',
+            ...pos,
+          });
+        } else if (
+          e['event-type'] === 'DEFUSED' ||
+          e['event-type'] === 'EXPLOSION'
+        ) {
+          const mine = {
+            id: null,
+            x,
+            y,
+            status: e['event-type'] === 'DEFUSED' ? 'cleared' : 'exploded',
+          };
+          setMines((prev) => [
+            ...prev.filter((m) => !(m.x === x && m.y === y)),
+            mine,
+          ]);
+          if (e['event-type'] === 'EXPLOSION') {
+            setScans((prev) => prev.filter((s) => !(s.x === x && s.y === y)));
+            setVisibleScans((prev) => {
+              const next = new Set(prev);
+              next.delete(`${x},${y}`);
+              return next;
+            });
+          }
+          setSelected((prev) =>
+            prev && prev.x === x && prev.y === y
+              ? { x, y, scan: prev.scan, mine }
+              : prev
+          );
+          setEffect({
+            icon:
+              e['event-type'] === 'DEFUSED'
+                ? 'icon_bomb_defused.png'
+                : 'icon_explosion.png',
+            sound:
+              e['event-type'] === 'DEFUSED'
+                ? 'sound_click_1.mp3'
+                : 'sound_explosion.mp3',
+            ...pos,
+          });
+        }
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', handler);
+    return () =>
+      navigator.serviceWorker.removeEventListener('message', handler);
+  }, [id, getEffectPosition]);
+
   const handleScan = () => {
     const range = scanRange;
     fetch(`${apiUrl}/scans`, {
