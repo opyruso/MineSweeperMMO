@@ -9,7 +9,7 @@ body {
 
 .event-log {
   position: fixed;
-  bottom: 20vh;
+  bottom: 35vh;
   left: 10px;
   max-width: 300px;
   font-size: 14px;
@@ -467,6 +467,7 @@ button:active {
   color: #f0f0f0;
   flex-wrap: nowrap;
   font-size: 4vh;
+  z-index: 1001;
 }
 
 .info-panel .main-button {
