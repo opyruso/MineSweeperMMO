@@ -34,5 +34,6 @@ export default {
   "dayShort": "j",
   "hourShort": "h",
   "minuteShort": "min",
-  "secondShort": "s"
+  "secondShort": "s",
+  "rotateDevice": "Veuillez passer votre appareil en mode paysage"
 };

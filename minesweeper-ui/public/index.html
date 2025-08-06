@@ -23,7 +23,7 @@
     <link rel="prefetch" href="sounds/sound_click_2.mp3" />
   </head>
   <body>
-    <div id="loading-screen">Loading...</div>
+    <div id="loading-screen">Loading / Chargement...</div>
     <div id="root" style="display: none"></div>
     <script src="config.js"></script>
     <script src="vendor/react.development.js"></script>
@@ -39,9 +39,16 @@
     <script>
       const root = document.getElementById('root');
       const loading = document.getElementById('loading-screen');
+      const baseLoadingText = loading.textContent.replace(/\.+$/, '');
+      let dotCount = 0;
+      const dotInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        loading.textContent = baseLoadingText + '.'.repeat(dotCount);
+      }, 500);
 
       function showApp() {
         clearTimeout(fallbackTimeout);
+        clearInterval(dotInterval);
         loading.style.display = 'none';
         root.style.display = 'block';
       }

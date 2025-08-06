@@ -17,6 +17,7 @@ const ASSETS = [
   '/js/pages/InfoPage.js',
   '/js/pages/LeaderboardPage.js',
   '/js/pages/LoginPage.js',
+  '/js/pages/RotateMobilePage.js',
   '/js/pages/SettingsPage.js',
   '/images/icons/icon-1024.png',
   '/images/icons/icon-192.png',
