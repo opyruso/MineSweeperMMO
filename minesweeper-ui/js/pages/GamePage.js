@@ -673,18 +673,6 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
         className="game-canvas"
         onPointerDown={handlePointerDown}
       ></canvas>
-      <button
-        className="show-zones-button"
-        onClick={() => setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))}
-      >
-        <img src="images/icons/actions/icon_eyes_open.png" alt="show" className="icon" />
-      </button>
-      <button className="hide-zones-button" onClick={() => setVisibleScans(new Set())}>
-        <img src="images/icons/actions/icon_eyes_close.png" alt="hide" className="icon" />
-      </button>
-      <button className="refresh-button" onClick={refreshBoard}>
-        <img src="images/icons/actions/icon_refresh.png" alt="refresh" className="icon" />
-      </button>
       {selected && (
         <div className="info-panel">
           <span>({selected.x}, {selected.y})</span>
@@ -702,6 +690,35 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
                 value={scanRange ?? 2}
                 onChange={(e) => setScanRange(Number(e.target.value))}
               />
+              <button
+                className="main-button"
+                onClick={() =>
+                  setVisibleScans(new Set(scans.map((s) => `${s.x},${s.y}`)))
+                }
+              >
+                <img
+                  src="images/icons/actions/icon_eyes_open.png"
+                  alt="show"
+                  className="icon"
+                />
+              </button>
+              <button
+                className="main-button"
+                onClick={() => setVisibleScans(new Set())}
+              >
+                <img
+                  src="images/icons/actions/icon_eyes_close.png"
+                  alt="hide"
+                  className="icon"
+                />
+              </button>
+              <button className="main-button" onClick={refreshBoard}>
+                <img
+                  src="images/icons/actions/icon_refresh.png"
+                  alt="refresh"
+                  className="icon"
+                />
+              </button>
               <button
                 className="main-button"
                 onClick={handleScan}

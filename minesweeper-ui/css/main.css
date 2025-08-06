@@ -127,29 +127,6 @@ h1 {
   transform: scale(1.5);
 }
 
-.show-zones-button {
-  position: fixed;
-  bottom: 6rem;
-  right: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
-
-.hide-zones-button {
-  position: fixed;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
-
-.refresh-button {
-  position: fixed;
-  bottom: 12rem;
-  right: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
 
 .settings-page,
 .login-page,
