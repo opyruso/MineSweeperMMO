@@ -38,5 +38,5 @@ export default {
   "rotateDevice": "Please rotate your device",
   "install": "Install",
   "installInstructionsIos": "To install the app, open the Share menu and add to Home Screen.",
-  "gameName": "Minesweeper MMO"
+  "gameName": "Mine Sweeper Crew"
 };

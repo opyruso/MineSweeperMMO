@@ -44,7 +44,7 @@ export default function RotateMobilePage() {
             installPrompt && (
               <>
                 <div className="install-card">
-                  <img src="images/icons/icon-192.png" alt="Minesweeper MMO" />
+                  <img src="images/icons/icon-192.png" alt={t.gameName} />
                   <div className="install-name">{t.gameName}</div>
                 </div>
                 <button className="install-action" onClick={handleInstall}>
