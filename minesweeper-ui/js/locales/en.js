@@ -35,5 +35,8 @@ export default {
   "hourShort": "h",
   "minuteShort": "m",
   "secondShort": "s",
-  "rotateDevice": "Please rotate your device"
+  "rotateDevice": "Please rotate your device",
+  "install": "Install",
+  "installInstructionsIos": "To install the app, open the Share menu and add to Home Screen.",
+  "gameName": "Mine Sweeper Crew"
 };

@@ -35,5 +35,8 @@ export default {
   "hourShort": "h",
   "minuteShort": "min",
   "secondShort": "s",
-  "rotateDevice": "Veuillez passer votre appareil en mode paysage"
+  "rotateDevice": "Veuillez passer votre appareil en mode paysage",
+  "install": "Installer",
+  "installInstructionsIos": "Pour installer l'application, ouvrez le menu Partager puis \u00AB\u00A0Ajouter \u00E0 l'\u00E9cran d'accueil\u00A0\u00BB.",
+  "gameName": "Mine Sweeper Crew"
 };
