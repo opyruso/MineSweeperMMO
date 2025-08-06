@@ -22,6 +22,22 @@ export default function GamePage({ id, playerData, refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
 
   React.useEffect(() => {
+    if (!navigator.serviceWorker) return;
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.active && reg.active.postMessage({
+        type: 'join-game',
+        apiUrl,
+        gameId: id,
+      });
+    });
+    return () => {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.active && reg.active.postMessage({ type: 'leave-game' });
+      });
+    };
+  }, [apiUrl, id]);
+
+  React.useEffect(() => {
     if (!effect) return;
     if (!window.soundsOnRef || window.soundsOnRef.current) {
       new Audio(`sounds/${effect.sound}`).play();

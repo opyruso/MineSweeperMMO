@@ -7,6 +7,20 @@ body {
   padding: 0;
 }
 
+.event-log {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  max-width: 300px;
+  font-size: 14px;
+  color: #fff;
+  z-index: 1000;
+}
+
+.event-log div {
+  margin-top: 4px;
+}
+
 * {
   scrollbar-width: none;
 }

@@ -4,6 +4,7 @@ import com.minesweeper.dto.PlayerDataInfo;
 import com.minesweeper.dto.AddGoldRequest;
 import com.minesweeper.entity.PlayerData;
 import com.minesweeper.repository.PlayerDataRepository;
+import com.minesweeper.service.EventPublisher;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,9 @@ public class PlayerDataResource {
     @Inject
     JsonWebToken jwt;
 
+    @Inject
+    EventPublisher eventPublisher;
+
     private PlayerData getOrCreate(String id) {
         PlayerData data = playerDataRepository.findById(id);
         if (data == null) {
@@ -48,6 +52,7 @@ public class PlayerDataResource {
     public PlayerDataInfo me() {
         String id = jwt.getSubject();
         PlayerData data = getOrCreate(id);
+        eventPublisher.publishGlobal("LOGIN", id, jwt.getClaim("preferred_username"), new io.vertx.core.json.JsonObject());
         return new PlayerDataInfo(data.getReputation(), data.getGold(), data.getScanRangeMax(), data.getIncomePerDay());
         }
 
