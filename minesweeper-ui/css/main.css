@@ -661,6 +661,7 @@ a {
   position: absolute;
   bottom: 2rem;
   cursor: pointer;
+  font-size: 4vh;
 }
 
 .payment-popup {
@@ -680,4 +681,8 @@ a {
   color: white;
   padding: 1rem;
   text-align: center;
+}
+
+.payment-popup .popup-box button {
+  color: #f0f0f0;
 }
