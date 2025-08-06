@@ -133,6 +133,7 @@ self.addEventListener('notificationclick', (event) => {
 let apiUrl = '';
 let globalSocket = null;
 let gameSocket = null;
+let currentGameId = null;
 
 function broadcast(message) {
   clients.matchAll().then((list) => {
@@ -141,18 +142,33 @@ function broadcast(message) {
 }
 
 function connectGlobal() {
-  if (!apiUrl || globalSocket) return;
+  if (!apiUrl || (globalSocket && globalSocket.readyState <= 1)) return;
   globalSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + '/ws/global');
   globalSocket.onmessage = (e) => broadcast(e.data);
+  const reconnect = () => {
+    globalSocket = null;
+    setTimeout(connectGlobal, 1000);
+  };
+  globalSocket.onclose = reconnect;
+  globalSocket.onerror = reconnect;
 }
 
 function connectGame(id) {
-  if (!apiUrl) return;
+  if (!apiUrl || (gameSocket && gameSocket.readyState <= 1 && currentGameId === id)) return;
   if (gameSocket) {
     gameSocket.close();
   }
+  currentGameId = id;
   gameSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + `/ws/game/${id}`);
   gameSocket.onmessage = (e) => broadcast(e.data);
+  const reconnect = () => {
+    gameSocket = null;
+    if (currentGameId === id) {
+      setTimeout(() => connectGame(id), 1000);
+    }
+  };
+  gameSocket.onclose = reconnect;
+  gameSocket.onerror = reconnect;
 }
 
 self.addEventListener('message', (event) => {
@@ -168,5 +184,6 @@ self.addEventListener('message', (event) => {
       gameSocket.close();
       gameSocket = null;
     }
+    currentGameId = null;
   }
 });
