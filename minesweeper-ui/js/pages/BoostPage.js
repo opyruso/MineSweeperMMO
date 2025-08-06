@@ -1,4 +1,6 @@
-export default function BoostPage({ refreshPlayerData }) {
+import StatsBar from '../StatsBar.js';
+
+export default function BoostPage({ playerData, refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
   const buy = (amount) => {
     fetch(`${apiUrl}/player-data/me/add-gold`, {
@@ -16,6 +18,7 @@ export default function BoostPage({ refreshPlayerData }) {
   ];
   return (
     <div className="boost-page">
+      {playerData && <StatsBar data={playerData} />}
       <div className="boost-container">
         {items.map((it) => (
           <div key={it.gold} className="boost-item" onClick={() => buy(it.gold)}>

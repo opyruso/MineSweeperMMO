@@ -1,8 +1,9 @@
 const { Link } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { hasRealmRole, hasResourceRole } from '../keycloak.js';
+import StatsBar from '../StatsBar.js';
 
-export default function GamesListPage() {
+export default function GamesListPage({ playerData }) {
   const { t } = React.useContext(LangContext);
   const [games, setGames] = React.useState(null);
 
@@ -43,6 +44,7 @@ export default function GamesListPage() {
 
   return (
     <div>
+      {playerData && <StatsBar data={playerData} />}
       {games.length === 0 ? (
         <div className="no-games">
           <div className="no-games-message">

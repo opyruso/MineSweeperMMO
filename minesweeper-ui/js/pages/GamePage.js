@@ -1,6 +1,7 @@
 const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { getUserId } from '../keycloak.js';
+import StatsBar from '../StatsBar.js';
 
 export default function GamePage({ playerData, refreshPlayerData }) {
   const { id } = useParams();
@@ -559,6 +560,7 @@ export default function GamePage({ playerData, refreshPlayerData }) {
 
   return (
     <div className="game-page">
+      {playerData && <StatsBar data={playerData} />}
       <canvas
         ref={canvasRef}
         className="game-canvas"

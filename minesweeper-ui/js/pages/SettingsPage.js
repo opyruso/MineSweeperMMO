@@ -1,6 +1,7 @@
 import { LangContext } from '../i18n.js';
+import StatsBar from '../StatsBar.js';
 
-export default function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds }) {
+export default function SettingsPage({ authenticated, onLogout, soundsOn, toggleSounds, playerData }) {
   const { lang, changeLang, t } = React.useContext(LangContext);
   const [name, setName] = React.useState('');
 
@@ -25,6 +26,7 @@ export default function SettingsPage({ authenticated, onLogout, soundsOn, toggle
 
   return (
     <div className="settings-page">
+      {authenticated && playerData && <StatsBar data={playerData} />}
       <div className="language-selection">
         <button
           className={`flag-button ${lang === 'en' ? 'active' : ''}`}

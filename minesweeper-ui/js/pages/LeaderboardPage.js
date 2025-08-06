@@ -1,7 +1,8 @@
 const { useState, useEffect } = React;
 import { LangContext } from '../i18n.js';
+import StatsBar from '../StatsBar.js';
 
-export default function LeaderboardPage() {
+export default function LeaderboardPage({ playerData }) {
   const { t } = React.useContext(LangContext);
   const [period, setPeriod] = useState('daily');
   const [data, setData] = useState([]);
@@ -27,6 +28,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
+      {playerData && <StatsBar data={playerData} />}
       <div className="leaderboard-tabs">
         {['daily', 'weekly', 'monthly'].map((p) => (
           <button

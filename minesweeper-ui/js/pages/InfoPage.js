@@ -1,4 +1,5 @@
 import { LangContext } from '../i18n.js';
+import StatsBar from '../StatsBar.js';
 
 export default function InfoPage({ playerData, refreshPlayerData }) {
   const { t } = React.useContext(LangContext);
@@ -27,6 +28,7 @@ export default function InfoPage({ playerData, refreshPlayerData }) {
 
   return (
     <div className="info-page">
+      <StatsBar data={playerData} />
       <div className="income-line">
         {t.dailyIncome}: {playerData.incomePerDay} {t.gold}
       </div>

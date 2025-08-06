@@ -36,6 +36,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
             }
             soundsOn={soundsOn}
             toggleSounds={toggleSounds}
+            playerData={playerData}
           />
         }
       />
@@ -43,7 +44,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/"
         element={
           <RequireAuth>
-            <GamesListPage />
+            <GamesListPage playerData={playerData} />
           </RequireAuth>
         }
       />
@@ -67,7 +68,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/leaderboard"
         element={
           <RequireAuth>
-            <LeaderboardPage />
+            <LeaderboardPage playerData={playerData} />
           </RequireAuth>
         }
       />
@@ -75,7 +76,7 @@ export default function AppRouter({ authenticated, login, logout, soundsOn, togg
         path="/boost"
         element={
           <RequireAuth>
-            <BoostPage refreshPlayerData={refreshPlayerData} />
+            <BoostPage playerData={playerData} refreshPlayerData={refreshPlayerData} />
           </RequireAuth>
         }
       />
