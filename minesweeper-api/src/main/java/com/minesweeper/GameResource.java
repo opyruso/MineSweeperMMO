@@ -32,7 +32,7 @@ public class GameResource {
     public List<GameInfo> listGames() {
         return gameRepository.listOngoing().stream()
                 .map(g -> {
-                    long found = mineRepository.count("game = ?1 and foundBy is not null", g);
+                    long found = mineRepository.count("game = ?1 and (foundBy is not null or exploded = true)", g);
                     return new GameInfo(
                             g.getId(),
                             g.getTitle(),

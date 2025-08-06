@@ -12,7 +12,7 @@ public class GameRepository implements PanacheRepositoryBase<Game, String> {
 
     public List<Game> listOngoing() {
         LocalDateTime now = LocalDateTime.now();
-        return list("startDate <= ?1 and endDate >= ?1", now);
+        return list("startDate <= ?1 and endDate >= ?1 order by endDate asc", now);
     }
 }
 
