@@ -1,7 +1,12 @@
-const { HashRouter, Link, useLocation, useNavigate } = ReactRouterDOM;
 import { LangProvider } from './i18n.js';
-import AppRouter from './router.js';
 import { init as initKeycloak, login, logout } from './keycloak.js';
+import LoginPage from './pages/LoginPage.js';
+import GamesListPage from './pages/GamesListPage.js';
+import GamePage from './pages/GamePage.js';
+import SettingsPage from './pages/SettingsPage.js';
+import InfoPage from './pages/InfoPage.js';
+import LeaderboardPage from './pages/LeaderboardPage.js';
+import BoostPage from './pages/BoostPage.js';
 
 export default function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
@@ -13,6 +18,8 @@ export default function App() {
   const [isPortrait, setIsPortrait] = React.useState(
     window.matchMedia('(orientation: portrait)').matches
   );
+  const [view, setView] = React.useState('loading');
+  const [currentGameId, setCurrentGameId] = React.useState(null);
 
   React.useEffect(() => {
     initKeycloak().then((auth) => {
@@ -20,6 +27,15 @@ export default function App() {
       setInitialized(true);
     });
   }, []);
+
+  React.useEffect(() => {
+    if (!initialized) return;
+    if (authenticated) {
+      setView('games');
+    } else {
+      setView('login');
+    }
+  }, [initialized, authenticated]);
 
   React.useEffect(() => {
     const clickSounds = ['sound_click_1.mp3', 'sound_click_2.mp3'];
@@ -95,36 +111,68 @@ export default function App() {
     return null;
   }
 
+  let page = null;
+  if (view === 'login') {
+    page = <LoginPage onLogin={() => login({ idpHint: 'google' })} />;
+  } else if (view === 'settings') {
+    page = (
+      <SettingsPage
+        authenticated={authenticated}
+        onLogout={() => logout({ redirectUri: window.location.href })}
+        soundsOn={soundsOn}
+        toggleSounds={toggleSounds}
+      />
+    );
+  } else if (view === 'games') {
+    page = (
+      <GamesListPage
+        onSelectGame={(id) => {
+          setCurrentGameId(id);
+          setView('game');
+        }}
+      />
+    );
+  } else if (view === 'game') {
+    page = (
+      <GamePage
+        id={currentGameId}
+        playerData={playerData}
+        refreshPlayerData={fetchPlayerData}
+      />
+    );
+  } else if (view === 'info') {
+    page = (
+      <InfoPage
+        playerData={playerData}
+        refreshPlayerData={fetchPlayerData}
+      />
+    );
+  } else if (view === 'leaderboard') {
+    page = <LeaderboardPage />;
+  } else if (view === 'boost') {
+    page = <BoostPage refreshPlayerData={fetchPlayerData} />;
+  }
+
   return (
     <LangProvider>
-      <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        {authenticated && playerData && <StatsBar data={playerData} />}
-        <SettingsButton />
-        <GamesListButton />
-        <LeaderboardButton />
-        <BoostButton />
-        <AppRouter
-          authenticated={authenticated}
-          login={() => login({ idpHint: 'google' })}
-          logout={logout}
-          soundsOn={soundsOn}
-          toggleSounds={toggleSounds}
-          playerData={playerData}
-          refreshPlayerData={fetchPlayerData}
-        />
-        {isPortrait && <RotateMobileOverlay />}
-      </HashRouter>
+      {authenticated && playerData && (
+        <StatsBar data={playerData} setView={setView} />
+      )}
+      {authenticated && <SettingsButton view={view} setView={setView} />}
+      {authenticated && <GamesListButton view={view} setView={setView} />}
+      {authenticated && <LeaderboardButton view={view} setView={setView} />}
+      {authenticated && <BoostButton view={view} setView={setView} />}
+      {page}
+      {isPortrait && <RotateMobileOverlay />}
     </LangProvider>
   );
 }
 
-function SettingsButton() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  if (location.pathname === '/settings') {
+function SettingsButton({ view, setView }) {
+  if (view === 'settings') {
     return (
       <button
-        onClick={() => navigate(location.state?.from || '/')}
+        onClick={() => setView('games')}
         className="settings-button"
         aria-label="Back"
       >
@@ -137,9 +185,8 @@ function SettingsButton() {
     );
   }
   return (
-    <Link
-      to="/settings"
-      state={{ from: location.pathname }}
+    <button
+      onClick={() => setView('settings')}
       className="settings-button"
       aria-label="Settings"
     >
@@ -148,16 +195,15 @@ function SettingsButton() {
         alt="Settings"
         className="icon"
       />
-    </Link>
+    </button>
   );
 }
 
-function GamesListButton() {
-  const location = useLocation();
-  const selected = location.pathname === '/';
+function GamesListButton({ view, setView }) {
+  const selected = view === 'games';
   return (
-    <Link
-      to="/"
+    <button
+      onClick={() => setView('games')}
       className={`games-list-button${selected ? ' selected' : ''}`}
       aria-label="Games"
     >
@@ -166,16 +212,15 @@ function GamesListButton() {
         alt="Games"
         className="icon"
       />
-    </Link>
+    </button>
   );
 }
 
-function LeaderboardButton() {
-  const location = useLocation();
-  const selected = location.pathname === '/leaderboard';
+function LeaderboardButton({ view, setView }) {
+  const selected = view === 'leaderboard';
   return (
-    <Link
-      to="/leaderboard"
+    <button
+      onClick={() => setView('leaderboard')}
       className={`leaderboard-button${selected ? ' selected' : ''}`}
       aria-label="Leaderboard"
     >
@@ -184,16 +229,15 @@ function LeaderboardButton() {
         alt="Leaderboard"
         className="icon"
       />
-    </Link>
+    </button>
   );
 }
 
-function BoostButton() {
-  const location = useLocation();
-  const selected = location.pathname === '/boost';
+function BoostButton({ view, setView }) {
+  const selected = view === 'boost';
   return (
-    <Link
-      to="/boost"
+    <button
+      onClick={() => setView('boost')}
       className={`boost-button${selected ? ' selected' : ''}`}
       aria-label="Boost"
     >
@@ -202,13 +246,13 @@ function BoostButton() {
         alt="Boost"
         className="icon"
       />
-    </Link>
+    </button>
   );
 }
 
-function StatsBar({ data }) {
+function StatsBar({ data, setView }) {
   return (
-    <Link to="/info" className="stats-bar">
+    <button onClick={() => setView('info')} className="stats-bar">
       <span>
         <img
           src="images/icons/actions/icon_portfolio.png"
@@ -233,7 +277,7 @@ function StatsBar({ data }) {
         />{' '}
         {data.reputation}
       </span>
-    </Link>
+    </button>
   );
 }
 

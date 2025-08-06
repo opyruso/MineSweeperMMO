@@ -1,9 +1,7 @@
-const { useParams } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { getUserId } from '../keycloak.js';
 
-export default function GamePage({ playerData, refreshPlayerData }) {
-  const { id } = useParams();
+export default function GamePage({ id, playerData, refreshPlayerData }) {
   const { t } = React.useContext(LangContext);
   const canvasRef = React.useRef(null);
   const dragRef = React.useRef(null);
