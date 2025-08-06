@@ -411,7 +411,7 @@ button:active {
 }
 
 .games-list li {
-  margin: 4vh 0;
+  margin: 1vh 0;
 }
 
 .game-item {
@@ -423,6 +423,9 @@ button:active {
   text-align: center;
   max-width: 90vw;
   font-size: 10vh;
+  border: 2px solid #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1vh 2vh;
 }
 
 .game-title-line {
@@ -434,6 +437,7 @@ button:active {
 .game-info-line {
   margin-top: 2vh;
   white-space: nowrap;
+  font-size: 0.8em;
 }
 
 .game-page {
