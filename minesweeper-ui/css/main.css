@@ -66,7 +66,7 @@ h1 {
 }
 
 .settings-button .icon {
-  height: 1.2em;
+  height: 1em;
 }
 
 .stats-bar {
@@ -90,7 +90,7 @@ h1 {
 
 .games-list-button {
   position: fixed;
-  top: 6rem;
+  top: 4.5rem;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -101,7 +101,7 @@ h1 {
 
 .leaderboard-button {
   position: fixed;
-  top: 12rem;
+  top: 8.5rem;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -112,7 +112,7 @@ h1 {
 
 .boost-button {
   position: fixed;
-  top: 18rem;
+  top: 12.5rem;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -127,29 +127,6 @@ h1 {
   transform: scale(1.5);
 }
 
-.show-zones-button {
-  position: fixed;
-  bottom: 6rem;
-  left: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
-
-.hide-zones-button {
-  position: fixed;
-  bottom: 0.5rem;
-  left: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
-
-.refresh-button {
-  position: fixed;
-  bottom: 12rem;
-  left: 0.5rem;
-  font-size: 10vh;
-  z-index: 10;
-}
 
 .settings-page,
 .login-page,
