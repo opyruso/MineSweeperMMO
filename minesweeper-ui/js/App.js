@@ -8,6 +8,37 @@ import InfoPage from './pages/InfoPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
 import BoostPage from './pages/BoostPage.js';
 
+function formatEvent(e) {
+  const login = e.login;
+  const data = e.data || {};
+  switch (e['event-type']) {
+    case 'LOGIN':
+      return `${login} vient de se connecter`;
+    case 'LOADING_MAP':
+      return `${login} est entré dans ${data.title}`;
+    case 'SCAN_NOTHING':
+      return `${login} a scanné en (${data.x},${data.y}) mais n'a rien trouvé`;
+    case 'SCAN_MINEDETECTED':
+      return `${login} vient de détécter des mines autour de (${data.x},${data.y})`;
+    case 'DEFUSED':
+      return `${login} vient de désamorcer la mine en (${data.x},${data.y})`;
+    case 'EXPLOSION':
+      return `${login} vient de se faire exploser sur la mine en (${data.x},${data.y})`;
+    default:
+      return '';
+  }
+}
+
+function EventLog({ messages }) {
+  return (
+    <div className="event-log">
+      {messages.map((m) => (
+        <div key={m.id}>{m.text}</div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [authenticated, setAuthenticated] = React.useState(false);
   const [initialized, setInitialized] = React.useState(false);
@@ -20,12 +51,32 @@ export default function App() {
   );
   const [view, setView] = React.useState('loading');
   const [currentGameId, setCurrentGameId] = React.useState(null);
+  const [events, setEvents] = React.useState([]);
 
   React.useEffect(() => {
     initKeycloak().then((auth) => {
       setAuthenticated(auth);
       setInitialized(true);
     });
+  }, []);
+
+  React.useEffect(() => {
+    if (!navigator.serviceWorker) return;
+    const handler = (event) => {
+      const msg = event.data;
+      if (msg && msg.type === 'event') {
+        const text = formatEvent(msg.data);
+        if (text) {
+          const id = Date.now() + Math.random();
+          setEvents((prev) => [...prev, { id, text }].slice(-5));
+          setTimeout(() => {
+            setEvents((prev) => prev.filter((m) => m.id !== id));
+          }, 5000);
+        }
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', handler);
+    return () => navigator.serviceWorker.removeEventListener('message', handler);
   }, []);
 
   React.useEffect(() => {
@@ -36,6 +87,16 @@ export default function App() {
       setView('login');
     }
   }, [initialized, authenticated]);
+
+  React.useEffect(() => {
+    if (!authenticated || !navigator.serviceWorker) return;
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.active && reg.active.postMessage({
+        type: 'init-global',
+        apiUrl: window.CONFIG['minesweeper-api-url'],
+      });
+    });
+  }, [authenticated]);
 
   React.useEffect(() => {
     const clickSounds = ['sound_click_1.mp3', 'sound_click_2.mp3'];
@@ -164,6 +225,7 @@ export default function App() {
       {/** BoostButton hidden for now **/}
       {page}
       {isPortrait && <RotateMobileOverlay />}
+      <EventLog messages={events} />
     </LangProvider>
   );
 }

@@ -12,8 +12,7 @@ import com.minesweeper.repository.MineRepository;
 import com.minesweeper.repository.PlayerRepository;
 import com.minesweeper.repository.PlayerScanRepository;
 import com.minesweeper.repository.PlayerDataRepository;
-import com.minesweeper.repository.ActionEventRepository;
-import com.minesweeper.entity.ActionEvent;
+import com.minesweeper.service.EventPublisher;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -45,7 +44,7 @@ public class MineResource {
     PlayerDataRepository playerDataRepository;
 
     @Inject
-    ActionEventRepository actionEventRepository;
+    EventPublisher eventPublisher;
 
     @GET
     @Path("/cleared")
@@ -95,13 +94,11 @@ public class MineResource {
             mine.setExploded(false);
             data.setGold(data.getGold() + 1000);
             data.setReputation(data.getReputation() + 1);
-            ActionEvent event = new ActionEvent();
-            event.setId(UUID.randomUUID().toString());
-            event.setPlayer(player);
-            event.setGame(game);
-            event.setEventType("DEFUSED");
-            event.setEventDate(LocalDateTime.now());
-            actionEventRepository.persist(event);
+            eventPublisher.publishGame(game.getId(), "DEFUSED", player.getId(), player.getName(),
+                    new io.vertx.core.json.JsonObject()
+                            .put("game-id", game.getId())
+                            .put("x", request.x())
+                            .put("y", request.y()));
             return new MineInfo(mine.getId(), mine.getX(), mine.getY(), "cleared");
         }
 
@@ -119,13 +116,11 @@ public class MineResource {
         if (exploded != null && Boolean.TRUE.equals(exploded.getExploded())) {
             data.setGold(Math.max(0, data.getGold() - 500));
             data.setReputation(Math.max(0, data.getReputation() - 10));
-            ActionEvent event = new ActionEvent();
-            event.setId(UUID.randomUUID().toString());
-            event.setPlayer(player);
-            event.setGame(game);
-            event.setEventType("EXPLOSION");
-            event.setEventDate(LocalDateTime.now());
-            actionEventRepository.persist(event);
+            eventPublisher.publishGame(game.getId(), "EXPLOSION", player.getId(), player.getName(),
+                    new io.vertx.core.json.JsonObject()
+                            .put("game-id", game.getId())
+                            .put("x", request.x())
+                            .put("y", request.y()));
             return new MineInfo(exploded.getId(), exploded.getX(), exploded.getY(), "explosed");
         }
         return new MineInfo(null, request.x(), request.y(), "wrong");

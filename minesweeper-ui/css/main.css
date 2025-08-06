@@ -7,6 +7,29 @@ body {
   padding: 0;
 }
 
+.event-log {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  max-width: 300px;
+  font-size: 14px;
+  color: #ccc;
+  z-index: 1000;
+}
+
+.event-log div {
+  margin-top: 4px;
+  opacity: 1;
+  animation: fadeout 1s linear forwards;
+  animation-delay: 4s;
+}
+
+@keyframes fadeout {
+  to {
+    opacity: 0;
+  }
+}
+
 * {
   scrollbar-width: none;
 }

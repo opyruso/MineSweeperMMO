@@ -129,3 +129,44 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(clients.openWindow('/'));
 });
+
+let apiUrl = '';
+let globalSocket = null;
+let gameSocket = null;
+
+function broadcast(message) {
+  clients.matchAll().then((list) => {
+    list.forEach((client) => client.postMessage({ type: 'event', data: JSON.parse(message) }));
+  });
+}
+
+function connectGlobal() {
+  if (!apiUrl || globalSocket) return;
+  globalSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + '/ws/global');
+  globalSocket.onmessage = (e) => broadcast(e.data);
+}
+
+function connectGame(id) {
+  if (!apiUrl) return;
+  if (gameSocket) {
+    gameSocket.close();
+  }
+  gameSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + `/ws/game/${id}`);
+  gameSocket.onmessage = (e) => broadcast(e.data);
+}
+
+self.addEventListener('message', (event) => {
+  const msg = event.data || {};
+  if (msg.type === 'init-global') {
+    apiUrl = msg.apiUrl;
+    connectGlobal();
+  } else if (msg.type === 'join-game') {
+    apiUrl = msg.apiUrl;
+    connectGame(msg.gameId);
+  } else if (msg.type === 'leave-game') {
+    if (gameSocket) {
+      gameSocket.close();
+      gameSocket = null;
+    }
+  }
+});

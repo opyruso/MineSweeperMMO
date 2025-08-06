@@ -12,8 +12,7 @@ import com.minesweeper.repository.MineRepository;
 import com.minesweeper.repository.PlayerRepository;
 import com.minesweeper.repository.PlayerScanRepository;
 import com.minesweeper.repository.PlayerDataRepository;
-import com.minesweeper.repository.ActionEventRepository;
-import com.minesweeper.entity.ActionEvent;
+import com.minesweeper.service.EventPublisher;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -44,7 +43,10 @@ public class ScanResource {
     PlayerDataRepository playerDataRepository;
 
     @Inject
-    ActionEventRepository actionEventRepository;
+    EventPublisher eventPublisher;
+
+    @Inject
+    org.eclipse.microprofile.jwt.JsonWebToken jwt;
 
     @GET
     @Path("/{idGame}")
@@ -54,6 +56,10 @@ public class ScanResource {
         if (game == null) {
             throw new NotFoundException();
         }
+        eventPublisher.publishGlobal("LOADING_MAP", jwt.getSubject(), jwt.getClaim("name"),
+                new io.vertx.core.json.JsonObject()
+                        .put("game-id", game.getId())
+                        .put("title", game.getTitle()));
         return playerScanRepository.list("game", game).stream()
                 .map(scan -> new ScanInfo(
                         scan.getId(),
@@ -106,13 +112,11 @@ public class ScanResource {
             mine.setExploded(true);
             data.setGold(Math.max(0, data.getGold() - 500));
             data.setReputation(Math.max(0, data.getReputation() - 10));
-            ActionEvent event = new ActionEvent();
-            event.setId(UUID.randomUUID().toString());
-            event.setPlayer(player);
-            event.setGame(game);
-            event.setEventType("EXPLOSION");
-            event.setEventDate(now);
-            actionEventRepository.persist(event);
+            eventPublisher.publishGame(game.getId(), "EXPLOSION", player.getId(), player.getName(),
+                    new io.vertx.core.json.JsonObject()
+                            .put("game-id", game.getId())
+                            .put("x", request.x())
+                            .put("y", request.y()));
             int mines = countMines(game, request.x(), request.y(), request.scanRange());
             return new ScanInfo(null, player.getId(), request.x(), request.y(),
                     now, request.scanRange(), mines, true);
@@ -129,13 +133,13 @@ public class ScanResource {
         playerScanRepository.persist(scan);
 
         int mines = countMines(game, request.x(), request.y(), request.scanRange());
-        ActionEvent event = new ActionEvent();
-        event.setId(UUID.randomUUID().toString());
-        event.setPlayer(player);
-        event.setGame(game);
-        event.setEventDate(now);
-        event.setEventType(mines > 0 ? "SCAN_MINEDETECTED" : "SCAN_NOTHING");
-        actionEventRepository.persist(event);
+        eventPublisher.publishGame(game.getId(), mines > 0 ? "SCAN_MINEDETECTED" : "SCAN_NOTHING",
+                player.getId(), player.getName(),
+                new io.vertx.core.json.JsonObject()
+                        .put("game-id", game.getId())
+                        .put("x", request.x())
+                        .put("y", request.y())
+                        .put("range", request.scanRange()));
         return new ScanInfo(scan.getId(), player.getId(), scan.getX(), scan.getY(),
                 scan.getScanDate(), scan.getScanRange(), mines, false);
     }
