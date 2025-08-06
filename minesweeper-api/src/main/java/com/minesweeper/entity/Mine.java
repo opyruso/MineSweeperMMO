@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "mine")
@@ -31,6 +32,9 @@ public class Mine {
 
     @Column(name = "exploded")
     private Boolean exploded;
+
+    @Column(name = "found_date")
+    private LocalDateTime foundDate;
 
     public String getId() {
         return id;
@@ -78,6 +82,14 @@ public class Mine {
 
     public void setExploded(Boolean exploded) {
         this.exploded = exploded;
+    }
+
+    public LocalDateTime getFoundDate() {
+        return foundDate;
+    }
+
+    public void setFoundDate(LocalDateTime foundDate) {
+        this.foundDate = foundDate;
     }
 }
 
