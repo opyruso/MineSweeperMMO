@@ -2,7 +2,9 @@ package com.minesweeper;
 
 import com.minesweeper.entity.Player;
 import com.minesweeper.repository.PlayerRepository;
+import com.minesweeper.service.EventPublisher;
 import io.quarkus.security.identity.SecurityIdentity;
+import io.vertx.core.json.JsonObject;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -31,6 +33,9 @@ public class PlayerLastConnexionFilter implements ContainerRequestFilter {
     @Inject
     PlayerRepository playerRepository;
 
+    @Inject
+    EventPublisher eventPublisher;
+
     @Override
     @Transactional
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -41,6 +46,7 @@ public class PlayerLastConnexionFilter implements ContainerRequestFilter {
         String playerId = jwt.getSubject();
         LocalDateTime now = LocalDateTime.now();
         Player player = playerRepository.findById(playerId);
+        boolean publishLogin = false;
         if (player == null) {
             player = new Player();
             player.setId(playerId);
@@ -49,8 +55,15 @@ public class PlayerLastConnexionFilter implements ContainerRequestFilter {
             player.setName(firstName != null ? firstName : defaultName);
             player.setDateLastConnexion(now);
             playerRepository.persist(player);
+            publishLogin = true;
         } else {
+            if (player.getDateLastConnexion() == null || player.getDateLastConnexion().isBefore(now.minusMinutes(1))) {
+                publishLogin = true;
+            }
             player.setDateLastConnexion(now);
+        }
+        if (publishLogin) {
+            eventPublisher.publishGlobal("LOGIN", playerId, player.getName(), new JsonObject());
         }
     }
 }
