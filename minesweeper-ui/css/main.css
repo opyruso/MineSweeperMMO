@@ -394,11 +394,11 @@ button:active {
 }
 
 .games-list-container {
-  display: flex;
   justify-content: center;
   align-items: center;
   flex: 1;
   overflow: auto;
+  margin-top: 15vh;
 }
 
 .games-list {
