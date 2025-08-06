@@ -208,7 +208,7 @@ export default function App() {
       {authenticated && <SettingsButton view={view} setView={setView} />}
       {authenticated && <GamesListButton view={view} setView={setView} />}
       {authenticated && <LeaderboardButton view={view} setView={setView} />}
-      {/** BoostButton hidden for now **/}
+      {authenticated && <BoostButton view={view} setView={setView} />}
         {page}
         <EventLog messages={events} />
       </LangProvider>
