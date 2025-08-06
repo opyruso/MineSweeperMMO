@@ -56,7 +56,7 @@ h1 {
 
 .settings-button {
   position: fixed;
-  top: 0.5rem;
+  top: 4vh;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -90,7 +90,7 @@ h1 {
 
 .games-list-button {
   position: fixed;
-  top: 4.5rem;
+  top: 36vh;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -101,7 +101,7 @@ h1 {
 
 .leaderboard-button {
   position: fixed;
-  top: 8.5rem;
+  top: 68vh;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
@@ -112,7 +112,7 @@ h1 {
 
 .boost-button {
   position: fixed;
-  top: 12.5rem;
+  top: 100vh;
   right: 0.5rem;
   font-size: 10vh;
   color: inherit;
