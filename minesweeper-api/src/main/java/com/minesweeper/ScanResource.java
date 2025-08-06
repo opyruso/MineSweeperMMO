@@ -110,6 +110,8 @@ public class ScanResource {
         LocalDateTime now = LocalDateTime.now();
         if (mine != null) {
             mine.setExploded(true);
+            mine.setFoundBy(player);
+            mine.setFoundDate(now);
             data.setGold(Math.max(0, data.getGold() - 500));
             data.setReputation(Math.max(0, data.getReputation() - 10));
             eventPublisher.publishGame(game.getId(), "EXPLOSION", player.getId(), player.getName(),

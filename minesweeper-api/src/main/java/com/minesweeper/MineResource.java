@@ -92,6 +92,7 @@ public class MineResource {
         if (mine != null) {
             mine.setFoundBy(player);
             mine.setExploded(false);
+            mine.setFoundDate(LocalDateTime.now());
             data.setGold(data.getGold() + 1000);
             data.setReputation(data.getReputation() + 1);
             eventPublisher.publishGame(game.getId(), "DEFUSED", player.getId(), player.getName(),
