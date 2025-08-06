@@ -34,5 +34,6 @@ export default {
   "dayShort": "d",
   "hourShort": "h",
   "minuteShort": "m",
-  "secondShort": "s"
+  "secondShort": "s",
+  "rotateDevice": "Please rotate your device"
 };

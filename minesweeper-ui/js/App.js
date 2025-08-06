@@ -7,6 +7,7 @@ import SettingsPage from './pages/SettingsPage.js';
 import InfoPage from './pages/InfoPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
 import BoostPage from './pages/BoostPage.js';
+import RotateMobilePage from './pages/RotateMobilePage.js';
 
 function formatEvent(e) {
   const login = e.login;
@@ -49,6 +50,9 @@ export default function App() {
   const [view, setView] = React.useState('loading');
   const [currentGameId, setCurrentGameId] = React.useState(null);
   const [events, setEvents] = React.useState([]);
+  const [isLandscape, setIsLandscape] = React.useState(
+    window.matchMedia('(orientation: landscape)').matches
+  );
 
   React.useEffect(() => {
     initKeycloak().then((auth) => {
@@ -111,6 +115,18 @@ export default function App() {
   React.useEffect(() => {
     soundsOnRef.current = soundsOn;
   }, [soundsOn]);
+
+  React.useEffect(() => {
+    const updateLandscape = () =>
+      setIsLandscape(window.matchMedia('(orientation: landscape)').matches);
+    window.addEventListener('orientationchange', updateLandscape);
+    window.addEventListener('resize', updateLandscape);
+    updateLandscape();
+    return () => {
+      window.removeEventListener('orientationchange', updateLandscape);
+      window.removeEventListener('resize', updateLandscape);
+    };
+  }, []);
 
   React.useEffect(() => {
     const elem = document.documentElement;
@@ -202,6 +218,7 @@ export default function App() {
 
   return (
     <LangProvider>
+      {!isLandscape && <RotateMobilePage />}
       {authenticated && playerData && (
         <StatsBar data={playerData} setView={setView} />
       )}
@@ -209,11 +226,11 @@ export default function App() {
       {authenticated && <GamesListButton view={view} setView={setView} />}
       {authenticated && <LeaderboardButton view={view} setView={setView} />}
       {authenticated && <BoostButton view={view} setView={setView} />}
-        {page}
-        <EventLog messages={events} />
-      </LangProvider>
-    );
-  }
+      {page}
+      <EventLog messages={events} />
+    </LangProvider>
+  );
+}
 
 function SettingsButton({ view, setView }) {
   if (view === 'settings') {
