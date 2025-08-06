@@ -161,7 +161,7 @@ export default function App() {
       {authenticated && <SettingsButton view={view} setView={setView} />}
       {authenticated && <GamesListButton view={view} setView={setView} />}
       {authenticated && <LeaderboardButton view={view} setView={setView} />}
-      {authenticated && <BoostButton view={view} setView={setView} />}
+      {/** BoostButton hidden for now **/}
       {page}
       {isPortrait && <RotateMobileOverlay />}
     </LangProvider>
