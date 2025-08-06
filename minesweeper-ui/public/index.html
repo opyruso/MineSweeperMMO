@@ -41,12 +41,17 @@
       const loading = document.getElementById('loading-screen');
 
       function showApp() {
+        clearTimeout(fallbackTimeout);
         loading.style.display = 'none';
         root.style.display = 'block';
       }
 
+      let fallbackTimeout;
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js');
+        fallbackTimeout = setTimeout(showApp, 10000);
+        navigator.serviceWorker
+          .register('service-worker.js')
+          .catch(() => showApp());
         navigator.serviceWorker.addEventListener('message', (event) => {
           if (event.data === 'CACHE_COMPLETE') {
             showApp();
