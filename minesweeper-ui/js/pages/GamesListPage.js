@@ -1,8 +1,7 @@
-const { Link } = ReactRouterDOM;
 import { LangContext } from '../i18n.js';
 import { hasRealmRole, hasResourceRole } from '../keycloak.js';
 
-export default function GamesListPage() {
+export default function GamesListPage({ onSelectGame }) {
   const { t } = React.useContext(LangContext);
   const [games, setGames] = React.useState(null);
 
@@ -52,39 +51,42 @@ export default function GamesListPage() {
         </div>
       ) : (
         <div className="games-page">
-          <div className="games-list-container">
-            <ul className="games-list">
-              {games.map((g) => (
-                <li key={g.id}>
-                  <Link to={`/games/${g.id}`} className="game-item">
-                    <div className="game-title-line">
-                      {g.title} (
-                      <img
-                        src="images/icons/actions/icon_calendar.png"
-                        alt="end"
-                        className="icon"
-                      />{' '}
-                      {formatRemaining(g.endDate)})
-                    </div>
-                    <div className="game-info-line">
-                      <img
-                        src="images/icons/actions/icon_bombs_found.png"
-                        alt="bombs"
-                        className="icon"
-                      />{' '}
-                      {g.foundMines}/{g.mineCount}, {' '}
-                      <img
-                        src="images/icons/actions/icon_map_size.png"
-                        alt="size"
-                        className="icon"
-                      />{' '}
-                      {g.width}L*{g.height}H
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div className="games-list-container">
+              <ul className="games-list">
+                {games.map((g) => (
+                  <li key={g.id}>
+                    <button
+                      className="game-item"
+                      onClick={() => onSelectGame(g.id)}
+                    >
+                      <div className="game-title-line">
+                        {g.title} (
+                        <img
+                          src="images/icons/actions/icon_calendar.png"
+                          alt="end"
+                          className="icon"
+                        />{' '}
+                        {formatRemaining(g.endDate)})
+                      </div>
+                      <div className="game-info-line">
+                        <img
+                          src="images/icons/actions/icon_bombs_found.png"
+                          alt="bombs"
+                          className="icon"
+                        />{' '}
+                        {g.foundMines}/{g.mineCount}, {' '}
+                        <img
+                          src="images/icons/actions/icon_map_size.png"
+                          alt="size"
+                          className="icon"
+                        />{' '}
+                        {g.width}L*{g.height}H
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           {isAdmin && <CreateGameForm onGameCreated={loadGames} />}
         </div>
       )}
