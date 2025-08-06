@@ -602,6 +602,52 @@ a {
   animation: rotate-mobile 2s infinite linear;
 }
 
+.install-banner {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.install-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.install-card img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+}
+
+.install-name {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.install-action {
+  background-color: #01875f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.install-action:active {
+  background-color: #01694a;
+}
+
+.install-instructions {
+  max-width: 80vw;
+  font-size: 14px;
+}
+
 @keyframes rotate-mobile {
   from {
     transform: rotate(0deg);
