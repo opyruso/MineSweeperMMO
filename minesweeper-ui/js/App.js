@@ -46,9 +46,6 @@ export default function App() {
   const soundsOnRef = React.useRef(soundsOn);
   window.soundsOnRef = soundsOnRef;
   const [playerData, setPlayerData] = React.useState(null);
-  const [isPortrait, setIsPortrait] = React.useState(
-    window.matchMedia('(orientation: portrait)').matches
-  );
   const [view, setView] = React.useState('loading');
   const [currentGameId, setCurrentGameId] = React.useState(null);
   const [events, setEvents] = React.useState([]);
@@ -116,39 +113,28 @@ export default function App() {
   }, [soundsOn]);
 
   React.useEffect(() => {
-    const mql = window.matchMedia('(orientation: portrait)');
-    const handler = (e) => setIsPortrait(e.matches);
-    if (mql.addEventListener) {
-      mql.addEventListener('change', handler);
-    } else {
-      mql.addListener(handler);
-    }
-    return () => {
-      if (mql.removeEventListener) {
-        mql.removeEventListener('change', handler);
-      } else {
-        mql.removeListener(handler);
-      }
-    };
-  }, []);
+    const elem = document.documentElement;
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone;
 
-  React.useEffect(() => {
-    const lockLandscape = () => {
-      const elem = document.documentElement;
-      if (!document.fullscreenElement && elem.requestFullscreen) {
-        elem.requestFullscreen().catch(() => {});
-      }
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {});
+    const handleFullscreen = () => {
+      const landscape = window.matchMedia('(orientation: landscape)').matches;
+      if (isStandalone || landscape) {
+        if (!document.fullscreenElement && elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => {});
+        }
+      } else if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
       }
     };
 
-    window.addEventListener('orientationchange', lockLandscape);
-    window.addEventListener('resize', lockLandscape);
-    lockLandscape();
+    window.addEventListener('orientationchange', handleFullscreen);
+    window.addEventListener('resize', handleFullscreen);
+    handleFullscreen();
     return () => {
-      window.removeEventListener('orientationchange', lockLandscape);
-      window.removeEventListener('resize', lockLandscape);
+      window.removeEventListener('orientationchange', handleFullscreen);
+      window.removeEventListener('resize', handleFullscreen);
     };
   }, []);
 
@@ -223,12 +209,11 @@ export default function App() {
       {authenticated && <GamesListButton view={view} setView={setView} />}
       {authenticated && <LeaderboardButton view={view} setView={setView} />}
       {/** BoostButton hidden for now **/}
-      {page}
-      {isPortrait && <RotateMobileOverlay />}
-      <EventLog messages={events} />
-    </LangProvider>
-  );
-}
+        {page}
+        <EventLog messages={events} />
+      </LangProvider>
+    );
+  }
 
 function SettingsButton({ view, setView }) {
   if (view === 'settings') {
@@ -343,10 +328,3 @@ function StatsBar({ data, setView }) {
   );
 }
 
-function RotateMobileOverlay() {
-  return (
-    <div className="rotate-mobile-page">
-      <i className="fa-solid fa-mobile-screen rotate-mobile-icon"></i>
-    </div>
-  );
-}
