@@ -1,6 +1,6 @@
 {
-  "name": "MineSweeper UI",
-  "short_name": "MineSweeper",
+  "name": "Mine Sweeper Crew",
+  "short_name": "MineSweeperCrew",
   "start_url": ".",
   "display": "fullscreen",
   "background_color": "#000000",
@@ -14,6 +14,11 @@
     {
       "src": "images/icons/icon-512.png",
       "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icons/icon-1024.png",
+      "sizes": "1024x1024",
       "type": "image/png"
     }
   ]

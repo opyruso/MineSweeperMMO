@@ -6,10 +6,11 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <title>MineSweeper UI</title>
+    <title>Mine Sweeper Crew</title>
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#000000" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="images/icons/icon-192.png" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
     <link rel="stylesheet" href="vendor/flag-icons/css/flag-icons.min.css" />
@@ -23,7 +24,7 @@
   </head>
   <body>
     <div id="loading-screen">Loading...</div>
-    <div id="root"></div>
+    <div id="root" style="display: none"></div>
     <script src="config.js"></script>
     <script src="vendor/react.development.js"></script>
     <script src="vendor/react-dom.development.js"></script>
@@ -36,11 +37,29 @@
     </script>
     <script type="module" src="js/index.js"></script>
     <script>
-      window.addEventListener('load', function () {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('root').style.display = 'block';
+      const root = document.getElementById('root');
+      const loading = document.getElementById('loading-screen');
+
+      function showApp() {
+        loading.style.display = 'none';
+        root.style.display = 'block';
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data === 'CACHE_COMPLETE') {
+            showApp();
+          }
+        });
+      } else {
+        showApp();
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
       });
     </script>
-    <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("service-worker.js");});}</script>
   </body>
 </html>
