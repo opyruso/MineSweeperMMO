@@ -90,7 +90,15 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS))
+      .then((cache) =>
+        Promise.all(
+          ASSETS.map((asset) =>
+            cache.add(asset).catch(() => {
+              console.log(`Failed to cache ${asset}`);
+            })
+          )
+        )
+      )
       .then(() => self.skipWaiting())
   );
 });
@@ -112,7 +120,15 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(event.request).then((response) => {
+      if (!response) {
+        const path = new URL(event.request.url).pathname;
+        if (ASSETS.includes(path)) {
+          console.log(`Cache miss for ${path}`);
+        }
+      }
+      return response || fetch(event.request);
+    })
   );
 });
 
