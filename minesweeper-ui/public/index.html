@@ -25,7 +25,7 @@
   <body>
     <div id="loading-screen">
       <div id="loading-label">Loading / Chargement...</div>
-      <progress id="cache-progress" value="0" max="0"></progress>
+      <progress id="cache-progress" value="0" max="1"></progress>
       <div id="cache-status" style="font-size: small;"></div>
     </div>
     <div id="root" style="display: none"></div>
@@ -89,6 +89,7 @@
             cacheReady = true;
             checkReady();
           } else if (msg && msg.type === 'CACHE_INIT') {
+            progress.value = 0;
             progress.max = msg.total;
           } else if (msg && msg.type === 'CACHE_START') {
             cacheStatus.textContent = msg.asset;
