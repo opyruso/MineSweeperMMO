@@ -24,8 +24,12 @@
   </head>
   <body>
     <div id="loading-screen">
-      <div id="loading-label">Loading / Chargement...</div>
-      <progress id="cache-progress" value="0" max="0"></progress>
+      <img
+        id="loading-icon"
+        src="images/icons/actions/icon_scan_process.png"
+        alt="loading"
+      />
+      <progress id="cache-progress" value="0" max="1"></progress>
       <div id="cache-status" style="font-size: small;"></div>
     </div>
     <div id="root" style="display: none"></div>
@@ -43,11 +47,8 @@
     <script>
       const root = document.getElementById('root');
       const loadingScreen = document.getElementById('loading-screen');
-      const loadingLabel = document.getElementById('loading-label');
       const progress = document.getElementById('cache-progress');
       const cacheStatus = document.getElementById('cache-status');
-      const baseLoadingText = loadingLabel.textContent.replace(/\.+$/, '');
-      let dotCount = 0;
       let cacheReady = false;
       let wsReady = false;
       function checkReady() {
@@ -55,21 +56,40 @@
           showApp();
         }
       }
-      const dotInterval = setInterval(() => {
-        dotCount = (dotCount + 1) % 4;
-        loadingLabel.textContent = baseLoadingText + '.'.repeat(dotCount);
-      }, 500);
 
       function showApp() {
         clearTimeout(fallbackTimeout);
-        clearInterval(dotInterval);
         loadingScreen.style.display = 'none';
         root.style.display = 'block';
       }
 
       let fallbackTimeout;
       if ('serviceWorker' in navigator) {
-        fallbackTimeout = setTimeout(showApp, 1000);
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          const msg = event.data;
+          if (msg === 'CACHE_COMPLETE') {
+            cacheReady = true;
+            checkReady();
+          } else if (msg && msg.type === 'CACHE_INIT') {
+            progress.value = 0;
+            progress.max = msg.total;
+          } else if (msg && msg.type === 'CACHE_START') {
+            cacheStatus.textContent = msg.asset;
+          } else if (msg && msg.type === 'CACHE_UPDATE') {
+            progress.max = msg.total;
+            progress.value = msg.loaded;
+            cacheStatus.textContent = '';
+          } else if (msg && msg.type === 'CACHE_SUMMARY') {
+            cacheStatus.textContent = `nombre de fichiers chargés: ${msg.success}/${msg.total}`;
+          } else if (msg && msg.type === 'STATUS') {
+            cacheStatus.textContent = msg.text;
+          } else if (msg && msg.type === 'WS_OPEN') {
+            wsReady = true;
+            checkReady();
+          }
+        });
+
+        fallbackTimeout = setTimeout(showApp, 10000);
         navigator.serviceWorker
           .register('service-worker.js')
           .catch(() => showApp());
@@ -80,27 +100,6 @@
               apiUrl: window.CONFIG['minesweeper-api-url'],
             });
             cacheReady = true;
-            checkReady();
-          }
-        });
-        navigator.serviceWorker.addEventListener('message', (event) => {
-          const msg = event.data;
-          if (msg === 'CACHE_COMPLETE') {
-            cacheReady = true;
-            checkReady();
-          } else if (msg && msg.type === 'CACHE_INIT') {
-            progress.max = msg.total;
-          } else if (msg && msg.type === 'CACHE_START') {
-            cacheStatus.textContent = msg.asset;
-          } else if (msg && msg.type === 'CACHE_UPDATE') {
-            progress.value = msg.loaded;
-            cacheStatus.textContent = '';
-          } else if (msg && msg.type === 'CACHE_SUMMARY') {
-            cacheStatus.textContent = `nombre de fichiers chargés: ${msg.success}/${msg.total}`;
-          } else if (msg && msg.type === 'STATUS') {
-            cacheStatus.textContent = msg.text;
-          } else if (msg && msg.type === 'WS_OPEN') {
-            wsReady = true;
             checkReady();
           }
         });

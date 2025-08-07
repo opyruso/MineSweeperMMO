@@ -345,6 +345,20 @@ button:active {
   text-align: center;
 }
 
+#loading-icon {
+  width: 10vh;
+  animation: loading-bounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes loading-bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2vh);
+  }
+}
+
 .sound-toggle-container {
   position: absolute;
   bottom: 0.5rem;
