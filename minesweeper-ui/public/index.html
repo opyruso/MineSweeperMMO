@@ -69,20 +69,6 @@
 
       let fallbackTimeout;
       if ('serviceWorker' in navigator) {
-        fallbackTimeout = setTimeout(showApp, 10000);
-        navigator.serviceWorker
-          .register('service-worker.js')
-          .catch(() => showApp());
-        navigator.serviceWorker.ready.then((reg) => {
-          if (reg.active) {
-            reg.active.postMessage({
-              type: 'init-global',
-              apiUrl: window.CONFIG['minesweeper-api-url'],
-            });
-            cacheReady = true;
-            checkReady();
-          }
-        });
         navigator.serviceWorker.addEventListener('message', (event) => {
           const msg = event.data;
           if (msg === 'CACHE_COMPLETE') {
@@ -94,6 +80,7 @@
           } else if (msg && msg.type === 'CACHE_START') {
             cacheStatus.textContent = msg.asset;
           } else if (msg && msg.type === 'CACHE_UPDATE') {
+            progress.max = msg.total;
             progress.value = msg.loaded;
             cacheStatus.textContent = '';
           } else if (msg && msg.type === 'CACHE_SUMMARY') {
@@ -102,6 +89,21 @@
             cacheStatus.textContent = msg.text;
           } else if (msg && msg.type === 'WS_OPEN') {
             wsReady = true;
+            checkReady();
+          }
+        });
+
+        fallbackTimeout = setTimeout(showApp, 10000);
+        navigator.serviceWorker
+          .register('service-worker.js')
+          .catch(() => showApp());
+        navigator.serviceWorker.ready.then((reg) => {
+          if (reg.active) {
+            reg.active.postMessage({
+              type: 'init-global',
+              apiUrl: window.CONFIG['minesweeper-api-url'],
+            });
+            cacheReady = true;
             checkReady();
           }
         });

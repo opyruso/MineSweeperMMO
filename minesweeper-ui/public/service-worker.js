@@ -107,7 +107,7 @@ self.addEventListener('install', (event) => {
         } catch {
           console.warn(`Failed to cache ${asset}`);
         }
-        await postToClients({ type: 'CACHE_UPDATE', loaded: index + 1 });
+        await postToClients({ type: 'CACHE_UPDATE', loaded: index + 1, total: ASSETS.length });
       }
       await postToClients({ type: 'CACHE_SUMMARY', success: successCount, total: ASSETS.length });
       await self.skipWaiting();
