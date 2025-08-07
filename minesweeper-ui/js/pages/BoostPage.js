@@ -6,21 +6,21 @@ export default function BoostPage({ refreshPlayerData }) {
       gold: 1000,
       price: '1.99€',
       amount: '1.99',
-      url: 'https://www.paypal.com/paypalme/opyruso/1.99',
+      url: 'https://www.paypal.com/ncp/payment/KJACBRYGFXXUS',
     },
     {
       icon: 'icon_buy_medium.png',
       gold: 5000,
       price: '4.99€',
       amount: '4.99',
-      url: 'https://www.paypal.com/paypalme/opyruso/4.99',
+      url: 'https://www.paypal.com/ncp/payment/6ZWG8UA58SXGE',
     },
     {
       icon: 'icon_buy_large.png',
       gold: 10000,
       price: '9.99€',
       amount: '9.99',
-      url: 'https://www.paypal.com/paypalme/opyruso/9.99',
+      url: 'https://www.paypal.com/ncp/payment/45GB4WGBFMQXW',
     },
   ];
 
