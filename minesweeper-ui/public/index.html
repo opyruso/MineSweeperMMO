@@ -69,7 +69,7 @@
 
       let fallbackTimeout;
       if ('serviceWorker' in navigator) {
-        fallbackTimeout = setTimeout(showApp, 10000);
+        fallbackTimeout = setTimeout(showApp, 1000);
         navigator.serviceWorker
           .register('service-worker.js')
           .catch(() => showApp());
