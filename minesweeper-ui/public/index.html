@@ -48,6 +48,13 @@
       const cacheStatus = document.getElementById('cache-status');
       const baseLoadingText = loadingLabel.textContent.replace(/\.+$/, '');
       let dotCount = 0;
+      let cacheReady = false;
+      let wsReady = false;
+      function checkReady() {
+        if (cacheReady && wsReady) {
+          showApp();
+        }
+      }
       const dotInterval = setInterval(() => {
         dotCount = (dotCount + 1) % 4;
         loadingLabel.textContent = baseLoadingText + '.'.repeat(dotCount);
@@ -66,10 +73,18 @@
         navigator.serviceWorker
           .register('service-worker.js')
           .catch(() => showApp());
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.active &&
+            reg.active.postMessage({
+              type: 'init-global',
+              apiUrl: window.CONFIG['minesweeper-api-url'],
+            });
+        });
         navigator.serviceWorker.addEventListener('message', (event) => {
           const msg = event.data;
           if (msg === 'CACHE_COMPLETE') {
-            showApp();
+            cacheReady = true;
+            checkReady();
           } else if (msg && msg.type === 'CACHE_INIT') {
             progress.max = msg.total;
           } else if (msg && msg.type === 'CACHE_START') {
@@ -79,6 +94,11 @@
             cacheStatus.textContent = '';
           } else if (msg && msg.type === 'CACHE_SUMMARY') {
             cacheStatus.textContent = `nombre de fichiers chargés: ${msg.success}/${msg.total}`;
+          } else if (msg && msg.type === 'STATUS') {
+            cacheStatus.textContent = msg.text;
+          } else if (msg && msg.type === 'WS_OPEN') {
+            wsReady = true;
+            checkReady();
           }
         });
       } else {

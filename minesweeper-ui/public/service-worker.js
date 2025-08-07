@@ -172,7 +172,12 @@ function broadcast(message) {
 
 function connectGlobal() {
   if (!apiUrl || (globalSocket && globalSocket.readyState <= 1)) return;
+  postToClients({ type: 'STATUS', text: 'démarrage des websocket' });
   globalSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + '/ws/global');
+  globalSocket.onopen = () => {
+    postToClients({ type: 'STATUS', text: 'websocket démarrés' });
+    postToClients({ type: 'WS_OPEN' });
+  };
   globalSocket.onmessage = (e) => broadcast(e.data);
   const reconnect = () => {
     globalSocket = null;
@@ -188,7 +193,12 @@ function connectGame(id) {
     gameSocket.close();
   }
   currentGameId = id;
+  postToClients({ type: 'STATUS', text: 'démarrage des websocket' });
   gameSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + `/ws/game/${id}`);
+  gameSocket.onopen = () => {
+    postToClients({ type: 'STATUS', text: 'websocket démarrés' });
+    postToClients({ type: 'WS_OPEN' });
+  };
   gameSocket.onmessage = (e) => broadcast(e.data);
   const reconnect = () => {
     gameSocket = null;
