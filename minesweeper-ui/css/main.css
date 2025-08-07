@@ -345,6 +345,49 @@ button:active {
   text-align: center;
 }
 
+#progress-container {
+  position: relative;
+  width: 80vw;
+  height: 12vh;
+}
+
+#cache-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+#loading-icon {
+  position: absolute;
+  bottom: calc(100% + 1vh);
+  width: 10vh;
+  animation: loading-scan 1.5s linear infinite;
+}
+
+@keyframes loading-scan {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - 10vh);
+  }
+}
+
+#cache-status {
+  font-size: small;
+  height: 1.5em;
+}
+
+#version-info {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-size: 3vh;
+  color: #888;
+  z-index: 1000;
+}
+
 .sound-toggle-container {
   position: absolute;
   bottom: 0.5rem;

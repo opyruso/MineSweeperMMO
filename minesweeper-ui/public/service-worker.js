@@ -4,6 +4,7 @@ const ASSETS = [
   '/index.html',
   '/manifest.json',
   '/config.js',
+  '/version.txt',
   '/css/main.css',
   '/js/App.js',
   '/js/i18n.js',
@@ -88,7 +89,7 @@ const ASSETS = [
 ];
 
 function postToClients(message) {
-  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+  return self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
     clients.forEach((client) => client.postMessage(message));
   });
 }
@@ -98,18 +99,18 @@ self.addEventListener('install', (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       let successCount = 0;
-      postToClients({ type: 'CACHE_INIT', total: ASSETS.length });
+      await postToClients({ type: 'CACHE_INIT', total: ASSETS.length });
       for (const [index, asset] of ASSETS.entries()) {
-        postToClients({ type: 'CACHE_START', asset });
+        await postToClients({ type: 'CACHE_START', asset });
         try {
           await cache.add(asset);
           successCount++;
         } catch {
           console.warn(`Failed to cache ${asset}`);
         }
-        postToClients({ type: 'CACHE_UPDATE', loaded: index + 1 });
+        await postToClients({ type: 'CACHE_UPDATE', loaded: index + 1, total: ASSETS.length });
       }
-      postToClients({ type: 'CACHE_SUMMARY', success: successCount, total: ASSETS.length });
+      await postToClients({ type: 'CACHE_SUMMARY', success: successCount, total: ASSETS.length });
       await self.skipWaiting();
     })()
   );

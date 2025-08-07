@@ -61,3 +61,14 @@ cpSync('node_modules/flag-icons/flags', 'dist/vendor/flag-icons/flags', {
 cpSync('node_modules/@fontsource/mouse-memoirs', 'dist/vendor/mouse-memoirs', {
   recursive: true,
 });
+
+let version = '';
+const tag = process.env.GIT_TAG || process.env.TAG;
+if (tag) {
+  version = tag;
+} else {
+  const branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME || 'dev';
+  const pr = process.env.PR_NUMBER || process.env.PULL_REQUEST_NUMBER;
+  version = pr ? `${branch}.${pr}` : branch;
+}
+writeFileSync('dist/version.txt', version);
