@@ -1,7 +1,6 @@
 import { rmSync, mkdirSync, cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import Babel from '@babel/standalone';
-import { execSync } from 'child_process';
 
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist', { recursive: true });
@@ -64,17 +63,12 @@ cpSync('node_modules/@fontsource/mouse-memoirs', 'dist/vendor/mouse-memoirs', {
 });
 
 let version = '';
-try {
-  version = execSync('git describe --tags --exact-match', {
-    stdio: ['ignore', 'pipe', 'ignore'],
-  })
-    .toString()
-    .trim();
-} catch {
-  const branch = execSync('git rev-parse --abbrev-ref HEAD')
-    .toString()
-    .trim();
-  const pr = process.env.PR_NUMBER;
+const tag = process.env.GIT_TAG || process.env.TAG;
+if (tag) {
+  version = tag;
+} else {
+  const branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME || 'dev';
+  const pr = process.env.PR_NUMBER || process.env.PULL_REQUEST_NUMBER;
   version = pr ? `${branch}.${pr}` : branch;
 }
 writeFileSync('dist/version.txt', version);
