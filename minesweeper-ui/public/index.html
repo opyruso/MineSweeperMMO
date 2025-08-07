@@ -23,7 +23,11 @@
     <link rel="prefetch" href="sounds/sound_click_2.mp3" />
   </head>
   <body>
-    <div id="loading-screen">Loading / Chargement...</div>
+    <div id="loading-screen">
+      <div id="loading-label">Loading / Chargement...</div>
+      <progress id="cache-progress" value="0" max="0"></progress>
+      <div id="cache-status" style="font-size: small;"></div>
+    </div>
     <div id="root" style="display: none"></div>
     <script src="config.js"></script>
     <script src="vendor/react.development.js"></script>
@@ -38,18 +42,21 @@
     <script type="module" src="js/index.js"></script>
     <script>
       const root = document.getElementById('root');
-      const loading = document.getElementById('loading-screen');
-      const baseLoadingText = loading.textContent.replace(/\.+$/, '');
+      const loadingScreen = document.getElementById('loading-screen');
+      const loadingLabel = document.getElementById('loading-label');
+      const progress = document.getElementById('cache-progress');
+      const cacheStatus = document.getElementById('cache-status');
+      const baseLoadingText = loadingLabel.textContent.replace(/\.+$/, '');
       let dotCount = 0;
       const dotInterval = setInterval(() => {
         dotCount = (dotCount + 1) % 4;
-        loading.textContent = baseLoadingText + '.'.repeat(dotCount);
+        loadingLabel.textContent = baseLoadingText + '.'.repeat(dotCount);
       }, 500);
 
       function showApp() {
         clearTimeout(fallbackTimeout);
         clearInterval(dotInterval);
-        loading.style.display = 'none';
+        loadingScreen.style.display = 'none';
         root.style.display = 'block';
       }
 
@@ -60,8 +67,18 @@
           .register('service-worker.js')
           .catch(() => showApp());
         navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data === 'CACHE_COMPLETE') {
+          const msg = event.data;
+          if (msg === 'CACHE_COMPLETE') {
             showApp();
+          } else if (msg && msg.type === 'CACHE_INIT') {
+            progress.max = msg.total;
+          } else if (msg && msg.type === 'CACHE_START') {
+            cacheStatus.textContent = msg.asset;
+          } else if (msg && msg.type === 'CACHE_UPDATE') {
+            progress.value = msg.loaded;
+            cacheStatus.textContent = '';
+          } else if (msg && msg.type === 'CACHE_SUMMARY') {
+            cacheStatus.textContent = `nombre de fichiers chargés: ${msg.success}/${msg.total}`;
           }
         });
       } else {

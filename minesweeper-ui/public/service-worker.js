@@ -87,19 +87,31 @@ const ASSETS = [
   '/vendor/mouse-memoirs/files/mouse-memoirs-latin-ext-400-normal.woff2'
 ];
 
+function postToClients(message) {
+  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+    clients.forEach((client) => client.postMessage(message));
+  });
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) =>
-        Promise.all(
-          ASSETS.map((asset) =>
-            cache.add(asset).catch(() => {
-              console.log(`Failed to cache ${asset}`);
-            })
-          )
-        )
-      )
-      .then(() => self.skipWaiting())
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      let successCount = 0;
+      postToClients({ type: 'CACHE_INIT', total: ASSETS.length });
+      for (const [index, asset] of ASSETS.entries()) {
+        postToClients({ type: 'CACHE_START', asset });
+        try {
+          await cache.add(asset);
+          successCount++;
+        } catch {
+          console.warn(`Failed to cache ${asset}`);
+        }
+        postToClients({ type: 'CACHE_UPDATE', loaded: index + 1 });
+      }
+      postToClients({ type: 'CACHE_SUMMARY', success: successCount, total: ASSETS.length });
+      await self.skipWaiting();
+    })()
   );
 });
 
@@ -124,7 +136,7 @@ self.addEventListener('fetch', (event) => {
       if (!response) {
         const path = new URL(event.request.url).pathname;
         if (ASSETS.includes(path)) {
-          console.log(`Cache miss for ${path}`);
+          console.warn(`Cache miss for ${path}`);
         }
       }
       return response || fetch(event.request);
