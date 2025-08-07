@@ -1,4 +1,4 @@
-import { hasRealmRole, hasResourceRole } from '../keycloak.js';
+import { hasRealmRole, hasResourceRole, getUserId } from '../keycloak.js';
 
 export default function BoostPage({ refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
@@ -27,28 +27,54 @@ export default function BoostPage({ refreshPlayerData }) {
   ];
 
   const [popup, setPopup] = React.useState(null);
+  const [checking, setChecking] = React.useState(false);
   const isAdmin =
     hasRealmRole('admin') || hasResourceRole('admin', 'minesweeper-app');
 
-  const checkPayment = (amount, intervalId) => {
-    return fetch(`${apiUrl}/checkpayment/${amount}`).then((res) => {
-      if (res.status === 200) {
-        refreshPlayerData();
-        if (intervalId) clearInterval(intervalId);
-        setPopup(null);
-        alert('Paiement confirmé');
-        return true;
-      }
-      return false;
-    });
+  const checkPayment = (intervalId) => {
+    return fetch(`${apiUrl}/checkpayment`)
+      .then((res) => (res.ok ? res.json() : { 'valid-payment': 0 }))
+      .then((data) => {
+        const count = data['valid-payment'] || 0;
+        if (count > 0) {
+          refreshPlayerData();
+          if (intervalId) clearInterval(intervalId);
+          setPopup(null);
+          alert(
+            count === 1
+              ? 'Payment validé!'
+              : `${count} Payments validés!`
+          );
+          return true;
+        }
+        return false;
+      })
+      .catch(() => false);
   };
 
   const buy = (item) => {
-    window.open(item.url, '_blank');
-    const intervalId = setInterval(() => {
-      checkPayment(item.amount, intervalId);
-    }, 5000);
-    setPopup({ intervalId });
+    setPopup({ message: 'Initialisation du payment...', cancelDisabled: true });
+    fetch(`${apiUrl}/initpayment/${item.amount}`)
+      .then((res) => {
+        if (res.status === 200) {
+          const userId = getUserId();
+          const winUrl = `${item.url}?id-user=${encodeURIComponent(userId)}`;
+          window.open(winUrl, '_blank');
+          const intervalId = setInterval(() => {
+            checkPayment(intervalId);
+          }, 10000);
+          setPopup({
+            message: 'En attente de validation...',
+            intervalId,
+            cancelDisabled: false,
+          });
+        } else {
+          setPopup({ message: 'Oops... désolé...', cancelDisabled: false });
+        }
+      })
+      .catch(() =>
+        setPopup({ message: 'Oops... désolé...', cancelDisabled: false })
+      );
   };
 
   const cancel = () => {
@@ -57,16 +83,22 @@ export default function BoostPage({ refreshPlayerData }) {
   };
 
   const verifyOnce = () => {
-    const amount = window.prompt('Montant à vérifier ? (1.99, 4.99, 9.99)');
-    if (!amount) return;
-    fetch(`${apiUrl}/checkpayment/${amount}`).then((res) => {
-      if (res.status === 200) {
-        refreshPlayerData();
-        alert('Paiement confirmé');
-      } else {
-        alert('Paiement non trouvé');
-      }
-    });
+    setChecking(true);
+    fetch(`${apiUrl}/checkpayment`)
+      .then((res) => (res.ok ? res.json() : { 'valid-payment': 0 }))
+      .then((data) => {
+        const count = data['valid-payment'] || 0;
+        if (count === 0) {
+          alert("Aucun payment n'a été trouvé");
+        } else if (count === 1) {
+          refreshPlayerData();
+          alert('Payment validé!');
+        } else {
+          refreshPlayerData();
+          alert(`${count} Payments validés!`);
+        }
+      })
+      .finally(() => setChecking(false));
   };
 
   return (
@@ -86,16 +118,18 @@ export default function BoostPage({ refreshPlayerData }) {
         ))}
       </div>
       <div
-        className={`boost-verify${!isAdmin ? ' disabled' : ''}`}
-        onClick={isAdmin ? verifyOnce : undefined}
+        className={`boost-verify${!isAdmin || checking ? ' disabled' : ''}`}
+        onClick={!isAdmin || checking ? undefined : verifyOnce}
       >
-        Vérifier mon paiement
+        Vérifier maintenant
       </div>
       {popup && (
         <div className="payment-popup">
           <div className="popup-box">
-            <div>Paiement en cours...</div>
-            <button onClick={cancel}>Annuler</button>
+            <div>{popup.message}</div>
+            <button onClick={cancel} disabled={popup.cancelDisabled}>
+              Annuler
+            </button>
           </div>
         </div>
       )}
