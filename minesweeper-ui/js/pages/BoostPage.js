@@ -1,3 +1,5 @@
+import { hasRealmRole, hasResourceRole } from '../keycloak.js';
+
 export default function BoostPage({ refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
   const items = [
@@ -25,6 +27,8 @@ export default function BoostPage({ refreshPlayerData }) {
   ];
 
   const [popup, setPopup] = React.useState(null);
+  const isAdmin =
+    hasRealmRole('admin') || hasResourceRole('admin', 'minesweeper-app');
 
   const checkPayment = (amount, intervalId) => {
     return fetch(`${apiUrl}/checkpayment/${amount}`).then((res) => {
@@ -67,16 +71,24 @@ export default function BoostPage({ refreshPlayerData }) {
 
   return (
     <div className="boost-page">
+      <div className="watermark">Under construction</div>
       <div className="boost-container">
         {items.map((it) => (
-          <div key={it.gold} className="boost-item" onClick={() => buy(it)}>
+          <div
+            key={it.gold}
+            className={`boost-item${!isAdmin ? ' disabled' : ''}`}
+            onClick={isAdmin ? () => buy(it) : undefined}
+          >
             <img src={`images/icons/actions/${it.icon}`} alt="buy" className="icon" />
             <div>+{it.gold}po</div>
             <div>{it.price}</div>
           </div>
         ))}
       </div>
-      <div className="boost-verify" onClick={verifyOnce}>
+      <div
+        className={`boost-verify${!isAdmin ? ' disabled' : ''}`}
+        onClick={isAdmin ? verifyOnce : undefined}
+      >
         Vérifier mon paiement
       </div>
       {popup && (
