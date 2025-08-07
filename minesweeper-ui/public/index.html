@@ -74,11 +74,14 @@
           .register('service-worker.js')
           .catch(() => showApp());
         navigator.serviceWorker.ready.then((reg) => {
-          reg.active &&
+          if (reg.active) {
             reg.active.postMessage({
               type: 'init-global',
               apiUrl: window.CONFIG['minesweeper-api-url'],
             });
+            cacheReady = true;
+            checkReady();
+          }
         });
         navigator.serviceWorker.addEventListener('message', (event) => {
           const msg = event.data;
