@@ -345,18 +345,47 @@ button:active {
   text-align: center;
 }
 
-#loading-icon {
-  width: 10vh;
-  animation: loading-bounce 0.6s ease-in-out infinite alternate;
+#progress-container {
+  position: relative;
+  width: 80vw;
+  height: 12vh;
 }
 
-@keyframes loading-bounce {
+#cache-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+#loading-icon {
+  position: absolute;
+  bottom: calc(100% + 1vh);
+  width: 10vh;
+  animation: loading-scan 1.5s linear infinite;
+}
+
+@keyframes loading-scan {
   from {
-    transform: translateY(0);
+    left: 0;
   }
   to {
-    transform: translateY(-2vh);
+    left: calc(100% - 10vh);
   }
+}
+
+#cache-status {
+  font-size: small;
+  height: 1.5em;
+}
+
+#version-info {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-size: 1.5vh;
+  color: #888;
+  z-index: 1000;
 }
 
 .sound-toggle-container {
