@@ -131,6 +131,16 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.waitUntil(
+      (async () => {
+        const client = await self.clients.get(event.clientId);
+        if (client) {
+          client.postMessage('CACHE_COMPLETE');
+        }
+      })()
+    );
+  }
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (!response) {
