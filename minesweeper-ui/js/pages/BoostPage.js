@@ -8,7 +8,7 @@ export default function BoostPage({ refreshPlayerData }) {
       gold: 1000,
       price: '1.99€',
       amount: '1.99',
-      url: 'https://www.paypal.com/ncp/payment/45GB4WGBFMQXW',
+      url: 'https://www.paypal.com/ncp/payment/KJACBRYGFXXUS',
     },
     {
       icon: 'icon_buy_medium.png',
@@ -22,7 +22,7 @@ export default function BoostPage({ refreshPlayerData }) {
       gold: 10000,
       price: '9.99€',
       amount: '9.99',
-      url: 'https://www.paypal.com/ncp/payment/KJACBRYGFXXUS',
+      url: 'https://www.paypal.com/ncp/payment/45GB4WGBFMQXW',
     },
   ];
 
@@ -103,7 +103,6 @@ export default function BoostPage({ refreshPlayerData }) {
 
   return (
     <div className="boost-page">
-      <div className="watermark">Under construction</div>
       <div className="boost-container">
         {items.map((it) => (
           <div
