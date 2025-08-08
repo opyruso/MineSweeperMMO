@@ -1,4 +1,4 @@
-const CACHE_NAME = 'minesweeper-cache-v4';
+const CACHE_NAME = 'minesweeper-cache-__VERSION__';
 const ASSETS = [
   '/',
   '/index.html',
@@ -182,7 +182,13 @@ function broadcast(message) {
 }
 
 function connectGlobal() {
-  if (!apiUrl || (globalSocket && globalSocket.readyState <= 1)) return;
+  if (!apiUrl) return;
+  if (globalSocket && globalSocket.readyState <= 1) {
+    if (globalSocket.readyState === 1) {
+      postToClients({ type: 'WS_OPEN' });
+    }
+    return;
+  }
   postToClients({ type: 'STATUS', text: 'démarrage des websocket' });
   globalSocket = new WebSocket(apiUrl.replace(/^http/, 'ws') + '/ws/global');
   globalSocket.onopen = () => {
@@ -199,7 +205,13 @@ function connectGlobal() {
 }
 
 function connectGame(id) {
-  if (!apiUrl || (gameSocket && gameSocket.readyState <= 1 && currentGameId === id)) return;
+  if (!apiUrl) return;
+  if (gameSocket && gameSocket.readyState <= 1 && currentGameId === id) {
+    if (gameSocket.readyState === 1) {
+      postToClients({ type: 'WS_OPEN' });
+    }
+    return;
+  }
   if (gameSocket) {
     gameSocket.close();
   }
