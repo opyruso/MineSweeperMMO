@@ -157,7 +157,7 @@ public class PaymentResource {
         paymentTrackingRepository.persist(tracking);
         try {
             String token = getToken();
-            String body = String.format("{\"amount\": %s, \"id-user\": \"%s\"}", amount, userId);
+            String body = String.format("{\"amount\": %s, \"custom\": \"%s\"}", amount, userId);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(paymentApi + "/paypal-ipn/init"))
                     .header("Authorization", "Bearer " + token)

@@ -56,7 +56,7 @@ export default function BoostPage({ refreshPlayerData }) {
       .then((res) => {
         if (res.status === 200) {
           const userId = getUserId();
-          const winUrl = `${item.url}?id-user=${encodeURIComponent(userId)}`;
+          const winUrl = `${item.url}?custom=${encodeURIComponent(userId)}`;
           window.open(winUrl, '_blank');
           const intervalId = setInterval(() => {
             checkPayment(intervalId);
