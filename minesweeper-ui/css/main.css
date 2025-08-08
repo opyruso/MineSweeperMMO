@@ -214,16 +214,6 @@ h1 {
   pointer-events: none;
 }
 
-.watermark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 8vh;
-  color: rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-}
-
 .settings-page {
   display: flex;
   flex-direction: column;
