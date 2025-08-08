@@ -57,6 +57,16 @@
       const loadingScreen = document.getElementById('loading-screen');
       const progress = document.getElementById('cache-progress');
       const cacheStatus = document.getElementById('cache-status');
+      const loadingIcon = document.getElementById('loading-icon');
+      const progressContainer = document.getElementById('progress-container');
+      function updateLoadingIcon() {
+        const pct = progress.max > 0 ? progress.value / progress.max : 0;
+        const containerWidth = progressContainer.offsetWidth;
+        const iconWidth = loadingIcon.offsetWidth;
+        loadingIcon.style.left = `${pct * (containerWidth - iconWidth)}px`;
+      }
+      updateLoadingIcon();
+      window.addEventListener('resize', updateLoadingIcon);
       let cacheReady = false;
       let wsReady = false;
       function checkReady() {
@@ -77,16 +87,19 @@
           const msg = event.data;
           if (msg === 'CACHE_COMPLETE') {
             cacheReady = true;
+            updateLoadingIcon();
             checkReady();
           } else if (msg && msg.type === 'CACHE_INIT') {
             progress.value = 0;
             progress.max = msg.total;
+            updateLoadingIcon();
           } else if (msg && msg.type === 'CACHE_START') {
             cacheStatus.textContent = msg.asset;
           } else if (msg && msg.type === 'CACHE_UPDATE') {
             progress.max = msg.total;
             progress.value = msg.loaded;
             cacheStatus.textContent = '';
+            updateLoadingIcon();
           } else if (msg && msg.type === 'CACHE_SUMMARY') {
             cacheStatus.textContent = `nombre de fichiers chargés: ${msg.success}/${msg.total}`;
           } else if (msg && msg.type === 'STATUS') {
