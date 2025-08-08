@@ -89,7 +89,7 @@ export default function BoostPage({ refreshPlayerData }) {
       .then((data) => {
         const count = data['valid-payment'] || 0;
         if (count === 0) {
-          alert("Aucun payment n'a été trouvé");
+          setPopup({ message: "Aucun payment n'a été trouvé", cancelDisabled: false });
         } else if (count === 1) {
           refreshPlayerData();
           alert('Payment validé!');
