@@ -135,7 +135,8 @@ public class PaymentResource {
                     }
                 }
             }
-            return Response.ok(String.format("{\"valid-payment\":%d}", count)).build();
+            long pending = paymentTrackingRepository.find("keycloakUserGuid = ?1 and status = ?2", userId, PaymentStatus.RECORDED).count();
+            return Response.ok(String.format("{\"valid-payment\":%d,\"pending-payment\":%d}", count, pending)).build();
         } catch (Exception e) {
             return Response.serverError().build();
         }
@@ -146,10 +147,21 @@ public class PaymentResource {
     @Authenticated
     @Transactional
     public Response initPayment(@PathParam("amount") String amount) {
-        if (!amount.matches("1\\.99|4\\.99|9\\.99")) {
+        if (!amount.matches("1\.99|4\.99|9\.99")) {
             throw new BadRequestException();
         }
         String userId = jwt.getSubject();
+        try {
+            Response resp = checkPayment();
+            String body = resp.getEntity().toString();
+            JsonNode node = mapper.readTree(body);
+            long pending = node.get("pending-payment").asLong();
+            if (pending > 0) {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+        } catch (Exception e) {
+            // ignore and proceed with init
+        }
         PaymentTracking tracking = new PaymentTracking();
         tracking.setKeycloakUserGuid(userId);
         tracking.setAmount(new BigDecimal(amount));
