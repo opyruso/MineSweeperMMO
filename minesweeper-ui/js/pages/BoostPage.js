@@ -1,4 +1,4 @@
-import { hasRealmRole, hasResourceRole, getUserId } from '../keycloak.js';
+import { getUserId } from '../keycloak.js';
 
 export default function BoostPage({ refreshPlayerData }) {
   const apiUrl = window.CONFIG['minesweeper-api-url'];
@@ -28,8 +28,6 @@ export default function BoostPage({ refreshPlayerData }) {
 
   const [popup, setPopup] = React.useState(null);
   const [checking, setChecking] = React.useState(false);
-  const isAdmin =
-    hasRealmRole('admin') || hasResourceRole('admin', 'minesweeper-app');
 
   const checkPayment = (intervalId) => {
     return fetch(`${apiUrl}/checkpayment`)
@@ -105,11 +103,7 @@ export default function BoostPage({ refreshPlayerData }) {
     <div className="boost-page">
       <div className="boost-container">
         {items.map((it) => (
-          <div
-            key={it.gold}
-            className={`boost-item${!isAdmin ? ' disabled' : ''}`}
-            onClick={isAdmin ? () => buy(it) : undefined}
-          >
+          <div key={it.gold} className="boost-item" onClick={() => buy(it)}>
             <img src={`images/icons/actions/${it.icon}`} alt="buy" className="icon" />
             <div>+{it.gold}po</div>
             <div>{it.price}</div>
@@ -117,8 +111,8 @@ export default function BoostPage({ refreshPlayerData }) {
         ))}
       </div>
       <div
-        className={`boost-verify${!isAdmin || checking ? ' disabled' : ''}`}
-        onClick={!isAdmin || checking ? undefined : verifyOnce}
+        className={`boost-verify${checking ? ' disabled' : ''}`}
+        onClick={checking ? undefined : verifyOnce}
       >
         Vérifier maintenant
       </div>
