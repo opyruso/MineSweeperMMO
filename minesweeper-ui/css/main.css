@@ -351,16 +351,18 @@ button:active {
 #loading-icon {
   position: absolute;
   bottom: calc(100% + 1vh);
+  left: 0;
   width: 10vh;
-  animation: loading-scan 1.5s linear infinite;
+  animation: loading-bounce 1s ease-in-out infinite;
 }
 
-@keyframes loading-scan {
-  from {
-    left: 0;
+@keyframes loading-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  to {
-    left: calc(100% - 10vh);
+  50% {
+    transform: translateY(-2vh);
   }
 }
 
