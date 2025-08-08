@@ -1,4 +1,4 @@
-const CACHE_NAME = 'minesweeper-cache-v4';
+const CACHE_NAME = 'minesweeper-cache-__VERSION__';
 const ASSETS = [
   '/',
   '/index.html',

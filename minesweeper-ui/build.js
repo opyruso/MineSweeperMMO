@@ -72,3 +72,9 @@ if (tag) {
   version = pr ? `${branch}.${pr}` : branch;
 }
 writeFileSync('dist/version.txt', version);
+
+const swPath = 'dist/service-worker.js';
+if (existsSync(swPath)) {
+  const sw = readFileSync(swPath, 'utf8').replace(/__VERSION__/g, version);
+  writeFileSync(swPath, sw);
+}
