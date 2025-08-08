@@ -8,6 +8,7 @@ import com.minesweeper.repository.PlayerDataRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.security.Authenticated;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -31,10 +32,17 @@ import java.nio.charset.StandardCharsets;
 @Produces(MediaType.APPLICATION_JSON)
 public class PaymentResource {
 
-    private static final String TOKEN_URL = "https://auth.opyruso.com/realms/production/protocol/openid-connect/token";
-    private static final String CLIENT_ID = "minesweeper-api-client";
-    private static final String CLIENT_SECRET = "Ju2p3b6nhWBof3UMacsAuuGGhk8rbBLX";
-    private static final String PAYMENT_API = "http://localhost:10032";
+    @ConfigProperty(name = "payment.token.url")
+    String tokenUrl;
+
+    @ConfigProperty(name = "payment.client.id")
+    String clientId;
+
+    @ConfigProperty(name = "payment.client.secret")
+    String clientSecret;
+
+    @ConfigProperty(name = "payment.api.url")
+    String paymentApi;
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -50,10 +58,10 @@ public class PaymentResource {
 
     private String getToken() throws Exception {
         String body = "grant_type=client_credentials&client_id=" +
-                URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8) +
-                "&client_secret=" + URLEncoder.encode(CLIENT_SECRET, StandardCharsets.UTF_8);
+                URLEncoder.encode(clientId, StandardCharsets.UTF_8) +
+                "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(TOKEN_URL))
+                .uri(URI.create(tokenUrl))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
@@ -98,7 +106,7 @@ public class PaymentResource {
         try {
             String token = getToken();
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(PAYMENT_API + "/payment-check/awaitingclosurepayment/" + userId))
+                    .uri(URI.create(paymentApi + "/payment-check/awaitingclosurepayment/" + userId))
                     .header("Authorization", "Bearer " + token)
                     .GET()
                     .build();
@@ -110,7 +118,7 @@ public class PaymentResource {
                     for (JsonNode el : arr) {
                         String id = el.get("id").asText();
                         HttpRequest closeReq = HttpRequest.newBuilder()
-                                .uri(URI.create(PAYMENT_API + "/payment-check/close/" + id + "/" + userId))
+                                .uri(URI.create(paymentApi + "/payment-check/close/" + id + "/" + userId))
                                 .header("Authorization", "Bearer " + token)
                                 .PUT(HttpRequest.BodyPublishers.noBody())
                                 .build();
@@ -151,7 +159,7 @@ public class PaymentResource {
             String token = getToken();
             String body = String.format("{\"amount\": %s, \"id-user\": \"%s\"}", amount, userId);
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(PAYMENT_API + "/paypal-ipn/init"))
+                    .uri(URI.create(paymentApi + "/paypal-ipn/init"))
                     .header("Authorization", "Bearer " + token)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
