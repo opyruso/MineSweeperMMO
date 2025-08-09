@@ -68,8 +68,9 @@ const runNumber = process.env.GITHUB_RUN_ID || process.env.GIT_BRANCH || process
 if (tag) {
   if (tag == "main") {
 	version = tag + "." + runNumber;
+  } else {
+    version = tag;
   }
-  version = tag;
 } else {
   version = runNumber;
 }
