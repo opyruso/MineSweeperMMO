@@ -63,13 +63,12 @@ cpSync('node_modules/@fontsource/mouse-memoirs', 'dist/vendor/mouse-memoirs', {
 });
 
 let version = '';
-const tag = process.env.GIT_TAG || process.env.TAG;
+const tag = process.env.GITHUB_REF_NAME || process.env.GIT_TAG || process.env.TAG;
 if (tag) {
   version = tag;
 } else {
-  const branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME || 'dev';
-  const pr = process.env.PR_NUMBER || process.env.PULL_REQUEST_NUMBER;
-  version = pr ? `${branch}.${pr}` : branch;
+  const runNumber = process.env.GITHUB_RUN_ID || process.env.GIT_BRANCH || process.env.BRANCH_NAME || 'dev';
+  version = runNumber;
 }
 writeFileSync('dist/version.txt', version);
 
