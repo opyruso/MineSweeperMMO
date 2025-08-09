@@ -1,14 +1,13 @@
 package com.minesweeper;
 
-import com.minesweeper.entity.PaymentTracking;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minesweeper.entity.PaymentStatus;
+import com.minesweeper.entity.PaymentTracking;
 import com.minesweeper.entity.PlayerData;
 import com.minesweeper.repository.PaymentTrackingRepository;
 import com.minesweeper.repository.PlayerDataRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.security.Authenticated;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -18,6 +17,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.math.BigDecimal;
@@ -124,7 +124,9 @@ public class PaymentResource {
                                 .build();
                         HttpResponse<String> closeResp = client.send(closeReq, HttpResponse.BodyHandlers.ofString());
                         if (closeResp.statusCode() == 200) {
-                            PaymentTracking tracking = paymentTrackingRepository.find("keycloakUserGuid = ?1 and status = ?2", userId, PaymentStatus.RECORDED).firstResult();
+                            PaymentTracking tracking = paymentTrackingRepository
+                                    .find("keycloakUserGuid = ?1 and status = ?2", userId, PaymentStatus.RECORDED)
+                                    .firstResult();
                             if (tracking != null) {
                                 PlayerData data = getOrCreate(userId);
                                 data.setGold(data.getGold() + amountToGold(tracking.getAmount()));
@@ -135,7 +137,10 @@ public class PaymentResource {
                     }
                 }
             }
-            return Response.ok(String.format("{\"valid-payment\":%d}", count)).build();
+            long pending = paymentTrackingRepository
+                    .find("keycloakUserGuid = ?1 and status = ?2", userId, PaymentStatus.RECORDED)
+                    .count();
+            return Response.ok(String.format("{"valid-payment":%d,"pending-payment":%d}", count, pending)).build();
         } catch (Exception e) {
             return Response.serverError().build();
         }
@@ -150,6 +155,17 @@ public class PaymentResource {
             throw new BadRequestException();
         }
         String userId = jwt.getSubject();
+        try {
+            Response resp = checkPayment();
+            String body = resp.getEntity().toString();
+            JsonNode node = mapper.readTree(body);
+            long pending = node.get("pending-payment").asLong();
+            if (pending > 0) {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+        } catch (Exception e) {
+            // ignore and proceed with init
+        }
         PaymentTracking tracking = new PaymentTracking();
         tracking.setKeycloakUserGuid(userId);
         tracking.setAmount(new BigDecimal(amount));
@@ -157,7 +173,7 @@ public class PaymentResource {
         paymentTrackingRepository.persist(tracking);
         try {
             String token = getToken();
-            String body = String.format("{\"amount\": %s, \"custom\": \"%s\"}", amount, userId);
+            String body = String.format("{"amount": %s, "custom": "%s"}", amount, userId);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(paymentApi + "/paypal-ipn/init"))
                     .header("Authorization", "Bearer " + token)

@@ -31,7 +31,9 @@ export default function BoostPage({ refreshPlayerData }) {
 
   const checkPayment = (intervalId) => {
     return fetch(`${apiUrl}/checkpayment`)
-      .then((res) => (res.ok ? res.json() : { 'valid-payment': 0 }))
+      .then((res) =>
+        res.ok ? res.json() : { 'valid-payment': 0, 'pending-payment': 0 }
+      )
       .then((data) => {
         const count = data['valid-payment'] || 0;
         if (count > 0) {
@@ -43,18 +45,18 @@ export default function BoostPage({ refreshPlayerData }) {
               ? 'Payment validé!'
               : `${count} Payments validés!`
           );
-          return true;
         }
-        return false;
+        return data;
       })
-      .catch(() => false);
+      .catch(() => ({ 'valid-payment': 0, 'pending-payment': 0 }));
   };
 
   const buy = (item) => {
     setPopup({ message: 'Initialisation du payment...', cancelDisabled: true });
-    fetch(`${apiUrl}/initpayment/${item.amount}`)
-      .then((res) => {
-        if (res.status === 200) {
+    checkPayment()
+      .then((data) => {
+        const pending = data['pending-payment'] || 0;
+        if (pending > 0) {
           const userId = getUserId();
           const winUrl = `${item.url}?custom=${encodeURIComponent(userId)}`;
           window.open(winUrl, '_blank');
@@ -66,9 +68,29 @@ export default function BoostPage({ refreshPlayerData }) {
             intervalId,
             cancelDisabled: false,
           });
-        } else {
-          setPopup({ message: 'Oops... désolé...', cancelDisabled: false });
+          return;
         }
+        fetch(`${apiUrl}/initpayment/${item.amount}`)
+          .then((res) => {
+            if (res.status === 200 || res.status === 409) {
+              const userId = getUserId();
+              const winUrl = `${item.url}?custom=${encodeURIComponent(userId)}`;
+              window.open(winUrl, '_blank');
+              const intervalId = setInterval(() => {
+                checkPayment(intervalId);
+              }, 10000);
+              setPopup({
+                message: 'En attente de validation...',
+                intervalId,
+                cancelDisabled: false,
+              });
+            } else {
+              setPopup({ message: 'Oops... désolé...', cancelDisabled: false });
+            }
+          })
+          .catch(() =>
+            setPopup({ message: 'Oops... désolé...', cancelDisabled: false })
+          );
       })
       .catch(() =>
         setPopup({ message: 'Oops... désolé...', cancelDisabled: false })
